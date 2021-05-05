@@ -1,0 +1,114 @@
+<template>
+  <div class="container px-4 mx-auto">
+    <header-public
+        :hide-login="true"
+    >
+      Login 4
+    </header-public>
+    <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 flex flex-col">
+      <panel-error
+          :errors="errors"
+      ></panel-error>
+      <form novalidate @submit.prevent="onsubmit">
+        <div class="mb-4">
+          <InputText
+              label="Username"
+              v-model="username"
+              placeholder="email address"
+              type="text"
+              :validators="usernameValidator"
+              @focus="errors = ''"
+          >
+          </InputText>
+        </div>
+        <div class="mb-4">
+          <InputText
+              label="Password"
+              v-model="password"
+              placeholder="password"
+              type="password"
+              @focus="errors = ''"
+          >
+          </InputText>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <button class="font-bold py-2 px-4 rounded bg-gray-400"
+                  type="button"
+                  @click="submit"
+          >
+            Sign In
+          </button>
+          <button class="font-bold py-2 px-4 rounded bg-gray-100"
+                  type="button"
+                  @click="doCancel"
+          >
+            cancel
+          </button>
+        </div>
+        <div class="flex items-center justify-between">
+          <a class="inline-block align-baseline font-bold text-sm text-blue hover:text-blue-darker" @click="notYet">
+            Forgot Password?
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</template>
+
+<script>
+
+import HeaderPublic from "../components/header-public.vue";
+import InputText from "../components/input-text.vue";
+import { ref } from "vue";
+import {isEmail, minLength} from "../components/validators";
+import { useStore } from 'vuex';
+import PanelError from "../components/panel-error.vue";
+import { useRouter } from 'vue-router'
+
+export default {
+  name: "login",
+  components: {PanelError, InputText, HeaderPublic},
+  setup(props, context) {
+    const username = ref('info@toxus.nl')
+    const password = ref('123456');
+    const errors = ref('');
+    const notYet= function() {
+      alert('This is not yet implemented. Just contact us')
+    }
+    const usernameValidator = [
+      isEmail(),
+      minLength(4)
+    ];
+    // the login construction
+    const store = useStore();
+    const router = useRouter()
+    const submit = async function() {
+      console.log('submit: ', username.value, password.value)
+      try {
+        let result = await store.dispatch('auth/login', {username: username.value, password: password.value})
+        router.push({name: 'home'})
+      } catch (e) {
+        errors.value = e.message
+      }
+    }
+    const doCancel = async function() {
+      router.push({name: 'home'})
+    }
+
+    return {
+      username,
+      usernameValidator,
+      password,
+      notYet,
+      submit,
+      doCancel,
+      errors
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>

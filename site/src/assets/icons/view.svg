@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="50" height="57" viewBox="0 0 50 57">
+    <g id="Group_127" data-name="Group 127" transform="translate(-21 -4)">
+        <g id="icon_44_eye" transform="translate(22 4)">
+            <rect id="Rectangle_212" data-name="Rectangle 212" width="48" height="48" fill="none"/>
+            <path id="Path_174" data-name="Path 174" d="M10,12V36H38V12ZM37,35H11V13H37Z" fill="#3c3c3c"/>
+            <path id="Path_175" data-name="Path 175" d="M24,27a3,3,0,1,0-3-3A3,3,0,0,0,24,27Zm0-5.2A1.2,1.2,0,1,1,22.8,23,1.2,1.2,0,0,1,24,21.8Z" fill="#3c3c3c"/>
+            <path id="Path_176" data-name="Path 176" d="M24,29.25a9.92,9.92,0,0,0,8.61-4.9l.39-.63a10.37,10.37,0,0,0-18,0l.39.63A9.92,9.92,0,0,0,24,29.25Zm0-9.5a9.23,9.23,0,0,1,7.84,4.41,9.26,9.26,0,0,1-15.69,0A9.26,9.26,0,0,1,24,19.75Z" fill="#3c3c3c"/>
+        </g>
+        <text id="Weergave" transform="translate(46 58)" fill="#3c3c3c" font-size="11" font-family="AcuminPro-Regular, Acumin Pro" letter-spacing="0.005em"><tspan x="-24.178" y="0">Weergave</tspan></text>
+    </g>
+</svg>

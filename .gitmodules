@@ -1,0 +1,6 @@
+[submodule "site/src/vendors"]
+	path = site/src/vendors
+	url = git@github.com:JayMcAnser/root-app.git
+[submodule "api/vendors"]
+	path = api/vendors
+	url = git@github.com:JayMcAnser/api-vendors.git
