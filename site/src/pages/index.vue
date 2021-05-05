@@ -15,8 +15,7 @@
   ```
 -->
 <template>
-  <div class="h-screen bg-gray-50 flex overflow-hidden">
-    <div v-if="isAuthenticated">
+  <div v-if="isAuthenticated" class="h-screen bg-gray-50 flex overflow-hidden">
       <!-- Narrow sidebar -->
       <div class="hidden w-28 bg-indigo-700 overflow-y-auto md:block">
         <div class="w-full py-6 flex flex-col items-center">
@@ -91,7 +90,7 @@
                   </div>
                 </form>
               </div>
-              <div  v-if="isAuthenticated" class="ml-2 flex items-center space-x-4 sm:ml-6 sm:space-x-6">
+              <div  class="ml-2 flex items-center space-x-4 sm:ml-6 sm:space-x-6">
                 <!-- Profile dropdown -->
                 <Menu as="div"   class="relative flex-shrink-0">
                   <div>
@@ -114,15 +113,6 @@
                   <span class="sr-only">Add file</span>
                 </button>
               </div>
-              <div  v-if="!isAuthenticated" class="ml-2 flex items-center space-x-4 sm:ml-6 sm:space-x-6">
-                <Menu as="div"   class="relative flex-shrink-0">
-                  <div>
-                    <MenuButton class="bg-white rounded-full flex text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                      <router-link to="login">Login</router-link>
-                    </MenuButton>
-                  </div>
-                </Menu>
-              </div>
             </div>
           </div>
         </header>
@@ -142,7 +132,7 @@
           </main>
 
           <!-- Secondary column (hidden on smaller screens) -->
-          <aside  v-if="isAuthenticated" class="hidden w-96 bg-white border-l border-gray-200 overflow-y-auto lg:block">
+          <aside  class="hidden w-96 bg-white border-l border-gray-200 overflow-y-auto lg:block">
             <!-- Your content -->
           </aside>
         </div>
@@ -151,7 +141,6 @@
     <div v-if="!isAuthenticated" class="relative p-8 bg-white w-full max-w-md m-auto flex-col flex">
       <login></login>
     </div>
-  </div>
 </template>
 
 <script>
@@ -193,7 +182,7 @@ const sidebarNavigation = [
 ]
 const userNavigation = [
   { name: 'Your Profile', href: '#' },
-  { name: 'Sign out', href: '#' },
+  { name: 'Sign out', href: '/logout' },
 ]
 const guestNavigation = [
   { name: 'login', href: '/login' },

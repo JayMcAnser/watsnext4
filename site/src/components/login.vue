@@ -39,14 +39,6 @@
           >
             Sign In
           </button>
-          <button class="font-bold py-2 px-4 rounded bg-gray-100"
-                  type="button"
-                  @click="doCancel"
-          >
-            cancel
-          </button>
-        </div>
-        <div class="flex items-center justify-between">
           <a class="py-6 inline-block align-baseline font-bold text-sm text-blue hover:text-blue" @click="notYet">
             Forgot Password?
           </a>
@@ -84,25 +76,20 @@ export default {
     const store = useStore();
     const router = useRouter()
     const submit = async function() {
-      console.log('submit: ', username.value, password.value)
+      // console.log('submit: ', username.value, password.value)
       try {
         let result = await store.dispatch('auth/login', {username: username.value, password: password.value})
-        router.push({name: 'home'})
+        await router.push({name: 'home'})
       } catch (e) {
         errors.value = e.message
       }
-    }
-    const doCancel = async function() {
-      router.push({name: 'home'})
-    }
-
+    };
     return {
       username,
       usernameValidator,
       password,
       notYet,
       submit,
-      doCancel,
       errors
     }
   }
