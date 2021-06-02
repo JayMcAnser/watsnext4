@@ -60,7 +60,8 @@ module.exports = {
    * @returns {*|boolean}
    */
   async findById(id) {
-    Logging.logThrow(Const.errors.notImplemented, 'user-flex.findById');
+    return UserModel.findById(id);
+    // Logging.logThrow(Const.errors.notImplemented, 'user-flex.findById');
   },
 
 
@@ -70,7 +71,10 @@ module.exports = {
    * @returns {Promise<boolean>}
    */
   async checkRefreshToken(user) {
-    Logging.log('warn', Const.errors.notImplemented, 'user-flex.checkRefreshToken')
+    if (user.refreshId === undefined) {
+      user.refreshId = Math.ceil(Math.random() * 2000)
+      return await user.save()
+    }
     return true;
   },
 

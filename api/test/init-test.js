@@ -7,9 +7,9 @@ process.env["NODE_CONFIG_DIR"] = __dirname + '/../../config/';
 const app = require('../index');
 
 
-const EMAIL = 'private@example.com';
-const PASSWORD = 'very-secret'
-const User = require('../vendors/models/user');
+const EMAIL = 'info@toxus.nl';
+const PASSWORD = '123456'
+const User = require('../model/user');
 // let user;
 
 

@@ -18,29 +18,22 @@ const App = require('./vendors/main');
 // reset the models used by the default app
 const Factory = require('./vendors/lib/factory');
 Factory.register('user', () => {
-  return require('./models/user')
+  return require('./model/user')
 })
 
 const Logging = require('./vendors/lib/logging')
-const BoardController = require('./controllers/board')
-const FileController = require('./controllers/file')
+// const BoardController = require('./controllers/board')
+// const FileController = require('./controllers/file')
 const StaticSite = require('./vendors/lib/static-site');
 const Helper = require('./vendors/lib/helper')
 
 
-App.use('/api/public',  require('./routes/public'));
-App.use('/api/board', BoardController.validate,  require('./routes/board'));
-App.use('/api/file', FileController.validate, require('./routes/file'))
+// App.use('/api/public',  require('./routes/public'));
+// App.use('/api/board', BoardController.validate,  require('./routes/board'));
+// App.use('/api/file', FileController.validate, require('./routes/file'))
 
 // init the mongo db
 const MongoDb = require('./lib/db-mongo');
-try {
-  MongoDb.connect().then( () => {
-    return MongoDb.validateInstall()
-  })
-} catch(e) {
-  Logging.log('error', `[mongo] ${e.message}`);
-}
 
 // temp no Auth
 //App.use('/api/file', require('./routes/file'))
@@ -57,6 +50,21 @@ try {
 } catch(e) {
   console.error(`Error in startup: ${e.message}`)
 }
+
+App.dbInit = new Promise((resolve, reject) => {
+  try {
+    return MongoDb.connect().then( () => {
+      return MongoDb.validateInstall().then( () => {
+        return resolve(true);
+      })
+    })
+  } catch(e) {
+    Logging.log('error', `[mongo] ${e.message}`);
+    return reject(e.message)
+  }
+} );
+module.exports = App
+
 // /**
 //  * Dropper Curator App
 //  * free from: https://medium.com/zero-equals-false/building-a-restful-crud-api-with-node-js-jwt-bcrypt-express-and-mongodb-4e1fb20b7f3d

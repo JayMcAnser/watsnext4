@@ -3,6 +3,9 @@ module.exports = {
   errors: {
     notImplemented: 'not implemented',
     userGuestIsMissing: 'no guest account',
+    sessionMissing: 'there is no session',
+    missingParamaters: 'missing parameters',
+
 
     onlyImages: 'Only image files are allowed',
     missingFile: 'missing file',

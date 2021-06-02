@@ -76,7 +76,7 @@ let DbMongo  = {
    * check that everything is ok
    */
   async validateInstall() {
-    const User = require('../models/user-model');
+    const User = require('../model/user-model');
     const SystemUser = Config.get('Database.WatsNext.root');
     const SystemPassword = Config.get('Database.WatsNext.password');
     // there must be a user info@toxus.nl with a password
@@ -99,8 +99,9 @@ let DbMongo  = {
             ]
           })
           return usr.save()
-        })
+        });
       }
+      return true;
     });
   }
 };

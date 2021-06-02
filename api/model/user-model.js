@@ -30,6 +30,7 @@ const UserSchema = {
   },
   email: String,
   passwordHash: String,
+  refreshId: String,     // force the refresh token to expire
 
   // key used to request a new password
   inviteKey: String,
