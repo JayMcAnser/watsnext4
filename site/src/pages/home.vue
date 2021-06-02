@@ -5,8 +5,20 @@
 </template>
 
 <script>
+import {useStore} from "vuex";
+import {onMounted} from "vue";
+
 export default {
-name: "home"
+  name: "home",
+  setup() {
+    const store = useStore();
+    onMounted( async() => {
+      await store.dispatch('status/menu', {menu: 'home'});
+    })
+    return {
+
+    }
+  }
 }
 </script>
 

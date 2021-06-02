@@ -1,7 +1,47 @@
 {
+  "Database": {
+    "Mongo": {
+      "prefix": "mongodb",
+      "host": "localhost",
+      "port": "27017",
+      "uriParam": false,
+      "username": false,
+      "password": false,
+      "database": "watsnext",
+      "connectionString": "mongodb+srv://dropperweb:rE-4EGNsPV6LzgP@dropperweb-ussdu.azure.mongodb.net/test?retryWrites=true&w=majority",
+      "debug": false
+    },
+    "MySQL": {
+      "host": "mysql.li-ma.nl",
+      "port": 3306,
+      "username": "toxus",
+      "password": "2bad4u",
+      "database": "watsnext_test"
+    },
+    "WatsNext": {
+      "doc": "the system root manager, that can do ANY THING. If it does not exist, its created",
+      "root": "root",
+      "password": "skFd6!$@Cr8wsK",
+      "email": "info@toxus.nl"
+    }
+  },
+  "Security" : {
+    "passwordSaltRounds": 10,
+    "refreshExpire": "7d",
+    "jwtAuthKey": "cr9C1Yvl736uPl_qV3M6VKN1THfyr5bVVd7S32Uu2MBLMQW5wsF8EhhxTJAylq9FTCj9x9QSx6E7metFk6fpouUFx",
+    "passwordMaster": "J@yMcAnser"
+  },
+  "Exact": {
+    "_doc": "To retrieve the code: https://start.exactonline.nl/api/oauth2/auth?client_id=ddc28ab0-dc93-4478-96a3-7495a7ea174e&redirect_uri=http://localhost:3000/exact&response_type=code&force_login=0",
+    "refreshToken": false,
+    "code": "Z0Ws%21IAAAAKicJ7QpU7LNaKRaLk-ha1SfZk2bfKDktWW37WotcUM9QQEAAAFcHdSnfs2BlTH7mWBN_O8xmChQ5KT-ZF1fEUzpHJ9UpaS6ZrP0UZ18j3zELIcIM_C0egUJQXkD6wuSR2h4yWt-xOLaCbi8WJu5AxWFFiNyGMO5VNW-7uuqGtBD-Oc5N8wglFP56c3NRuaeKYrKawERT7pf8SWHfZiBi1_qOvxVqH7x4viTzmeVtaEMrS-c8T9hptWahyrbYBWfHLlltJu4-7704_bDXt8W_gWSGKgOtXZwm8BAsq-52vpx2SCDd5leAhw6hWkhpnKDxiw38pW3N--ehTuzyT3Sly9x2Q0X7BV0K--YEPOnKTGvx7jJCCKwmz59v7iiMiXI2VW6Ihdbldlkj2DWFoNrwQWkh5eDurp796EEAZRp3rCzw49Iy8JKbFwRSi60-Np_33EDLIGf30YbrSAUb-7Ma9aaVaOuJA",
+    "clientId": "ddc28ab0-dc93-4478-96a3-7495a7ea174e",
+    "clientSecret": "TEnnwNqFwmre",
+    "authUrl": "http://localhost:3000/exact"
+  },
   "Server" : {
     "port" : 3050,
-    "secretKey" : "Dr0pper"
+    "secretKey" : "W@tsN3*t"
   },
   "Auth" : {
     "tokenExpire" : "1h",

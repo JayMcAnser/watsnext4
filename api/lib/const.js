@@ -1,6 +1,9 @@
 
 module.exports = {
   errors: {
+    notImplemented: 'not implemented',
+    userGuestIsMissing: 'no guest account',
+
     onlyImages: 'Only image files are allowed',
     missingFile: 'missing file',
     boardNoFound: 'board not found',
@@ -23,5 +26,4 @@ module.exports = {
     canAccess: rights => (rights & 8) > 0,
     isPublic: rights => (rights & 16) > 0,
   },
-
 }

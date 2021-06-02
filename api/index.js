@@ -1,6 +1,26 @@
+/**
+ * Entry point of server
+ *
+ * Config is located in the root directory where the api and the site life
+ */
+process.env["NODE_CONFIG_DIR"] = __dirname + '/../config/';
+let Config;
+try {
+  Config = require('config');
+} catch(e) {
+  console.error(`[error] ${e.message}`);
+  return 1
+}
 
+// load the default app
 const App = require('./vendors/main');
-const Config = require('config');
+
+// reset the models used by the default app
+const Factory = require('./vendors/lib/factory');
+Factory.register('user', () => {
+  return require('./models/user')
+})
+
 const Logging = require('./vendors/lib/logging')
 const BoardController = require('./controllers/board')
 const FileController = require('./controllers/file')
@@ -11,6 +31,17 @@ const Helper = require('./vendors/lib/helper')
 App.use('/api/public',  require('./routes/public'));
 App.use('/api/board', BoardController.validate,  require('./routes/board'));
 App.use('/api/file', FileController.validate, require('./routes/file'))
+
+// init the mongo db
+const MongoDb = require('./lib/db-mongo');
+try {
+  MongoDb.connect().then( () => {
+    return MongoDb.validateInstall()
+  })
+} catch(e) {
+  Logging.log('error', `[mongo] ${e.message}`);
+}
+
 // temp no Auth
 //App.use('/api/file', require('./routes/file'))
 

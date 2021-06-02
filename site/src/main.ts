@@ -8,6 +8,7 @@ import { router } from './routes/index'
 import { store } from './store';
 import VueSvgInlinePlugin from "vue-svg-inline-plugin";
 const app = createApp(App)
+import Rights from './lib/rights';
 
 // @ts-ignore
 app.use(router)
@@ -49,3 +50,5 @@ app.directive('click-outside', {
 })
 
 app.mount('#app')
+console.log('store', store.getters['menu/active'])
+export default app;

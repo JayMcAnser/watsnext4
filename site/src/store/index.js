@@ -7,6 +7,7 @@ import {element} from './element';
 import {auth} from '../vendors/store/auth';
 import {status} from '../vendors/store/status';
 import {user} from '../vendors/store/user';
+import {menu} from './menu';
 
 const defaultModule = {
   state: {
@@ -36,9 +37,9 @@ const store = createStore({
     auth,
     status,
     user,
+    menu,
   }
 })
-
 export { store };
 
 // //actions.nuxtServerInit({commit: 1})
