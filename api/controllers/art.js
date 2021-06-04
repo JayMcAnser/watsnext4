@@ -3,7 +3,7 @@ const ApiReturn = require('../vendors/lib/api-return');
 const ArtModel = require('../model/art');
 const QueryArt = require('../lib/query-art');
 
-const _validate = function(req) {
+const _validate = function(req, rights) {
   return true
 }
 
@@ -11,7 +11,7 @@ module.exports = {
   list: async function (req, res) {
     let art;
     try {
-      _validate(req)
+      _validate(req, 'read')
       if (req.query) {
         let qry = new QueryArt(res.query);
         if (qry) {

@@ -8,7 +8,7 @@ const ITEMS_PER_PAGE = require('../lib/query-builder').itemsPerPage
 describe('query-builder', () => {
 
   it('init', () => {
-    let qry = new QueryBuild({table: 'art', fields: ['title', 'yearFrom']})
+    let qry = new QueryBuild({ fields: ['title', 'yearFrom']})
     assert.isDefined(qry);
   })
 
@@ -28,7 +28,7 @@ describe('query-builder', () => {
   describe('filter', () => {
     it('limit - page', () => {
       const pageNo = '2';
-      let builder = new QueryBuild({table: 'art', fields: ['title', 'yearFrom']})
+      let builder = new QueryBuild({ fields: ['title', 'yearFrom']})
       let filter = builder.parse({query:{
         "page": pageNo
       }})
@@ -38,7 +38,7 @@ describe('query-builder', () => {
       assert.equal(filter.skip, pageNo * QueryBuild.itemsPerPage)
     })
     it('limit - none', () => {
-      let builder = new QueryBuild({table: 'art', fields: ['title', 'yearFrom']})
+      let builder = new QueryBuild({ fields: ['title', 'yearFrom']})
       let filter = builder.parse({query:{}})
       assert.isDefined(filter.skip);
       assert.isDefined(filter.limit);
@@ -47,7 +47,7 @@ describe('query-builder', () => {
     })
 
     it('query - single', () => {
-      let builder = new QueryBuild({table: 'art', fields: ['title']})
+      let builder = new QueryBuild({ fields: ['title']})
       let qry = builder.parse({query:{
           "query": 'work'
         }})
@@ -56,7 +56,7 @@ describe('query-builder', () => {
       assert.equal(qry.filter.title, 'work');
     })
     it('query - multi value', () => {
-      let builder = new QueryBuild({table: 'art', fields: ['title']})
+      let builder = new QueryBuild({ fields: ['title']})
       let qry = builder.parse({query:{
           "query": 'work again'
         }})
@@ -67,7 +67,7 @@ describe('query-builder', () => {
       assert.equal(qry.filter['$and'][0].title, 'work')
     })
     it('query - multi field', () => {
-      let builder = new QueryBuild({table: 'art', fields: ['title', 'year']})
+      let builder = new QueryBuild({ fields: ['title', 'year']})
       let qry = builder.parse({query:{
           "query": 'work'
         }})
@@ -78,7 +78,7 @@ describe('query-builder', () => {
       assert.equal(qry.filter['$or'][0].title, 'work')
     });
     it('query - multi field, multi value', () => {
-      let builder = new QueryBuild({table: 'art', fields: ['title', 'year']})
+      let builder = new QueryBuild({ fields: ['title', 'year']})
       let qry = builder.parse({query:{
           "query": 'work again'
         }})
@@ -96,7 +96,7 @@ describe('query-builder', () => {
     });
 
     it('query - compare - sign', () => {
-      let builder = new QueryBuild({table: 'art', fields: ['%title']})
+      let builder = new QueryBuild({ fields: ['%title']})
       let qry = builder.parse({query:{
           "query": 'work'
         }})
@@ -109,7 +109,7 @@ describe('query-builder', () => {
     })
 
     it('query - compare - field', () => {
-      let builder = new QueryBuild({table: 'art', fields: [{fieldName: 'title', compare: 'contain'}]})
+      let builder = new QueryBuild({ fields: [{fieldName: 'title', compare: 'contain'}]})
       let qry = builder.parse({query:{
           "query": 'work'
         }})
@@ -122,7 +122,7 @@ describe('query-builder', () => {
     })
 
     it('query - compare - field. caseSensitive true', () => {
-      let builder = new QueryBuild({table: 'art', fields: [{fieldName: 'title', compare: 'contain', caseSensitive: true}]})
+      let builder = new QueryBuild({ fields: [{fieldName: 'title', compare: 'contain', caseSensitive: true}]})
       let qry = builder.parse({query:{
           "query": 'work'
         }})
@@ -135,7 +135,7 @@ describe('query-builder', () => {
     })
 
     it('query - compare - field. caseSensitive false', () => {
-      let builder = new QueryBuild({table: 'art', fields: [{fieldName: 'title', compare: 'contain', caseSensitive: false}]})
+      let builder = new QueryBuild({ fields: [{fieldName: 'title', compare: 'contain', caseSensitive: false}]})
       let qry = builder.parse({query:{
           "query": 'work'
         }})
@@ -145,6 +145,114 @@ describe('query-builder', () => {
       assert.isDefined(qry.filter.title['$regex']);
       assert.equal(qry.filter.title['$regex'], 'work')
       assert.equal(qry.filter.title['$options'], 'i')
+    })
+  })
+
+  describe('multi filter', () => {
+    it('2 filters', () => {
+      const pageNo = '2';
+      let builder = new QueryBuild({fields: {
+        default: ['title', 'yearFrom'],
+        year: ['yearFrom']
+      }})
+      assert.equal(builder.filterNames.length, 2)
+      let qry = builder.parse({query:{
+          "query": 'work'
+        }})
+      assert.isDefined(qry.filter);
+      assert.isDefined(qry.filter['$or']);
+      assert.equal(qry.filter['$or'].length, 2)
+      assert.equal(qry.filter['$or'][0].title, 'work');
+
+      qry = builder.parse({query:{
+          "query": 'work',
+          "fields": 'year'
+        }})
+      assert.isDefined(qry.filter);
+      assert.isDefined(qry.filter.yearFrom);
+      assert.equal(qry.filter.yearFrom, 'work');
+    });
+  });
+
+  describe('sorting', () => {
+    it('two orders', () => {
+      const pageNo = '2';
+      let builder = new QueryBuild({
+        fields: {
+          default: ['title', 'yearFrom'],
+          year: ['yearFrom']
+        },
+        sortOrders: {
+          default: ['title', '-yearFrom'],
+          year: ['-yearFrom'],
+          yearAsc: ['yearFrom']
+        }
+      })
+      assert.equal(builder.sortNames.length, 3)
+      let qry = builder.parse({
+        query: {
+          "query": 'work'
+        }
+      });
+      assert.isDefined(qry.sort);
+      assert.equal(qry.sort.title, 1)
+      assert.equal(qry.sort.yearFrom, -1)
+    })
+  })
+
+  describe('aggregation', () => {
+    it('where', async() => {
+      let builder = new QueryBuild({
+        fields: {
+          default: ['title']
+        },
+        sortOrders: {
+          default: ['title'],
+        }
+      })
+      let qry = builder.aggregate({
+        query: {
+          "query": 'work'
+        }
+      });
+      assert.equal(qry.length, 2);
+      assert.isDefined(qry[0].$match);
+      assert.isDefined(qry[1].$sort);
+    })
+
+    it('where', async() => {
+      let builder = new QueryBuild({
+        fields: {
+          default: ['title']
+        },
+        sortOrders: {
+          default: ['title'],
+        }
+      })
+      let qry = builder.aggregate({
+        query: {
+          "query": 'work',
+          "page": 1
+        }
+      });
+      assert.equal(qry.length, 4);
+      assert.isDefined(qry[0].$match);
+      assert.isDefined(qry[1].$sort);
+      assert.isDefined(qry[2].$skip)
+      assert.isDefined(qry[3].$limit)
+      assert.equal(qry[3].$limit, 20);
+
+      qry = builder.aggregate({
+        query: {
+          "query": 'work',
+          "page": 0
+        }
+      });
+      assert.equal(qry.length, 3);
+      assert.isDefined(qry[0].$match);
+      assert.isDefined(qry[1].$sort);
+      assert.isDefined(qry[2].$limit)
+      assert.equal(qry[2].$limit, 20);
     })
 
   })

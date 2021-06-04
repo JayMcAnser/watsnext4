@@ -9,9 +9,16 @@ class QueryArt extends QueryBuilder {
 
   constructor(props) {
     super({
-      table: 'art',
-      fields:['title'],
-      sortFields: ['title']
+      fields:{
+        'default': ['%title', '%searchcode'],
+        searchCode: ['searchcode'],
+      },
+      sorts: {
+        default: ['title'],
+        searchCode: ['searchcode'],
+        year: ['yearFrom', 'title'],
+        yearDesc: ['-yearFrom']
+      }
     });
   }
 

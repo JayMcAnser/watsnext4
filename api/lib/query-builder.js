@@ -51,15 +51,21 @@ class FieldDef {
 class QueryBuilder {
 
   /**
-   * options.field Object: fieldnames || Array: [{fieldName, compare}]
-   * @param options
+   * options.fields Object | Array
+   *   Array: the list of field to compare with. Will become the default search
+   *   Object: the names of the filters to use. If default is not included, the first one will be set as default
+   * options.sortOrders Object
+   *   per sortName the definition of the fields. -[fieldname] makes it descending
+   *
    */
   constructor(options = {}) {
-    this._searchFields = this._processFields(options.fields);
-    this._table = options.table;
-    this._sortField = options.sortFields;
-    if (!this._table || !this._searchFields) {
-      Logging.logThrow('fields and table are required', 'querybuild.constructor')
+    // the filters are the definition of the fields to search in.
+    this._filters = {}
+    this._itemPerPage = ITEMS_PER_PAGE;
+    this._processFields(options.fields);
+    this._processSort(options.sortOrders);
+    if (Object.keys(this._filters).length === 0) {
+      Logging.logThrow('fields is required', 'querybuild.constructor')
     }
   }
 
@@ -74,8 +80,9 @@ class QueryBuilder {
    */
   _processFields(fields) {
     if (fields === undefined) { return undefined}
-    let result = {};  //
+
     if (Array.isArray(fields)) {
+      let result = {};  //
       for (let index = 0; index < fields.length; index++) {
         if (typeof fields[index] === 'string') {
           result[fields[index]] = new FieldDef({fieldName: fields[index]})
@@ -85,50 +92,99 @@ class QueryBuilder {
           Logging.logThrow(`field nr ${index} can only be string or an object with property fieldName`)
         }
       }
-    } else if (typeof fields === 'string') {
-      result[fields] =  new FieldDef({fieldName: fields});
+      this._filters['default'] = result;
+    // } else if (typeof fields === 'string') {
+    //   result[fields] =  new FieldDef({fieldName: fields});
     } else if (typeof fields === 'object') {
-      for (let fieldName in fields ) {
-        result[fieldName] = new FieldDef(fields[fieldname])
+      // the multiple search definitions
+      for (let filter in fields) {
+        if (!fields.hasOwnProperty(filter)) { continue }
+        if (typeof fields[filter] === 'string') {
+          Logging.log('warn', 'field type string not yet implemented')
+        } else {
+          let result = {}
+          for (let index = 0; index < fields[filter].length; index++) {
+            let f = new FieldDef({fieldName: fields[filter][index]})
+            result[f.fieldName] = f;
+          }
+          this._filters[filter] = result;
+        }
+      }
+      if (!this._filters.hasOwnProperty('default') && Object.keys(this._filters) > 0) {
+        this._filters['default'] = this._filters[Object.keys(this._filters)[0]]
       }
     }
-    return result;
   }
+
   /**
-   * convert the params to a query usable for mongo
-   * @param params Array fieldname=
+   * process the different named sort definitions
+   * @param fields
+   * @private
    */
-  toQuery(params) {
-    if (params === undefined || typeof params !== 'object') {
-      Logging.logThrow(Const.errors.missingParamaters)
+  _processSort(fields) {
+    this._sorts = {}
+    if (fields !== undefined) {
+      for (let sortName in fields) {
+        if (!fields.hasOwnProperty(sortName)) { continue }
+        let result = []
+        for (let index = 0; index < fields[sortName].length; index++) {
+          let fieldName = fields[sortName][index].trim();
+          if (fieldName.length === 0) {
+            Logging.log('warn', `empty field name in sort ${sortName}`)
+            break
+          }
+          result.push(fieldName);
+        }
+        if (result.length) {
+          this._sorts[sortName] = result
+        } else {
+          Logging.log('warn', `empty sort statement ${sortName} removed`)
+        }
+      }
+      if (Object.keys(this._sorts).length && !this._sorts.hasOwnProperty('default')) {
+        this._sorts['default'] = this._sorts[Object.keys(this._sorts)[0]]
+      }
     }
-    // should do all the checking
-    Logging.log('debug', 'missing param checking')
-    return params;
+    if (Object.keys(this._sorts).length === 0) {
+      this._sorts = {'default': ['id']}
+    }
+  }
+
+  get filterNames() {
+    return Object.keys(this._filters)
+  }
+  get sortNames() {
+    return Object.keys(this._sorts)
+  }
+  get itemPerPage() {
+    return this._itemPerPage
+  }
+  set itemsPerPage(value) {
+    this._itemPerPage = value
   }
 
   /**
    * convert the sort string into the mongoDb sort string
    * see: https://stackoverflow.com/questions/4299991/how-to-sort-in-mongoose
-   * @param sort String,
+   * @param sortName String,
    * @return Boolean | Object
    */
-  _sortStatement(sort) {
-    let sortFields = sort.split('&').map((f) => f.trim());
+  _sortStatement(sortName) {
+    let sort = this._sorts[sortName];
+    if (sort === undefined) {
+      Logging.log('warn', `unknown sort name ${sortName}`);
+      sort = this._sorts['default']
+    }
     let result = {}
-    for (let index = 0; index < sortFields.length; index++) {
-      let fieldName = sortFields[index]
-      if (sortFields[index][0] === '-' || sortFields[index][0] === '+') {
-        fieldName = fieldName.substr(1)
+    for (let index = 0; index < sort.length; index++) {
+      let fieldName = sort[index]
+      if (fieldName[0] === '-' || fieldName[0] === '+') {
+        fieldName = fieldName.substr(1).trim();
       }
-      if (this._sortField[fieldName]) {
-        if (sortFields[index][0] === '-') {
-          result[fieldName] = 1
-        } else {
-          result[fieldName] = -1
-        }
+      if (sort[index][0] === '-') {
+        result[fieldName] = -1
       } else {
-        Logging.log('warn', `[query.sort]: unknown field ${fieldName} in table ${this._table}`)
+        result[fieldName] = 1
       }
     }
     return Object.keys(result).length ? result : false;
@@ -140,14 +196,20 @@ class QueryBuilder {
    * use where if exact values are needed
    *
    * @param query String fieldname=value&fielname=value
+   * @param fields String the field definition to use
    * @return false | Object
    */
   _queryStatement(query, fields) {
     let values = query.split(' ').map((f) => f.trim());
     let result = {};
     // we will query all the fields that are defined in the _searchFields if no other fields are give
-    if (fields === undefined) {
-      fields = this._searchFields
+    if (!fields === undefined) {
+      fields = this._filters['default']
+    } else if (this._filters.hasOwnProperty([fields])) {
+      fields = this._filters[fields]
+    } else {
+      Logging.log('warn', `unknown search field (${fields}). using default`);
+      fields = this._filters['default']
     }
     for (let fieldName in fields) {
       if (!fields.hasOwnProperty(fieldName)) { continue }
@@ -182,43 +244,52 @@ class QueryBuilder {
 
   /**
    * convert the req to that params / limit / pages etc
-   * @param req
-   *   req.params:
+   * @param req Object with query
+   *    - items - Number number of items to retrieve
+   *    - page - Number the page to retrieve
+   *    - sort - String a name sorting definition
+   *    - query - String the ' ' separate list of values
+   *    - filter - String the named filter fields. default: 'default'
    */
   parse(req) {
     let result = {
       skip: false,
       limit: false,
-      sort: false,
+      sort: req.query.hasOwnProperty('sort') ? req.query.sort : 'default',
       query: false,
+      fields: req.query.hasOwnProperty('fields')? req.query.fields : 'default'
     }
     if (req.query) {
       // build the query limiter
-      let itemsPerPage = ITEMS_PER_PAGE;
+      let itemsPerPage = this.itemPerPage;
       let page = 0;
       if (req.query.items && Number.isInteger(req.query.items)) {
         itemsPerPage = req.params.items;
       }
-      if (req.query.page && Number.isInteger(Number.parseInt(req.query.page))) {
+      if (req.query.hasOwnProperty('page') && Number.isInteger(Number.parseInt(req.query.page))) {
         page = req.query.page
-      } else if (req.query.p && Number.isInteger(Number.parseInt(req.query.p))) {
-        page = req.query.p
-      }
-      if (page) {
         result.skip = itemsPerPage * page;
         result.limit = itemsPerPage;
       }
-
-      // -- create the sorting
-      if (req.query.sort) {
-        result.sort = this._sortStatement(req.query.sort)
-      }
+      result.sort = this._sortStatement(result.sort)
       // create the where
       if (req.query.query) {
-        result.filter = this._queryStatement(req.query.query)
+        result.filter = this._queryStatement(req.query.query, result.fields)
       }
     }
     return result;
+  }
+
+  aggregate(req) {
+    let query = this.parse(req);
+    let result = [{$match: query.filter}, {$sort: query.sort}];
+    if (query.limit) {
+      if (query.skip) {
+        result.push({$skip: query.skip})
+      }
+      result.push({$limit: query.limit})
+    }
+    return result
   }
 }
 
