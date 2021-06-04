@@ -8,7 +8,11 @@ const QueryBuilder = require('./query-builder');
 class QueryArt extends QueryBuilder {
 
   constructor(props) {
-    super({table: 'art', fields:['title']});
+    super({
+      table: 'art',
+      fields:['title'],
+      sortFields: ['title']
+    });
   }
 
 

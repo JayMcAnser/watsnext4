@@ -22,11 +22,13 @@ Factory.register('user', () => {
 })
 
 const Logging = require('./vendors/lib/logging')
+const AuthController = require('./vendors/controllers/auth')
 // const BoardController = require('./controllers/board')
 // const FileController = require('./controllers/file')
 const StaticSite = require('./vendors/lib/static-site');
 const Helper = require('./vendors/lib/helper')
 
+App.use('/api/art', AuthController.validate , require('./routes/art'));
 
 // App.use('/api/public',  require('./routes/public'));
 // App.use('/api/board', BoardController.validate,  require('./routes/board'));
@@ -40,7 +42,7 @@ const MongoDb = require('./lib/db-mongo');
 
 // this must be the last route otherwise it will catch all previous defined routes
 try {
-  let staticSite = new StaticSite(App);
+//  let staticSite = new StaticSite(App);
 
   let listener = App.listen(Config.get('Server.port'),
     function () {

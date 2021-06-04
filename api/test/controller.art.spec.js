@@ -19,8 +19,9 @@ describe('controller.art', () => {
 
   describe('with login', () => {
 
+    let TOKEN = ''
     before(async () => {
-      token = await Init.AuthToken;
+      TOKEN = await Init.AuthToken;
       let session = {user: await Init.AuthUser};
       let qry = new ArtQuery();
       // must use ROOT_USER because we logged in as a new user
@@ -29,9 +30,11 @@ describe('controller.art', () => {
 
     it('list', () => {
       return chai.request(server)
-        .get('/art?title=art')
-        .set('authorization', token)
+        .get('/art?page=2')
+        .query({query: 'art test'})
+        .set('authorization', `bearer ${TOKEN}`)
         .then((result) => {
+          console.log(result)
           assert.fail('no quest yet')
         })
     })

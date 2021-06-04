@@ -12,6 +12,35 @@ const PASSWORD = '123456'
 const User = require('../model/user');
 // let user;
 
+const createRes = function () {
+  return Object.assign({} , {
+      headers: {},
+      state: 200,
+      setHeader: function (key, value) {
+        this.headers[key] = value
+      },
+      status: function (value) {
+        this.state = value;
+      },
+      json: function (value) {
+        this.body = value
+      }
+    }
+  )
+}
+
+/**
+ * create a session for the current test user
+ */
+module.exports.Session = new Promise( (resolve, reject) => {
+  return User.findOne({email: EMAIL}).then((user) => {
+    if (!user) {
+      return reject('test user not found')
+    }
+    const AuthController = require('../vendors/controllers/auth')
+    return resolve(AuthController.createSession(user.id))
+  })
+});
 
 /**
  * return the auth key of a user
@@ -24,22 +53,22 @@ module.exports.AuthToken = new Promise((resolve, reject) => {
     }
 
     const AuthController = require('../vendors/controllers/auth');
+    let req = {
+      body: {
+        username: EMAIL,
+        password: PASSWORD
+      },
+    }
     // trick the auth in thinking we are a express
-    let res = {
-      _obj: {},
-      _state: '',
-      setHeader : (data) => {},
-      status: function(state) { this._state = state},
-      json: function(obj) {this._obj = obj}
-    };
+    let res = createRes();
 
     return AuthController.authenticate(
-      { body: {username: EMAIL, password: PASSWORD} },
+      req,
       res,
       (err) => { console.error(err)}
     ).then(() => {
-      if (res._state === 200) {
-        return resolve(res._obj.data.token)
+      if (res.state === 200) {
+        return resolve(res.body.data.token)
       } else {
         return resolve(false);
       }
