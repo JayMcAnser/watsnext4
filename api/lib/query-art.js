@@ -18,6 +18,10 @@ class QueryArt extends QueryBuilder {
         searchCode: ['searchcode'],
         year: ['yearFrom', 'title'],
         yearDesc: ['-yearFrom']
+      },
+      views: {
+        default: {'id': 1, 'title': 1},
+        title: {id: 1, title:1, description: 1, searchcode: 1}
       }
     });
   }

@@ -200,6 +200,43 @@ describe('query-builder', () => {
     })
   })
 
+  describe('view', () => {
+    it('default', () => {
+      let builder = new QueryBuild({ fields: ['title']})
+      let qry = builder.parse({query:{
+          query: 'work'
+        }})
+      assert.isDefined(qry.fields);
+      assert.isDefined(qry.fields.id);
+      assert.equal(qry.fields.id, 1);
+    })
+
+    it('multiple', () => {
+      let builder = new QueryBuild({ fields: ['title'], views:{ title: {id:1, title:1}}})
+      let qry = builder.parse({query:{
+          query: 'work'
+        }})
+      assert.isDefined(qry.fields);
+      assert.isDefined(qry.fields.id);
+      assert.equal(qry.fields.id, 1);
+      assert.equal(qry.fields.title, 1);
+      assert.equal(builder.viewNames.length, 2, 'title and default')
+    })
+
+    it('multiple - select view by input', () => {
+      let builder = new QueryBuild({ fields: ['title'], views:{ default: {id: 1}, title: {id:1, title:1}}})
+      let qry = builder.parse({query:{
+          "query": 'work',
+          view: 'title'
+        }})
+      assert.isDefined(qry.fields);
+      assert.isDefined(qry.fields.id);
+      assert.equal(qry.fields.id, 1);
+      assert.equal(qry.fields.title, 1);
+      assert.equal(builder.viewNames.length, 2, 'title and default')
+    })
+  })
+
   describe('aggregation', () => {
     it('where', async() => {
       let builder = new QueryBuild({
@@ -215,7 +252,7 @@ describe('query-builder', () => {
           "query": 'work'
         }
       });
-      assert.equal(qry.length, 2);
+      assert.equal(qry.length, 3, '$match, $sort, $project');
       assert.isDefined(qry[0].$match);
       assert.isDefined(qry[1].$sort);
     })
@@ -235,11 +272,12 @@ describe('query-builder', () => {
           "page": 1
         }
       });
-      assert.equal(qry.length, 4);
+      assert.equal(qry.length, 5 );
       assert.isDefined(qry[0].$match);
       assert.isDefined(qry[1].$sort);
       assert.isDefined(qry[2].$skip)
       assert.isDefined(qry[3].$limit)
+      assert.isDefined(qry[4].$project)
       assert.equal(qry[3].$limit, 20);
 
       qry = builder.aggregate({
@@ -248,13 +286,14 @@ describe('query-builder', () => {
           "page": 0
         }
       });
-      assert.equal(qry.length, 3);
+      assert.equal(qry.length, 4);
       assert.isDefined(qry[0].$match);
       assert.isDefined(qry[1].$sort);
       assert.isDefined(qry[2].$limit)
       assert.equal(qry[2].$limit, 20);
-    })
-
+    });
   })
+
+
 
 });

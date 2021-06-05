@@ -20,6 +20,9 @@ const Factory = require('./vendors/lib/factory');
 Factory.register('user', () => {
   return require('./model/user')
 })
+Factory.register('session', () => {
+  return require('./lib/session');
+})
 
 const Logging = require('./vendors/lib/logging')
 const AuthController = require('./vendors/controllers/auth')

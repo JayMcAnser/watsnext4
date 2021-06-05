@@ -57,6 +57,9 @@ class QueryBuilder {
    * options.sortOrders Object
    *   per sortName the definition of the fields. -[fieldname] makes it descending
    *
+   * options.view Object
+   *   the views to limit the fields return
+   *
    */
   constructor(options = {}) {
     // the filters are the definition of the fields to search in.
@@ -64,6 +67,7 @@ class QueryBuilder {
     this._itemPerPage = ITEMS_PER_PAGE;
     this._processFields(options.fields);
     this._processSort(options.sortOrders);
+    this._processViews(options.views);
     if (Object.keys(this._filters).length === 0) {
       Logging.logThrow('fields is required', 'querybuild.constructor')
     }
@@ -150,12 +154,36 @@ class QueryBuilder {
     }
   }
 
+  /**
+   * convert the views to the $project statements
+   * for format see: https://docs.mongodb.com/manual/reference/operator/aggregation/project/
+   * @param views
+   * @private
+   */
+  _processViews(views) {
+    this._views = {};
+    for (let view in views) {
+      if (!views.hasOwnProperty(view)) { continue }
+      this._views[view] = views[view];
+    }
+    if (Object.keys(this._views).length === 0) {
+      this._views.default = {id: 1}
+    } else if (!this._views.default) {
+      // make the first one the default
+      this._views.default = this._views[Object.keys(this._views)[0]]
+    }
+  }
+
   get filterNames() {
     return Object.keys(this._filters)
   }
   get sortNames() {
     return Object.keys(this._sorts)
   }
+  get viewNames() {
+    return Object.keys(this._views)
+  }
+
   get itemPerPage() {
     return this._itemPerPage
   }
@@ -257,7 +285,8 @@ class QueryBuilder {
       limit: false,
       sort: req.query.hasOwnProperty('sort') ? req.query.sort : 'default',
       query: false,
-      fields: req.query.hasOwnProperty('fields')? req.query.fields : 'default'
+      fields: req.query.hasOwnProperty('fields')? req.query.fields : 'default',
+      view: req.query.hasOwnProperty('view')? req.query.view : 'default'
     }
     if (req.query) {
       // build the query limiter
@@ -276,7 +305,9 @@ class QueryBuilder {
       if (req.query.query) {
         result.filter = this._queryStatement(req.query.query, result.fields)
       }
+      result.fields = this._views[result.view]
     }
+
     return result;
   }
 
@@ -289,6 +320,7 @@ class QueryBuilder {
       }
       result.push({$limit: query.limit})
     }
+    result.push({ $project: this._views[query.view]})
     return result
   }
 }
