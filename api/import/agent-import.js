@@ -1,7 +1,7 @@
 
 const DbMySQL = require('../lib/db-mysql');
 const Agent = require('../model/agent');
-const Logging = require('../lib/logging');
+const Logging = require('../vendors/lib/logging');
 const recordValue = require('./import-helper').recordValue;
 const makeNumber = require('./import-helper').makeNumber;
 const makeLength = require('./import-helper').makeLength;

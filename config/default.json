@@ -9,7 +9,11 @@
       "password": false,
       "database": "watsnext",
       "connectionString": "mongodb+srv://dropperweb:rE-4EGNsPV6LzgP@dropperweb-ussdu.azure.mongodb.net/test?retryWrites=true&w=majority",
-      "debug": false
+      "debug": false,
+      "rootEmail.doc": "The email account of the root account with all access",
+      "rootEmail": "info@toxus.nl",
+      "rootPassword.doc": "The plain text password for this account",
+      "rootPassword": "123456"
     },
     "MySQL": {
       "host": "mysql.li-ma.nl",

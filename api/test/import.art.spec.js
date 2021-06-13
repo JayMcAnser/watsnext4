@@ -2,15 +2,17 @@
  * Test the distribution model
  */
 
+const InitTest = require('./init-test');
 const Db = require('./init.db');
-const DbMysql = Db.DbMySQL;
-const DbMongo = Db.DbMongo;
+let DbMySql;
+let  DbMongo;
+const Session = require('../lib/session');
+
 const chai = require('chai');
 const assert = chai.assert;
 const ImportArt = require('../import/art-import');
 const Art = require('../model/art');
 const Setup = require('../lib/setup');
-const Session = require('../lib/session');
 
 describe('import.art', function() {
   this.timeout(5000);
@@ -18,13 +20,17 @@ describe('import.art', function() {
   let mySQL;
   let session;
 
-  before( () => {
+  before( async () => {
+    await Db.init();
+    DbMySql = await Db.DbMySQL;
+    DbMongo =  await Db.DbMongo;
+    session = await InitTest.Session;// new Session('test-import-agent')
+
     return Art.deleteMany({}).then( () => {
-      return DbMysql.connect().then((con) => {
-        session = new Session('test-import-art')
+      return DbMySql.connect().then((con) => {
         mySQL = con;
         let setup = new Setup();
-        return setup.run();
+        return setup.run(session);
       })
     })
   });

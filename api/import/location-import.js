@@ -6,7 +6,7 @@
 const Distribution = require('../model/distribution');
 const DbMySQL = require('../lib/db-mysql');
 const Config = require('config');
-const Logging = require('../lib/logging');
+const Logging = require('../vendors/lib/logging');
 // const Contact = require('../model/contact');
 const Carrier = require('../model/carrier');
 const ImportCarrier = require('../import/carrier-import');
@@ -136,7 +136,7 @@ class LocationImport {
       }
 
     } catch (e) {
-      Logging.error(`error importing location[${record.location_ID}]: ${e.message}`)
+      Logging.log('error', `importing location[${record.location_ID}]: ${e.message}`)
     }
     return dis;
   }

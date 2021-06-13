@@ -2,9 +2,12 @@
  * Test the distribution model
  */
 
+
+const InitTest = require('./init-test');
 const Db = require('./init.db');
-const DbMySql = Db.DbMySQL;
-const DbMongo = Db.DbMongo;
+let DbMySql;
+let  DbMongo;
+const Session = require('../lib/session');
 const chai = require('chai');
 const assert = chai.assert;
 const ImportLocation = require('../import/location-import');
@@ -12,24 +15,24 @@ const Distribution = require('../model/distribution');
 const Contact = require('../model/contact');
 const Carrier = require('../model/carrier');
 const Setup = require('../lib/setup');
-const Session = require('../lib/session');
+
 
 describe('import.location', function() {
-  this.timeout(10000);
+  this.timeout(30000);
 
-  let mySQL;
+ // let mySQL;
   let session;
 
-  before( () => {
+  before( async() => {
+    await Db.init();
+    DbMySql = await Db.DbMySQL;
+    DbMongo =  await Db.DbMongo;
+    session = await InitTest.Session;
     return Distribution.deleteMany({}).then( () => {
       return Contact.deleteMany({}).then( () => {
         return Carrier.deleteMany({}).then( () => {
-          return DbMySql.connect().then((con) => {
-            session = new Session('test-import.location')
-            mySQL = con;
-            let setup = new Setup();
-            return setup.run();
-          })
+          let setup = new Setup();
+          return setup.run(session);
         })
       })
     })
@@ -100,11 +103,15 @@ describe('import.location', function() {
   });
 
   it('run - clean', () => {
-    const limit = 2;
+    const limit = 20;
     let imp = new ImportLocation({session, limit: limit});
    // assert.isTrue(true);
-    return imp.run(mySQL).then( (result) => {
-      assert.isTrue(result.count > limit)
-    })
+    try {
+      return imp.run(DbMySql).then((result) => {
+        assert.isTrue(result.count >= limit)
+      })
+    } catch(e) {
+      assert.fail(e.message)
+    }
   })
 });

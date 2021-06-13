@@ -2,30 +2,37 @@
  * Test the carrier model
  */
 
+const InitTest = require('./init-test');
 const Db = require('./init.db');
-const DbMySql = Db.DbMySQL;
-const DbMongo = Db.DbMongo;
+let DbMySql;
+let  DbMongo;
+const Session = require('../lib/session');
+
 const chai = require('chai');
 const assert = chai.assert;
 const ImportCarrier = require('../import/carrier-import');
 const Carrier = require('../model/carrier');
 const Art = require('../model/art');
 const Setup = require('../lib/setup');
-const Session = require('../lib/session');
+
 
 describe('import.carrier', function() {
   this.timeout('10000');
 
   let mySQL;
   let session;
-  before(() => {
+  before(async () => {
+
+    await Db.init();
+    DbMySql = await Db.DbMySQL;
+    DbMongo =  await Db.DbMongo;
+    session = await InitTest.Session;
     return Carrier.deleteMany({}).then(() => {
       return Art.deleteMany({}).then( () => {
         return DbMySql.connect().then((con) => {
-          session = new Session('test-import-carrier');
           mySQL = con;
           let setup = new Setup();
-          return setup.run();
+          return setup.run(session);
         })
       })
     })

@@ -1,7 +1,7 @@
 
 const DbMySQL = require('../lib/db-mysql');
 const Contact = require('../model/contact');
-const Logging = require('../lib/logging');
+const Logging = require('../vendors/lib/logging');
 const CodeImport = require('./code-import');
 const recordValue = require('./import-helper').recordValue;
 const makeNumber = require('./import-helper').makeNumber;
@@ -57,7 +57,7 @@ const AddressFieldMap = {
       case 160: return 'vat';
       case 161: return 'customer number';
       default:
-        Logging.warn(`unknown address field type (${rec.type_ID})`)
+        Logging.log('warn', `unknown address field type (${rec.type_ID})`)
         return undefined
     }
   },
@@ -92,7 +92,7 @@ class ContactImport {
     }
     let r = this._countries['c' + id];
     if (r === undefined) {
-      Logging.warn(`unknown country code: ${id}`);
+      Logginglog('warn', `unknown country code: ${id}`);
       r =  'Netherlands'
     }
     return Promise.resolve(r);
@@ -118,7 +118,7 @@ class ContactImport {
       sql = `SELECT * FROM addresses WHERE address_ID=${record.address_ID}`;
       qry = await con.query(sql);
       if (qry.length === 0) {
-        Logging.warn(`address[${record.address_ID}] does not exist. skipped`);
+        Logging.log('warn', `address[${record.address_ID}] does not exist. skipped`);
         return undefined
       }
       record = qry[0];
@@ -165,7 +165,7 @@ class ContactImport {
       await contact.reSync();
       contact = await contact.save();
     } catch (e) {
-      Logging.error(`error importing address[${record.address_ID}]: ${e.message}`)
+      Logging.log('error', `importing address[${record.address_ID}]: ${e.message}`)
     }
     return contact;
   }

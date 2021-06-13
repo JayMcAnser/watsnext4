@@ -4,7 +4,7 @@
  */
 const DbMySQL = require('../lib/db-mysql');
 const Code = require('../model/code');
-const Logging = require('../lib/logging');
+const Logging = require('../vendors/lib/logging');
 const recordValue = require('../import/import-helper').recordValue;
 const makeNumber = require('../import/import-helper').makeNumber;
 const ImportHelper = require('./import-helper');

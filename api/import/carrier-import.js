@@ -6,7 +6,7 @@ const DbMySQL = require('../lib/db-mysql');
 const Carrier = require('../model/carrier');
 const ArtImport = require('./art-import');
 const CodeImport = require('./code-import');
-const Logging = require('../lib/logging');
+const Logging = require('../vendors/lib/logging');
 const recordValue = require('../import/import-helper').recordValue;
 const makeNumber = require('../import/import-helper').makeNumber;
 const ImportHelper = require('./import-helper');
@@ -151,7 +151,7 @@ class CarrierImport {
       Object.assign(carrier, dataRec);
       carrier = await carrier.save();
     } catch (e) {
-      Logging.error(`error importing carrier[${record.carrier_ID}]: ${e.message}`)
+      Logging.log('error', `error importing carrier[${record.carrier_ID}]: ${e.message}`)
     }
     return carrier;
   }

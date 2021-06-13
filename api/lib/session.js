@@ -13,7 +13,7 @@ const RIGHTS_ADMIN = 16
 class Session extends VendorSession {
 
   constructor(options= {}) {
-    super(options)
+    super(options);
   }
 
   async init(userId) {

@@ -2,7 +2,7 @@
  * helper function for import data
  *
  */
-const Logging = require('../lib/logging');
+const Logging = require('../vendors/lib/logging');
 /**
  * import a value or a function result
  *

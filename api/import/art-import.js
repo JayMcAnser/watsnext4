@@ -1,7 +1,9 @@
 
+
+
 const DbMySQL = require('../lib/db-mysql');
 const Art = require('../model/art');
-const Logging = require('../lib/logging');
+const Logging = require('../vendors/lib/logging');
 const CodeImport = require('./code-import');
 const AgentImport = require('../import/agent-import');
 const recordValue = require('./import-helper').recordValue;
@@ -189,12 +191,12 @@ class ArtImport {
     }
     try {
       if (art.agents.length === 0) {
-        Logging.warn(`missing agents of artId: ${art.artId}`);
+        Logging.log('warn', `missing agents of artId: ${art.artId}`);
       }
       await art.reSync();
       art = await art.save();
     } catch (e) {
-      Logging.error(`error importing art[${record.art_ID}]: ${e.message}`)
+      Logging.log('error', `art[${record.art_ID}]: ${e.message}`)
     }
     return art;
   }

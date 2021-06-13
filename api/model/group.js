@@ -17,16 +17,16 @@ let l = {
 };
 
 const RightsSchema = {
-  part: String,
-  rights: String,
-  dirty: false,
+  module: String, // a . separate list
+  rights: Number
 };
+
 
 const GroupSchema = {
   name: {
     type: String,
     trim: true,
-    min: [5, 'name must be atleast 5 characters'],
+    min: [5, 'name must be at least 5 characters'],
     required: [true, 'name is required'],
   },
   rights: [

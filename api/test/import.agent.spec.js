@@ -2,15 +2,17 @@
  * Test the import Agent
  */
 
+const InitTest = require('./init-test');
 const Db = require('./init.db');
-const DbMySql = Db.DbMySQL;
-const DbMongo = Db.DbMongo;
+let DbMySql;
+let  DbMongo;
+const Session = require('../lib/session');
 const chai = require('chai');
 const assert = chai.assert;
 const ImportAgent = require('../import/agent-import');
 const Agent = require('../model/agent');
 const Setup = require('../lib/setup');
-const Session = require('../lib/session');
+
 
 describe('import.agent', function() {
   this.timeout('10000');
@@ -18,13 +20,18 @@ describe('import.agent', function() {
   let mySQL;
   let session;
 
-  before(() => {
+  before(async () =>  {
+
+    await Db.init();
+    DbMySql = await Db.DbMySQL;
+    DbMongo =  await Db.DbMongo;
+    session = await InitTest.Session;// new Session('test-import-agent')
     return Agent.deleteMany({}).then(() => {
       return DbMySql.connect().then((con) => {
-        session = new Session('test-import-agent')
+
         mySQL = con;
         let setup = new Setup();
-        return setup.run();
+        return setup.run(session);
       })
     })
   });

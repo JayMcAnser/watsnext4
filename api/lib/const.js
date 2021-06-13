@@ -29,4 +29,13 @@ module.exports = {
     canAccess: rights => (rights & 8) > 0,
     isPublic: rights => (rights & 16) > 0,
   },
+  rights : {
+    RIGHTS_READ: 1,
+    RIGHTS_WRITE: 2,
+    RIGHTS_DELETE: 4,
+    RIGHTS_EXPORT: 8,
+    RIGHTS_ADMIN: 16,
+    RIGHTS_ALL: 31
+  }
 }
+

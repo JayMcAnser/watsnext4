@@ -9,12 +9,9 @@ const ObjectId = Schema.Types.ObjectId;
 const Config = require('config');
 const Bcrypt = require('bcryptjs');
 const Logging = require('../vendors/lib/logging');
+const Const = require('../lib/const');
 
-const RIGHTS_READ = 1;
-const RIGHTS_WRITE = 2;
-const RIGHTS_DELETE = 4;
-const RIGHTS_EXPORT = 8;
-const RIGHTS_ADMIN = 16;
+
 
 const RightsSchema = {
   module: String, // a . separate list
