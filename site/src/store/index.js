@@ -3,6 +3,7 @@ import { createStore } from 'vuex';
 
 
 import {board} from './board';
+import {art} from './art';
 import {element} from './element';
 import {auth} from '../vendors/store/auth';
 import {status} from '../vendors/store/status';
@@ -33,6 +34,7 @@ const store = createStore({
   modules: {
     defaultModule,
     board: board,
+    art,
     element,
     auth,
     status,
@@ -42,4 +44,4 @@ const store = createStore({
 })
 export { store };
 
-// //actions.nuxtServerInit({commit: 1})
+

@@ -9,8 +9,9 @@ module.exports = {
     try {
       if (req.session.canRead('art')) {
         let qry = new QueryArt(res.query);
-        let recs = await ArtModel.aggregate(qry.aggregate(req))
-        return ApiReturn.result(req, res, recs, 200);
+        // let recs = await ArtModel.aggregate(qry.aggregate(req))
+        // return ApiReturn.result(req, res, recs, 200);
+        return ApiReturn.result(req, res, await qry.data(ArtModel, req))
       }
       ApiReturn.result(req, res, 'access denied', 403)
     } catch (e) {

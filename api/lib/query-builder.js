@@ -323,6 +323,16 @@ class QueryBuilder {
     result.push({ $project: this._views[query.view]})
     return result
   }
+
+  /**
+   * return the data that is assioated with the call
+   * @param model
+   * @param req
+   */
+  async data(model, req) {
+    let a = this.aggregate(req);
+    return await model.aggregate(a)
+  }
 }
 
 module.exports = QueryBuilder;

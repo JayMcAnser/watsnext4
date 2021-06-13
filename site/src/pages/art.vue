@@ -1,6 +1,12 @@
 <template>
   <div>
-    <list-grid></list-grid>
+    THIS IS THE ART PAGE
+    <search-bar
+        @changed="setSearch"
+    ></search-bar>
+    <list-grid
+        :items="items"
+    ></list-grid>
     <pager></pager>
   </div>
 </template>
@@ -9,18 +15,26 @@
 import ListGrid from "../components/list-grid.vue";
 import Pager from "../components/pager.vue";
 import {useStore} from "vuex";
-import {onMounted} from "vue";
+import {onMounted, computed} from "vue";
+import SearchBar from "../components/search-bar.vue";
+import {debug} from "../vendors/lib/logging";
+
 export default {
   name: "art",
-  components: {Pager, ListGrid},
+  components: {SearchBar, Pager, ListGrid},
   setup() {
-    const store = useStore()
-
-    onMounted(async () => {
-      await store.dispatch('status/menu', {menu: 'art'});
+    let listHandle = false;
+    const store = useStore();
+    const items = computed(() => {
+      return store.getters['art/items'](listHandle)
     })
+    const setSearch = async function(definition) {
+      debug(  `search: ${definition.value}`)
+      listHandle = await store.dispatch('art/list', definition)
+    }
     return {
-
+      items,
+      setSearch
     }
   }
 }
