@@ -47,8 +47,8 @@ const AddressFieldMap = {
   type: (rec) => {
     switch (rec.code_ID) {
       case 0: return undefined;
-      case 111: return 'address';
-      case 151: return 'address';
+      case 111: return 'address';  // general
+      case 151: return 'address';  // wrok
       case 152: return 'telephone';
       case 153: return 'fax';
       case 154: return 'email';
@@ -92,12 +92,37 @@ class ContactImport {
     }
     let r = this._countries['c' + id];
     if (r === undefined) {
-      Logginglog('warn', `unknown country code: ${id}`);
+      Logging.log('warn', `unknown country code: ${id}`);
       r =  'Netherlands'
     }
     return Promise.resolve(r);
   }
 
+  clean(text) {
+    if (typeof text !== 'string') {
+      return undefined
+    }
+    text = text.trim();
+    if (text.length === 0) {
+      return undefined
+    }
+    return text;
+  }
+  cleanTelephone(number) {
+    return this.clean(number)
+  }
+  cleanUrl(url) {
+    url = this.clean(url)
+    if (!url) {
+      return undefined
+    }
+    if (url.substr(0, 7) === 'http://') {
+      url = url.substr(7)
+    } else if (url.substr(0, 8) === 'https://') {
+      url = url.substr(8)
+    }
+    return url;
+  }
   /**
    * internal converting a record
    *
@@ -131,9 +156,17 @@ class ContactImport {
       dataRec[fieldName] = await recordValue(record, FieldMap[fieldName], Contact);
     }
     Object.assign(contact, dataRec);
-    //-- add the codes
-    sql = `SELECT * FROM address2code WHERE address_ID=${record.address_ID}`;
-    qry = await con.query(sql);
+    if (options.loadSql) {
+      //-- add the codes
+      sql = `SELECT *
+             FROM address2code
+             WHERE address_ID = ${record.address_ID}`;
+      qry = await con.query(sql);
+    } else if (record.address2code) {
+      qry = record.address2code
+    } else {
+      qry = []
+    }
     for (let codeIndex = 0; codeIndex < qry.length; codeIndex++) {
       let code = await this._codeImport.runOnData(qry[codeIndex], {loadSql: true})
       if (code) { // codes that are remove are skipped
@@ -141,24 +174,87 @@ class ContactImport {
       }
     }
 
+
+
     // -- add the addresses
-    sql = `SELECT * FROM addr_fields WHERE address_ID=${record.address_ID} AND code_ID=151`;
-    qry = await con.query(sql);
+    if (options.loadSql) {
+      sql = `SELECT *
+             FROM addr_fields
+             WHERE address_ID = ${record.address_ID}`;
+      qry = await con.query(sql);
+    } else if (record.addr_fields) {
+      qry = record.addr_fields
+    } else {
+      qry = []
+    }
     for (let addrIndex = 0; addrIndex < qry.length; addrIndex++) {
       let rec = qry[addrIndex];
-      let country = await this._countryTranslate(con, rec.country_ID);
-      rec.country = country;
-      let addrRec = {};
-      for (let fieldName in AddressFieldMap) {
-        if (!AddressFieldMap.hasOwnProperty(fieldName)) {
-          continue
-        }
-        let a = await recordValue(rec, AddressFieldMap[fieldName]);
-        if (a !== undefined) {
-          addrRec[fieldName] = a;
-        }
+      let addRec = {};
+      switch (rec.code_ID) {
+        case 111:
+        case 151:
+          let country = await this._countryTranslate(con, rec.country_ID);
+          rec.country = country;
+          for (let fieldName in AddressFieldMap) {
+            if (!AddressFieldMap.hasOwnProperty(fieldName)) {
+              continue
+            }
+            let a = await recordValue(rec, AddressFieldMap[fieldName]);
+            if (a !== undefined) {
+              addRec[fieldName] = a;
+            }
+          }
+          contact.locationAdd(addRec);
+          break;
+        case 152: // tel
+          addRec.usage = 'telephone';
+          addRec.number = this.cleanTelephone(rec.text)
+          if (addRec.number) {
+            contact.telephoneAdd(addRec);
+          }
+          break;
+        case 153: // fax
+          addRec.usage = 'fax';
+          addRec.number = this.cleanTelephone(rec.text)
+          if (addRec.number) {
+            contact.telephoneAdd(addRec);
+          }
+          break;
+        case 154:  // email
+        case 156:  // email & name
+          if (rec.code_ID === 156) {
+            addRec.name = this.clean(rec.extra_text)
+          }
+          addRec.address = this.clean(rec.text);
+          if (addRec.address) {
+            contact.emailAdd(addRec);
+          }
+          break;
+        case 155: // url
+          addRec.usage = 'url'
+          addRec.text = this.cleanUrl(rec.text);
+          if (addRec.text) {
+            contact.extraAdd(addRec);
+          }
+          break;
+        case 160: // vat
+          addRec.usage = 'vat'
+          addRec.text = this.clean(rec.text);
+          if (addRec.text) {
+            contact.extraAdd(addRec);
+          }
+          break;
+
+        case 161: // vat
+          addRec.usage = 'customer number'
+          addRec.url = this.clean(rec.text);
+          if (addRec.url) {
+            contact.extraAdd(addRec);
+          }
+          break;
+        default:
+          Logging.log('warn', `unknown address field type ${rec.code_ID}`)
       }
-      contact.locationAdd(addrRec);
     }
 
     try {

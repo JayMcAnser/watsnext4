@@ -17,7 +17,7 @@ const recordValue = async (rec, part, mongoRec = false) => {
   } else if (typeof part === 'function') {
     result = await part(rec, mongoRec);
   } else {
-    Logging.warn(`unknown part type: ${typeof part}`);
+    Logging.log('warn', `unknown part type: ${typeof part}`);
     return undefined;
   }
   if (typeof result === 'string') {

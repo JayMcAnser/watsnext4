@@ -1,15 +1,16 @@
 /**
  * Test the Art model
  */
+const InitTest = require('./init-test');
+const Db = require('./init.db');
+let  DbMongo;
 
-const Db = require('./init.db').DbMongo;
 const chai = require('chai');
 const assert = chai.assert;
 const Art = require('../model/art');
 const Code = require('../model/code');
 const Agent = require('../model/agent');
 const Setup = require('../lib/setup');
-const Session = require('../lib/session');
 
 
 const ROLE_CREATOR = require('../model/art').ROLE_CREATOR;
@@ -23,16 +24,16 @@ describe('model.art', () => {
   let artObj;
   let session;
 
-  before( () => {
-    session = new Session('art.spec')
-    return Art.deleteMany({}).then(() => {
-      return Code.deleteMany({}).then(() => {
-          return Agent.deleteMany( {} ).then( () => {
-          let setup = new Setup();
-          return setup.run();
-        });
-      })
-    });
+  before( async () => {
+    await Db.init();
+    DbMongo =  await Db.DbMongo;
+    session = await InitTest.Session;
+
+    await Art.deleteMany({})
+    await Code.deleteMany({})
+    await Agent.deleteMany( {} )
+    let setup = new Setup();
+    setup.run(session);
   });
 
   it('create', async () => {
@@ -54,7 +55,7 @@ describe('model.art', () => {
     art2 = await Art.findOne({artId: 12})
       .populate('codes')
     ;
-    art2.session(art2)
+   // art2.session(art2)
     assert.isDefined(art2.codes);
     assert.equal(art2.codes.length, 1);
     assert.equal(art2.codes[0].text, 'code 12')

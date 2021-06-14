@@ -7,7 +7,6 @@ const InitTest = require('./init-test');
 const Db = require('./init.db');
 let DbMySql;
 let  DbMongo;
-const Session = require('../lib/session');
 const chai = require('chai');
 const assert = chai.assert;
 const ImportContact = require('../import/contact-import');
@@ -55,7 +54,18 @@ describe('import.contact', function() {
       "sort_on": "sort on",
       "search": "search",
       "mailchimp_json": 'mailchimp json',
-      "mailchimp_guid": 'mailchimp guid'
+      "mailchimp_guid": 'mailchimp guid',
+      "addr_fields": [
+        {code_ID: 151, street: 'testStreet 27', city: 'Utrecht', zipcode: '1017gg', country_ID: 500 },
+        {code_ID: 153, text:'030-1234567' },
+        {code_ID: 152, text: '0612345678'},
+        {code_ID: 156, text: 'jay@info.com'},
+        {code_ID: 160, text: 'NL002233554466'},
+        {code_ID: 155, text: 'http://example.com'}
+      ],
+      address2code: [
+        {code_ID: 10169}
+      ]
     };
     let imp = new ImportContact({session});
     return imp.runOnData(record).then( (obj) => {
@@ -76,6 +86,30 @@ describe('import.contact', function() {
       assert.equal(obj.search, 'search');
       assert.equal(obj.mailchimpJson,'mailchimp json');
       assert.equal(obj.mailchimpGuid, 'mailchimp guid');
+
+      assert.isDefined(obj.locations);
+      assert.equal(obj.locations.length, 1)
+      assert.equal(obj.locations[0].street, 'testStreet 27');
+      assert.equal(obj.locations[0].city, 'Utrecht');
+      assert.equal(obj.locations[0].zipcode, '1017gg');
+      assert.equal(obj.locations[0].country, 'Netherlands')
+
+      assert.equal(obj.telephones.length, 2);
+      assert.equal(obj.telephones[0].number, '030-1234567')
+      assert.equal(obj.telephones[0].usage, 'fax')
+      assert.equal(obj.telephones[1].number, '0612345678');
+
+      assert.equal(obj.emails.length, 1);
+      assert.equal(obj.emails[0].address, 'jay@info.com');
+
+      assert.equal(obj.extras.length, 2);
+      assert.equal(obj.extras[0].usage, 'vat');
+      assert.equal(obj.extras[0].text, 'NL002233554466');
+      assert.equal(obj.extras[1].usage, 'url');
+      assert.equal(obj.extras[1].text, 'example.com');
+
+      assert.equal(obj.codes.length, 1);
+      assert.isDefined(obj.codes[0]._id)
     })
   });
 

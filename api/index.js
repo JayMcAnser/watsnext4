@@ -49,7 +49,7 @@ try {
 
   let listener = App.listen(Config.get('Server.port'),
     function () {
-      console.log(`Dropper server (http://localhost:${Config.get('Server.port')}) is active. (data: ${Helper.getFullPath('', {rootKey: 'Path.dataRoot'})})`)
+      console.log(`WatsNext server (http://localhost:${Config.get('Server.port')}) is active. (data: ${Helper.getFullPath('', {rootKey: 'Path.dataRoot'})})`)
     }
   );
 } catch(e) {

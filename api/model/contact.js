@@ -63,6 +63,24 @@ const LocationSchema = {
   state: String,
   country: String,
 };
+const TelephoneSchema = {
+  isDefault: Boolean,
+  number: String,
+  usage: String
+}
+
+const EmailSchema = {
+  isDefault: Boolean,
+  address: String,
+  name: String,
+  usage: String
+}
+
+const ExtraSchema = {
+  isDefault: Boolean,
+  text: String,
+  usage: String
+}
 
 const ContactExtendedLayout = {
   addressId: String,
@@ -90,7 +108,11 @@ const ContactLayout = Object.assign({
   mailchimpJson: String,
   mailchimpGuid: String,
 
-  location: [LocationSchema],
+  locations: [LocationSchema],
+  telephones: [TelephoneSchema],
+  emails: [EmailSchema],
+  extras: [ExtraSchema],
+
   codes: [{
     type: Schema.Types.ObjectId,
     ref: 'Code'
@@ -100,31 +122,79 @@ const ContactLayout = Object.assign({
 let ContactSchema = new Schema(ContactLayout);
 ModelHelper.upgradeBuilder('ContactExtra', ContactSchema, ContactExtendedLayout);
 
+ContactSchema.methods.locationAdd = function(loc) {
+  ModelHelper.addObject(this, 'locations', loc)
+}
+ContactSchema.methods.locationUpdate = function (ind, loc) {
+  ModelHelper.updateObject(this, 'locations', ind, loc)
+}
+ContactSchema.methods.locationDelete = function(id) {
+  ModelHelper.removeObject(this, 'locations', id)
+}
 
-ContactSchema.methods.locationAdd = function(data) {
-  this.location.push(data);
-};
+ContactSchema.methods.telephoneAdd = function(tel) {
+  ModelHelper.addObject(this, 'telephones', tel)
+}
+ContactSchema.methods.telephoneUpdate = function (id, tel) {
+  ModelHelper.updateObject(this, 'telephones', id, tel)
+}
+ContactSchema.methods.telephoneDelete = function(id) {
+  ModelHelper.removeObject(this, 'telephones', id)
+}
 
-ContactSchema.methods.locationUpdate = function(index, itemData = false) {
-  let ind = index;
-  if (typeof index !== 'number') {
-    for (ind = 0; ind < this.location.length; ind++) {
-      if (index.toString() === this.location[ind]._id.toString()) {
-        break;
-      }
-    }
-  }
-  if (ind < this.location.length) {
-    if (itemData === false || Object.keys(itemData).length === 0) {
-      this.location.splice(ind, 1);
-    } else {
-      Object.assign(this.location[ind], itemData)
-    }
-    this.markModified('location');
-  } else {
-    throw new ErrorTypes.ErrorNotFound('address.location not found');
-  }
-};
+ContactSchema.methods.emailAdd = function(email) {
+  ModelHelper.addObject(this, 'emails', email);
+}
+ContactSchema.methods.emailUpdate = function(id, email) {
+  ModelHelper.updateObject(this, 'emails', 'id', email)
+}
+ContactSchema.methods.emailDelete = function(id) {
+  ModelHelper.removeObject(this, 'emails', id)
+}
+
+ContactSchema.methods.extraAdd = function(extra) {
+  ModelHelper.addObject(this, 'extras', extra)
+}
+ContactSchema.methods.extraUpdate = function(id, extra) {
+  ModelHelper.updateObject(this, 'extras', id, extra)
+}
+ContactSchema.methods.extraDelete = function(id) {
+  ModelHelper.removeObject(this, 'extras', id)
+}
+
+// ContactSchema.methods.locationAdd = function(data) {
+//   this.location.push(data);
+// };
+//
+// ContactSchema.methods.locationUpdate = function(index, itemData = false) {
+//   let ind = index;
+//   if (typeof index !== 'number') {
+//     for (ind = 0; ind < this.location.length; ind++) {
+//       if (index.toString() === this.location[ind]._id.toString()) {
+//         break;
+//       }
+//     }
+//   }
+//   if (ind < this.location.length) {
+//     if (itemData === false || Object.keys(itemData).length === 0) {
+//       this.location.splice(ind, 1);
+//     } else {
+//       Object.assign(this.location[ind], itemData)
+//     }
+//     this.markModified('location');
+//   } else {
+//     throw new ErrorTypes.ErrorNotFound('address.location not found');
+//   }
+// };
+//
+// ContactSchema.methods.locationDelete = function(index) {
+//   let ind = index;
+//   if (typeof index !== 'number') {
+//     this.location.id(ind).remove();
+//   } else if (ind < this.location.length) {
+//     this.location.id(this.location[ind]).remove();
+//   }
+// }
 
 ContactSchema.methods.codeAdd = function(code) {
   ModelHelper.addObjectId(this.codes, code)

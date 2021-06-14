@@ -29,6 +29,46 @@ const removeObjecId = function(arr, index) {
   }
 }
 
+const addObject = function(obj, type, itemData) {
+  if (obj[type]) {
+    obj[type].push(itemData);
+  } else {
+    obj[type] = [itemData];
+  }
+  obj.markModified[type]
+}
+const updateObject = function(obj, type, index, itemData) {
+  let ind = index;
+  if (typeof index !== 'number') {
+    for (ind = 0; ind < obj[type].length; ind++) {
+      if (index.toString() === obj[type][ind]._id.toString()) {
+        break;
+      }
+    }
+  }
+  if (ind < obj[type].length) {
+    if (itemData === false || Object.keys(itemData).length === 0) {
+      obj[type].splice(ind, 1);
+    } else {
+      Object.assign(obj[type][ind], itemData)
+    }
+    obj.markModified(this[type]);
+  } else {
+    throw new Error(`element.${type}[${index}] not found`);
+  }
+}
+
+const removeObject = function(obj, type, index) {
+  if (typeof index !== 'number') {
+    obj[type].id(index).remove();
+  } else if (index < obj[type].length) {
+    obj[type].id(obj[type][index]).remove();
+  } else {
+    throw new Error(`remove element.${type}[${index}] not found`)
+  }
+  obj.markModified[type]
+}
+
 const setObjectIds = function(arr, data) {
 
   // codes not yet in vm.codes
@@ -106,6 +146,9 @@ const upgradeBuilder = function(name, schema, extraFields) {
   }
 }
 
+module.exports.addObject = addObject;
+module.exports.updateObject = updateObject;
+module.exports.removeObject = removeObject;
 
 module.exports.addObjectId = addObjectId
 module.exports.removeObjectId = removeObjecId;
