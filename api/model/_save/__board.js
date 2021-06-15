@@ -9,18 +9,18 @@
 const Config = require('config');
 const Fs = require('fs');
 const Path = require('path');
-const Helper = require('../vendors/lib/helper');
+const Helper = require('../../vendors/lib/helper');
 // const { v4 : uuidv4} = require('uuid');
 const {generate: uuidv4} = require('short-uuid');
 const validateUUID = require('uuid').validate;
 const ShortUUId = require('short-uuid')()
 const JsonFile = require('jsonfile');
-const Const = require('../vendors/lib/const');
-const AccessRights = require('../lib/const').accessRights;
-const Messages = require('../lib/const');
-const Logging = require('../vendors/lib/logging');
+const Const = require('../../vendors/lib/const');
+const AccessRights = require('../../lib/const').accessRights;
+const Messages = require('../../lib/const');
+const Logging = require('../../vendors/lib/logging');
 const Joi = require('joi');
-const {ValidationError, StatusError} = require('../vendors/lib/model-helper');
+const {ValidationError, StatusError} = require('../../vendors/lib/model-helper');
 // the one doing the api to storage conversions
 
 const ElmHandler = require('./element-handler');

@@ -96,8 +96,10 @@ class CodeImport {
           for (let l = 0; l < qry.length; l++) {
             await this._convertRecord(con, qry[l]);
             ImportHelper.step(counter.count++);
+            if (start >= this._limit) { break }
+            start++;
           }
-          start++;
+
         }
       } while (qry.length > 0 && (this._limit === 0 || counter.count < this._limit));
       ImportHelper.stepEnd('Code');

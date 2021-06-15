@@ -1,7 +1,7 @@
 
 const ApiReturn = require('../vendors/lib/api-return');
 const ArtModel = require('../model/art');
-const QueryArt = require('../lib/query-art');
+const QueryArt = require('../lib/query/query-art');
 
 
 module.exports = {

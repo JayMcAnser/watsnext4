@@ -8,19 +8,29 @@ const chai = require('chai');
 const chaiHttp = require('chai-http'); //types');
 chai.use(chaiHttp);
 const assert = chai.assert;
+const Setup = require('../lib/setup');
 
-const Const = require('../vendors/lib/const');
+
 const server = 'http://localhost:3050/api';
 const ROOT = '/auth';
+const Config = require('config')
 
 const AuthController = require('../vendors/controllers/auth')
 
 describe('auth-controller', () => {
 
+  const USER_EMAIL = Config.get('Database.Mongo.rootEmail');
+  const USER_PASSWORD = Config.get('Database.Mongo.rootPassword');
+  before(async() => {
+    // let session = Init.Session;
+   // await Setup.runSetup(await Init.Session)
+  })
+
   describe('direct', () => {
     it('validate user', async() => {
+      let token = await Init.AuthToken;
       let req = {
-        headers: {'authorization': `bearer ${await Init.AuthToken}`},
+        headers: {'authorization': `bearer ${token}`},
         body : {}
       }
       let res = {
@@ -91,8 +101,8 @@ describe('auth-controller', () => {
       return chai.request(server)
         .post(ROOT)
         .send({
-          username: 'info@dropper.info',
-          password: '12345'
+          username: USER_EMAIL,
+          password: USER_PASSWORD
         })
         .then((result) => {
           assert.equal(result.status, 200)
@@ -100,8 +110,8 @@ describe('auth-controller', () => {
           assert.isDefined(result.body.data.token)
           assert.isDefined(result.body.data.refreshToken)
           assert.isDefined(result.body.data.user);
-          assert.equal(result.body.data.user.email,'info@dropper.info')
-          assert.equal(result.body.data.user.name, 'test-user')
+          assert.equal(result.body.data.user.email, USER_EMAIL)
+          // assert.equal(result.body.data.user.name, 'root')
           refreshToken = result.body.data.refreshToken;
         })
     });
@@ -129,8 +139,8 @@ describe('auth-controller', () => {
         .then((result) => {
           assert.equal(result.status, 200)
           assert.isDefined(result.body.data);
-          assert.equal(result.body.data.user.name, 'test-user');
-          assert.equal(result.body.data.user.email, 'info@dropper.info');
+          //assert.equal(result.body.data.user.name, 'test-user');
+          assert.equal(result.body.data.user.email, USER_EMAIL);
           assert.isDefined(result.body.data.token);
           assert.isUndefined(result.body.data.refreshToken);
         })

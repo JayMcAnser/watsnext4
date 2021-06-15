@@ -2,7 +2,7 @@
  * Test the Contact model
  */
 const InitTest = require('./init-test');
-const Db = require('./init.db');
+
 let  DbMongo;
 
 const chai = require('chai');
@@ -15,12 +15,11 @@ describe('model.contact', () => {
   let session;
 
   before( async () => {
-    await Db.init();
-    DbMongo =  await Db.DbMongo;
+    await InitTest.init();
+    DbMongo =  await InitTest.DbMongo;
     session = await InitTest.Session;
     await Contact.deleteMany({})
-    let setup = new Setup();
-    return setup.run(session);
+    await Setup.runSetup(session)
   });
 
   describe('location', () => {
@@ -36,10 +35,10 @@ describe('model.contact', () => {
       cnt.locationAdd({usage: 'work', street: 'Weststreet',number: '1', zipcode: '1017TE', city: 'Amsterdam'})
       cnt = await cnt.save();
       cnt = await Contact.queryOne(session, {addressId : 1});
-      assert.equal(cnt.location.length, 1);
-      assert.equal(cnt.location[0].usage, 'work');
-      assert.equal(cnt.location[0].zipcode,  '1017TE');
-      workId = cnt.location[0].id;
+      assert.equal(cnt.locations.length, 1);
+      assert.equal(cnt.locations[0].usage, 'work');
+      assert.equal(cnt.locations[0].zipcode,  '1017TE');
+      workId = cnt.locations[0].id;
       assert.isDefined(workId)
     });
 
@@ -47,15 +46,15 @@ describe('model.contact', () => {
       cnt.locationUpdate(workId, {usage: 'work', street: 'Weststreet',number: '1', zipcode: '1089TE', city: 'Amsterdam'})
       cnt = await cnt.save();
       cnt = await Contact.queryOne(session,{addressId : 1});
-      assert.equal(cnt.location.length, 1);
-      assert.equal(cnt.location[0].zipcode,  '1089TE');
+      assert.equal(cnt.locations.length, 1);
+      assert.equal(cnt.locations[0].zipcode,  '1089TE');
     });
 
     it('delete by id', async() => {
      cnt.locationDelete(workId);
       cnt = await cnt.save();
       cnt = await Contact.queryOne(session,{addressId : 1});
-      assert.equal(cnt.location.length, 0);
+      assert.equal(cnt.locations.length, 0);
     })
 
     it('delete by index', async() => {
@@ -64,7 +63,7 @@ describe('model.contact', () => {
       cnt.locationDelete(0);
       cnt = await cnt.save();
       cnt = await Contact.queryOne(session,{addressId : 1});
-      assert.equal(cnt.location.length, 0);
+      assert.equal(cnt.locations.length, 0);
     })
   })
 

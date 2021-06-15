@@ -4,7 +4,6 @@
 
 
 const InitTest = require('./init-test');
-const Db = require('./init.db');
 let DbMySql;
 let  DbMongo;
 const Session = require('../lib/session');
@@ -24,18 +23,14 @@ describe('import.location', function() {
   let session;
 
   before( async() => {
-    await Db.init();
-    DbMySql = await Db.DbMySQL;
-    DbMongo =  await Db.DbMongo;
+    await InitTest.init();
+    DbMySql = await InitTest.DbMySQL;
+    DbMongo =  await InitTest.DbMongo;
     session = await InitTest.Session;
-    return Distribution.deleteMany({}).then( () => {
-      return Contact.deleteMany({}).then( () => {
-        return Carrier.deleteMany({}).then( () => {
-          let setup = new Setup();
-          return setup.run(session);
-        })
-      })
-    })
+    await Distribution.deleteMany({})
+    await Contact.deleteMany({})
+    await Carrier.deleteMany({})
+    await Setup.runSetup(session)
   });
 
   it('check field information', () => {

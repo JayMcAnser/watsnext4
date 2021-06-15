@@ -1,7 +1,7 @@
 
-const Helper = require('../vendors/lib/helper')
+const Helper = require('../../vendors/lib/helper')
 const Fs = require('fs');
-const Const = require('../vendors/lib/const');
+const Const = require('../../vendors/lib/const');
 
 
 module.exports = {

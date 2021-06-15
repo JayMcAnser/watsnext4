@@ -2,7 +2,6 @@
  * Test the Art model
  */
 const InitTest = require('./init-test');
-const Db = require('./init.db');
 let  DbMongo;
 
 const chai = require('chai');
@@ -25,15 +24,14 @@ describe('model.art', () => {
   let session;
 
   before( async () => {
-    await Db.init();
-    DbMongo =  await Db.DbMongo;
+    await InitTest.init();
+    DbMongo =  await InitTest.DbMongo;
     session = await InitTest.Session;
 
     await Art.deleteMany({})
     await Code.deleteMany({})
     await Agent.deleteMany( {} )
-    let setup = new Setup();
-    setup.run(session);
+    await Setup.runSetup(session)
   });
 
   it('create', async () => {

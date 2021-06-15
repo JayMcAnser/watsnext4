@@ -1,16 +1,14 @@
 /**
  * testing the authentication
  */
-
-process.env.NODE_ENV = 'test';
-process.env["NODE_CONFIG_DIR"] = __dirname + '/../../config/';
+const Init = require('./init-test');
 
 const app = require('../index');
 const chai = require('chai');
 const assert = chai.assert;
 
-const EMAIL = 'info@toxus.nl';
-const PASSWORD = '123456'
+const EMAIL = Init.AuthEmail;
+const PASSWORD = Init.AuthPassword;
 const User = require('../model/user');
 const ApiReturn = require('../vendors/lib/api-return');
 const AuthController = require('../vendors/controllers/auth');
@@ -40,8 +38,8 @@ describe('auth', () => {
   let TOKEN = ''
   let SESSION = {}
 
-  before( () => {
-    return app.dbInit;
+  before( async () => {
+    await Init.Session
   })
 
   it('user should exist and have rights', async() => {

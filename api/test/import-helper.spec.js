@@ -1,7 +1,7 @@
 /**
  * Testing import helper function
  */
-
+const InitTest = require('./init-test')
 const chai = require('chai');
 const assert = chai.assert;
 const ImportHelper = require('../import/import-helper');

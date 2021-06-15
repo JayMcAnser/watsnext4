@@ -116,9 +116,11 @@ class AgentImport {
           for (let l = 0; l < qry.length; l++) {
             await this._convertRecord(con, qry[l]);
             ImportHelper.step(counter.count++);
+            if (stagent >= this._limit) { break }
+            stagent++;
           }
         }
-        stagent++;
+
       } while (qry.length > 0 && (this._limit === 0 || counter.count < this._limit));
       ImportHelper.stepEnd('Agent');
       return resolve(counter)

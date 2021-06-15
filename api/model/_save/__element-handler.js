@@ -5,8 +5,8 @@
  */
 
 const clonedeep = require('lodash').cloneDeep;
-const Logging = require('../vendors/lib/logging');
-const ImageUtil = require('../lib/image-util');
+const Logging = require('../../vendors/lib/logging');
+const ImageUtil = require('../../lib/image-util');
 
 class Element {
 

@@ -3,7 +3,6 @@
  */
 
 const InitTest = require('./init-test');
-const Db = require('./init.db');
 let DbMySql;
 let  DbMongo;
 const Session = require('../lib/session');
@@ -15,24 +14,20 @@ const Art = require('../model/art');
 const Setup = require('../lib/setup');
 
 describe('import.art', function() {
-  this.timeout(5000);
+  this.timeout(1000);
 
-  let mySQL;
   let session;
 
   before( async () => {
-    await Db.init();
-    DbMySql = await Db.DbMySQL;
-    DbMongo =  await Db.DbMongo;
+    await InitTest.init();
+    DbMySql = await InitTest.DbMySQL;
+    DbMongo =  await InitTest.DbMongo;
     session = await InitTest.Session;// new Session('test-import-agent')
 
-    return Art.deleteMany({}).then( () => {
-      return DbMySql.connect().then((con) => {
-        mySQL = con;
-        let setup = new Setup();
-        return setup.run(session);
-      })
-    })
+    await Art.deleteMany({})
+    await DbMySql.connect()
+
+    await Setup.runSetup(session)
   });
 
   it('field data', () => {
@@ -123,19 +118,19 @@ describe('import.art', function() {
       assert.equal(mRec.credits, 'credits')
     })
   });
-  //
-  // it('run - clean', () => {
-  //   const limit = 10;
-  //   let imp = new ImportArt({ limit: limit});
-  //   return imp.run(mySQL).then( (result) => {
-  //     assert.equal(result.count, limit)
-  //   })
-  // });
+
+  it('run - clean', () => {
+    const limit = 2;
+    let imp = new ImportArt({ session, limit: limit});
+    return imp.run(DbMySql).then( (result) => {
+      assert.equal(result.count, limit)
+    })
+  });
 
   it ('import url', async() => {
     let imp = new ImportArt({ session, limit: 2});
     let sql = 'SELECT * from art WHERE art_ID=18149';
-    let qry = await mySQL.query(sql);
+    let qry = await DbMySql.query(sql);
     assert.equal(qry.length, 1)
     await imp.runOnData(qry[0]);
     let rec = await Art.findOne({artId: 18149});

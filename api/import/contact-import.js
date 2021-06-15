@@ -267,6 +267,9 @@ class ContactImport {
   }
 
   async run(con) {
+    if (!con) {
+      Logging.logThrow('missing mySQL connection')
+    }
     let vm = this;
     return new Promise(async (resolve, reject) => {
       let start = 0;
@@ -281,9 +284,11 @@ class ContactImport {
           for (let l = 0; l < qry.length; l++) {
             await this._convertRecord(con, qry[l]);
             ImportHelper.step(counter.count++);
+            if (start >= this._limit) { break}
+            start++;
           }
         }
-        start++;
+
       } while (qry.length > 0 && (this._limit === 0 || counter.count < this._limit));
       ImportHelper.stepEnd('Contact');
       return resolve(counter)

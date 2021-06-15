@@ -3,10 +3,9 @@
  */
 
 const InitTest = require('./init-test');
-const Db = require('./init.db');
+
 let DbMySql;
 let  DbMongo;
-const Session = require('../lib/session');
 const chai = require('chai');
 const assert = chai.assert;
 const ImportAgent = require('../import/agent-import');
@@ -21,19 +20,12 @@ describe('import.agent', function() {
   let session;
 
   before(async () =>  {
-
-    await Db.init();
-    DbMySql = await Db.DbMySQL;
-    DbMongo =  await Db.DbMongo;
+    await InitTest.init();
+    DbMySql = await InitTest.DbMySQL
+    DbMongo =  await InitTest.DbMongo;
     session = await InitTest.Session;// new Session('test-import-agent')
-    return Agent.deleteMany({}).then(() => {
-      return DbMySql.connect().then((con) => {
-
-        mySQL = con;
-        let setup = new Setup();
-        return setup.run(session);
-      })
-    })
+    await Agent.deleteMany({})
+    await Setup.runSetup(session)
   });
 
   it('check field information', () => {
@@ -73,7 +65,7 @@ describe('import.agent', function() {
   it('run - clean', () => {
     const limit = 2;
     let imp = new ImportAgent({ session, limit: limit});
-    return imp.run(mySQL).then( (result) => {
+    return imp.run(DbMySql).then( (result) => {
       assert.equal(result.count, limit)
     })
   });

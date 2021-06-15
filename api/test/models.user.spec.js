@@ -20,7 +20,7 @@ describe('models.user', () => {
       let token = await Init.AuthToken
       await User.delete({email: TEST_EMAIL})
     } catch (e) {
-      console.log(e)
+      //console.log(e)
     }
   })
 

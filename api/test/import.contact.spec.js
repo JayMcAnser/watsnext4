@@ -4,7 +4,6 @@
 
 
 const InitTest = require('./init-test');
-const Db = require('./init.db');
 let DbMySql;
 let  DbMongo;
 const chai = require('chai');
@@ -17,22 +16,16 @@ const Setup = require('../lib/setup');
 describe('import.contact', function() {
   this.timeout('10000');
 
-  let mySQL;
   let session;
 
   before(async() => {
-    await Db.init();
-    DbMySql = await Db.DbMySQL;
-    DbMongo =  await Db.DbMongo;
+    await InitTest.init();
+    DbMySql = await InitTest.DbMySQL;
+    DbMongo =  await InitTest.DbMongo;
     session = await InitTest.Session;
 
-    return Contact.deleteMany({}).then(() => {
-      return DbMySql.connect().then((con) => {
-        mySQL = con;
-        let setup = new Setup();
-        return setup.run(session);
-      })
-    })
+    await Contact.deleteMany({})
+    await Setup.runSetup(session)
   });
 
   it('check field information', () => {
@@ -116,7 +109,7 @@ describe('import.contact', function() {
   it('run - clean', () => {
     const limit = 10;
     let imp = new ImportContact({ session, limit: limit});
-    return imp.run(mySQL).then( (result) => {
+    return imp.run(DbMySql).then( (result) => {
       assert.equal(result.count, limit)
     })
   });

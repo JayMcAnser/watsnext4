@@ -5,13 +5,12 @@
  * version 0.0.2 Jay 2020-06-02 - rebuild
  */
 const Group = require('../model/group');
-const User = require('../model/user');
+const User = require('../model/user-model');
 const Contact = require('../model/contact');
 const Carrier = require('../model/carrier');
 const Config = require('config');
 const Const = require('../lib/const');
 const Logging = require('../vendors/lib/logging');
-const Session = require('./session');
 
 
 class Setup {
@@ -46,7 +45,7 @@ class Setup {
   async createRootUsers(grp) {
     let rootUser = await User.findOne({ username: 'root'});
     if (!rootUser) {
-      rootUser = await User.create({username: 'root', email: Config.get('Setup.emailRoot'), password: Config.get('Setup.passwordRoot') })
+      rootUser = await User.create({username: 'root', email: Config.get('Database.Mongo.rootEmail'), password: Config.get('Database.Mongo.rootPassword') })
     }
     grp.userAdd(rootUser);
     await rootUser.save();
@@ -89,4 +88,9 @@ class Setup {
     return Promise.resolve(!!usr)
   }
 }
+const runSetup = function(session) {
+  let setup = new Setup();
+  return setup.run(session)
+}
 module.exports = Setup;
+module.exports.runSetup = runSetup;

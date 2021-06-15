@@ -2,8 +2,8 @@
  * query the art definition
  * @type {QueryBuilder}
  */
-const Const = require('../lib/const');
-const QueryBuilder = require('./query-builder');
+const Const = require('../const');
+const QueryBuilder = require('../query-builder');
 
 class QueryArt extends QueryBuilder {
 

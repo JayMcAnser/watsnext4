@@ -1,8 +1,9 @@
+const InitTest = require('./init-test')
 const app = require('../index');
 const chai = require('chai');
 const assert = chai.assert;
 
-const QueryArt = require('../lib/query-art');
+const QueryArt = require('../lib/query/query-art');
 const ArtModel = require('../model/art');
 const ArtMock = require('./data/art.mock')
 
@@ -12,7 +13,7 @@ describe('query-art', () => {
   let session = false;
 
   before( async() => {
-    session = await require('./init-test').Session;
+    session = await InitTest.Session;
     await ArtMock.mockAdd()
   })
 

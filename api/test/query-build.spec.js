@@ -1,4 +1,5 @@
-const app = require('../index');
+// const app = require('../index');
+const InitTest = require('./init-test');
 const chai = require('chai');
 const assert = chai.assert;
 

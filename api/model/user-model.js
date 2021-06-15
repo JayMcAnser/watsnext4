@@ -10,6 +10,8 @@ const Config = require('config');
 const Bcrypt = require('bcryptjs');
 const Logging = require('../vendors/lib/logging');
 const Const = require('../lib/const');
+const uuid = require('uuid').v4;
+const JWT = require('jsonwebtoken');
 
 
 
@@ -99,11 +101,14 @@ UserModel.statics.create = function(fields) {
           email: fields.email,
           passwordHash: pwdHash,
           inviteKey: uuid(),
-          isActive: false,  // user must confirm the email address
+          isActive: fields.hasOwnProperty('isActive') ? fields.isActive : false,  // user must confirm the email address
           isValidate: false,
           isAdmin: false,
           lastLogin: Date.now()
         };
+        if (fields.hasOwnProperty('rights')) {
+          userDef.rights = fields.rights
+        }
         usr = new User(userDef);
         return usr.save().then((rec) => {
           return Promise.resolve(rec);

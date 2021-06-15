@@ -3,10 +3,8 @@
  */
 
 const InitTest = require('./init-test');
-const Db = require('./init.db');
 let DbMySql;
 let  DbMongo;
-const Session = require('../lib/session');
 const chai = require('chai');
 const assert = chai.assert;
 const CodeImport = require('../import/code-import');
@@ -19,16 +17,13 @@ describe('import.code', function() {
   let mySQL;
   let session;
   before(async () => {
-    DbMySql = await Db.DbMySQL;
-    DbMongo =  await Db.DbMongo;
+    DbMySql = await InitTest.DbMySQL;
+    DbMongo =  await InitTest.DbMongo;
     session = await InitTest.Session;
-    return Code.deleteMany({}).then(() => {
-      return DbMySql.connect().then((con) => {
-        mySQL = con;
-        let setup = new Setup();
-        return setup.run(session);
-      })
-    })
+    await Code.deleteMany({})
+    await DbMySql.connect()
+
+    await Setup.runSetup(session)
   });
 
   it('check field information', () => {
@@ -80,7 +75,7 @@ describe('import.code', function() {
   it('run - clean', () => {
     const limit = 10;
     let imp = new CodeImport({ session, limit: limit});
-    return imp.run(mySQL).then( (result) => {
+    return imp.run(DbMySql).then( (result) => {
       assert.equal(result.count, limit)
     })
   })
