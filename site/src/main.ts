@@ -1,13 +1,21 @@
 
 import { createApp } from 'vue'
-
-
 import App from './pages/index.vue';
-import './css/index.css';
+
+
+import Oruga from '@oruga-ui/oruga-next'
+import '@oruga-ui/oruga-next/dist/oruga.css'
+const app = createApp(App).use(Oruga)
+
 import { router } from './routes/index'
+
+
+import './css/index.css';
 import { store } from './store';
 import VueSvgInlinePlugin from "vue-svg-inline-plugin";
-const app = createApp(App)
+
+  // smaller footprint see: https://github.com/oruga-ui/oruga
+
 import Rights from './lib/rights';
 
 // @ts-ignore

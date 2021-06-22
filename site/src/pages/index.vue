@@ -140,8 +140,8 @@ import { useStore } from 'vuex';
 import MenuMain from "../components/menu-main.vue";
 
 const userNavigation = [
-  { name: 'Your Profile', route: 'profile' },
-  { name: 'Sign out', route: 'logout' },
+  { name: 'Your Profile', route: 'profile', href:'#' },
+  { name: 'Sign out', route: 'logout',href:'#' },
 ]
 const guestNavigation = [
   { name: 'login', href: '/login' },

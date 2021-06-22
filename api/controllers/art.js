@@ -11,7 +11,7 @@ module.exports = {
         let qry = new QueryArt(res.query);
         // let recs = await ArtModel.aggregate(qry.aggregate(req))
         // return ApiReturn.result(req, res, recs, 200);
-        return ApiReturn.result(req, res, await qry.data(ArtModel, req))
+        return ApiReturn.result(req, res, await qry.data(ArtModel, req), 200)
       }
       ApiReturn.result(req, res, 'access denied', 403)
     } catch (e) {

@@ -11,6 +11,7 @@
       ></panel-error>
       <form novalidate @submit.prevent="onsubmit">
         <div class="mb-4">
+          <!--
           <InputText
               label="Username"
               v-model="username"
@@ -20,8 +21,15 @@
               @focus="errors = ''"
           >
           </InputText>
+          -->
+          <o-field
+              label="Username"
+          >
+            <o-input v-model="username"></o-input>
+          </o-field>
         </div>
         <div class="mb-4">
+          <!--
           <InputText
               label="Password"
               v-model="password"
@@ -30,18 +38,32 @@
               @focus="errors = ''"
           >
           </InputText>
+          -->
+          <o-field
+              label="Password"
+          >
+            <o-input
+                type="password"
+                v-model="password"
+                password-reveal
+            > </o-input>
+          </o-field>
         </div>
 
+
         <div class="flex items-center justify-between">
-          <button class="font-bold py-2 px-4 rounded bg-gray-400"
-                  type="button"
+          <button type="button" class="btn"><span class=""><!----><span>Add recipe</span><!----></span></button>
+
+          <o-button variant="primary"
                   @click="submit"
           >
             Sign In
-          </button>
-          <a class="py-6 inline-block align-baseline font-bold text-sm text-blue hover:text-blue" @click="notYet">
+          </o-button>
+          <o-button
+              @click="notYet"
+          >
             Forgot Password?
-          </a>
+          </o-button>
         </div>
       </form>
     </div>
