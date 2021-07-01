@@ -1,5 +1,15 @@
 
+.XXXXX .p-menu .p-menuitem-link .p-menuitem-text {
+  color: red
+}
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+
+.bg-red {
+  background-color: red
+}
+.bg-green {
+  background-color: green;
+}
+.bg-gray {
+  background-color: silver;
+}

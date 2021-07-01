@@ -1,18 +1,46 @@
 
 import { createApp } from 'vue'
 import App from './pages/index.vue';
+const app = createApp(App)
+import PrimeVue from 'primevue/config';
+
+import 'primevue/resources/themes/saga-blue/theme.css';
+import 'primevue/resources/primevue.min.css';
+import 'primeicons/primeicons.css';
 
 
-import Oruga from '@oruga-ui/oruga-next'
-import '@oruga-ui/oruga-next/dist/oruga.css'
-const app = createApp(App).use(Oruga)
+app.use(PrimeVue)
+
+import Button from "primevue/button";
+import TabMenu from "primevue/tabmenu";
+import InputText from 'primevue/inputtext'
+import Accordion from "primevue/accordion";
+import AccordionTab from "primevue/accordiontab";
+import PanelMenu from "primevue/panelmenu";
+import Listbox from "primevue/listbox";
+import Menu from "primevue/menu";
+
+// import VueSidebarMenu from 'vue-sidebar-menu';
+
+app.component('Button', Button)
+app.component('TabMenu', TabMenu )
+app.component('InputText', InputText)
+app.component('Accordion', Accordion);
+app.component('AccordionTab', AccordionTab);
+app.component('Listbox', Listbox)
+app.component('PanelMenu', PanelMenu);
+app.component('Menu', Menu)
+// app.component('VueSidebarMenu', VueSidebarMenu)
 
 import { router } from './routes/index'
-
+import 'primeflex/primeflex.css';
 
 import './css/index.css';
+import './css/test.css';
+
 import { store } from './store';
 import VueSvgInlinePlugin from "vue-svg-inline-plugin";
+
 
   // smaller footprint see: https://github.com/oruga-ui/oruga
 

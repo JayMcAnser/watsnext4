@@ -1,9 +1,40 @@
 <template>
   <div>
-    <div class="hidden md:flex md:flex-shrink-0">
+    <div  class="hidden md:flex md:flex-shrink-0">
       <div class="w-64 flex flex-col">
+<!--
+        <panel-menu
+            :model="items"
+            :expandedKeys="expandedKeys"
+        >
+
+        </panel-menu>
+        ll{{expandedKeys}}
+-->
+        <Accordion :active-index="groupActive">
+          <AccordionTab
+              v-for="tab in navigation" :key="tab.label"
+              :header="tab.label">
+            <Menu
+                style="border: 0; width: 100%;"
+                :model="tab.items">
+
+            </Menu>
+          </AccordionTab>
+        </Accordion>
+        <div class="menu-category">Art</div>
+        <div >
+          <Button label="active new" @click="active('art/new')"></Button>
+          <Button label="active list" @click="active('art/list')"></Button>
+        </div>
+
+      <!--
+        <sidebar-menu :menu="menu">
+
+        </sidebar-menu>
+        -->
         <!-- Sidebar component, swap this element with another sidebar if you like -->
-        <div class="border-r border-gray-200 pt-5 pb-4 flex flex-col flex-grow overflow-y-auto">
+        <!-- <div class="border-r border-gray-200 pt-5 pb-4 flex flex-col flex-grow overflow-y-auto">
           <div class="flex-shrink-0 px-4 flex items-center">
             <img class="h-8 w-auto" src="https://tailwindui.com/img/logos/workflow-logo-indigo-600-mark-gray-800-text.svg" alt="Workflow" />
           </div>
@@ -18,6 +49,7 @@
             </nav>
           </div>
         </div>
+        -->
       </div>
     </div>
   </div>
@@ -26,52 +58,77 @@
 <script>
 
 
-import {
-  CogIcon,
-  CollectionIcon,
-  HomeIcon,
-  PhotographIcon,
-  UserGroupIcon,
-  ViewGridIcon
-} from "@heroicons/vue/outline/esm";
 import {useStore} from "vuex";
 import {debug} from '../vendors/lib/logging'
+import {ref} from 'vue'
 
 
-
-const navigation = [
-  { name: 'Home', to: {name: 'home'}, icon: HomeIcon, key: 'home' },
-  { name: 'Distribution', to: {name: 'notyet'}, icon: ViewGridIcon, key: 'distribution' },
-  { name: 'Royalties', to: {name: 'notyet'}, icon: PhotographIcon, key: 'royalties' },
-  { name: 'Art', to: {name: 'art'}, icon: ViewGridIcon, key: 'art'},
-  { name: 'Mediakunst.net', to: {name: 'notyet'}, icon: UserGroupIcon, key: 'mediakunst' },
-  { name: 'Contacts', to: {name: 'notyet'}, icon: CollectionIcon, key: 'contact' },
-  { name: 'Settings', to: {name: 'notyet'}, icon: CogIcon, key: 'properties' },
+let nav = [
+  {
+    label: 'Art',
+    items: [
+      {label: 'List', icon: 'list', key: 'art/list'},
+      {label: 'New', icon: 'icp-new', key: 'art/new'},
+      {label: 'Royalties', icon: 'icp-new', key: 'art/royalties'},
+    ]
+  },
+  {
+    label: 'Artist',
+    items: [
+      {label: 'List', icon: 'list'},
+      {label: 'New',  icon:'new', class:'XXXXX'}
+    ]
+  }
 ]
+
+
 
 export default {
   name: "menu-main",
+
   setup() {
     const store = useStore()
     const itemVisible = function(part) {
       let visible = store.getters['user/rightsView'](part);
      // debug(`menu[${part}] = ${visible}`)
       return visible
-    },
-    itemActive = function(part) {
-      let active = store.getters['status/menuActive'](part);
-      // debug(`menu[${part}].active = ${active}`)
-      return active
+    }
+    const groupActive = function(part) {
+      return store.getters['status/menuActive'](part);
+    }
+    const expandedKeys = ref(['File'])
+    const navigation = ref(nav)
+    const active = (part) => {
+      for (let partIndex = 0; partIndex < navigation.value.length; partIndex++) {
+        for (let index = 0; index < navigation.value[partIndex].items.length; index++) {
+          if (navigation.value[partIndex].items[index].key === part) {
+            debug('found it')
+            navigation.value[partIndex].items[index].class = 'XXXXX'
+            console.log(navigation.value)
+          } else {
+            delete navigation.value[partIndex].items[index].class
+          }
+        }
+      }
     }
     return {
+      expandedKeys,
       navigation,
+      active,
       itemVisible,
-      itemActive
+      groupActive
     }
   }
 }
 </script>
 
-<style scoped>
+<style  >
+ .p-accordion-content > .p-menu {
+   width: 100%;
+   border: 0;
+ }
+ .p-menu .XXXXX .p-menuitem-link .p-menuitem-text {
+   color: red !important;
+ }
 
 </style>
