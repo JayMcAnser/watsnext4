@@ -5,11 +5,14 @@
  */
 const Logging = require('../vendors/lib/logging')
 const Const = require('../lib/const');
+const ModelSession = require('../model/model-session');
+
 const ITEMS_PER_PAGE = 20;
 
 class FieldDef {
   constructor(options = {fieldName: ''}) {
     this.fieldName = options.fieldName.trim();
+    this.model = options.model ? options.model : false
     if (!this.fieldName.length) {
       Logging.logThrow(`fieldName is missing`)
     }
@@ -67,12 +70,16 @@ class QueryBuilder {
     this._itemPerPage = ITEMS_PER_PAGE;
     this._processFields(options.fields);
     this._processSort(options.sortOrders);
+    this._model = options.model;
     this._processViews(options.views);
     if (Object.keys(this._filters).length === 0) {
       Logging.logThrow('fields is required', 'querybuild.constructor')
     }
   }
 
+  get model() {
+    return this._model
+  }
   /**
    *
    * @param fields
@@ -167,10 +174,10 @@ class QueryBuilder {
       this._views[view] = views[view];
     }
     if (Object.keys(this._views).length === 0) {
-      this._views.default = {id: 1}
+      this._views.default = false // {id: 1}
     } else if (!this._views.default) {
       // make the first one the default
-      this._views.default = this._views[Object.keys(this._views)[0]]
+      this._views.default = false; // this._views[Object.keys(this._views)[0]]
     }
   }
 
@@ -286,7 +293,7 @@ class QueryBuilder {
       sort: req.query.hasOwnProperty('sort') ? req.query.sort : 'default',
       query: false,
       fields: req.query.hasOwnProperty('fields')? req.query.fields : 'default',
-      view: req.query.hasOwnProperty('view')? req.query.view : 'default'
+      view: req.query.hasOwnProperty('view') ? req.query.view : 'default'
     }
     if (req.query) {
       // build the query limiter
@@ -320,7 +327,9 @@ class QueryBuilder {
       }
       result.push({$limit: query.limit})
     }
-    result.push({ $project: this._views[query.view]})
+    if (this._views[query.view]) {  // only if we are requesting a view
+      result.push({$project: this._views[query.view]})
+    }
     return result
   }
 
@@ -331,7 +340,52 @@ class QueryBuilder {
    */
   async data(model, req) {
     let a = this.aggregate(req);
-    return await model.aggregate(a)
+    let recs = await model.aggregate(a)
+    return recs
+  }
+
+  async byId(model, req) {
+    if (!req.params.id) {
+      throw new Error('missing id')
+    }
+    return model.findById(req.params.id).then((data) => {
+      return [data]
+    })
+    // console.log('hit')
+  }
+
+  /**
+   * the update routine the combines multiple updates into one
+   *
+   * @param model
+   * @param req
+   * @return {Promise<void>}
+   */
+  async update(model, req) {
+    let session = false;
+    if (req.params.session && this.model) {
+      let orgRec;
+      session = await ModelSession.findByKey(req.params.session);
+      if (!session) {
+        orgRec = await model.findById(req.params.id).lean(true);
+        session = await ModelSession.create({model: this.model, originalData: orgRec})
+        Logging.log('info', `create new session for updating ${this.model} by key ${session.key}`)
+      } else {
+        Logging.log('info', `using existing session on ${this.model} by key ${session.key}`)
+        orgRec = session.originalData;
+      }
+      // orgRec is what we started with, req.body are the changes
+      // we must merge the previous changes with the current changes into one update
+      // TODO: update history so changes are merged
+    }
+    return model.updateOne({_id: req.params.id}, req.body).then((rec) => {
+      return {
+        sessionKey: session.key,
+        id: req.params.id,
+        model: this.model,
+        updateCount: rec.nModified
+      }
+    })
   }
 }
 

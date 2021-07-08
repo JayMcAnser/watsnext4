@@ -208,18 +208,18 @@ describe('query-builder', () => {
           query: 'work'
         }})
       assert.isDefined(qry.fields);
-      assert.isDefined(qry.fields.id);
-      assert.equal(qry.fields.id, 1);
+      assert.isFalse(qry.fields, 'false is: use all fields');
+      // assert.equal(qry.fields.id, 1);
     })
 
     it('multiple', () => {
       let builder = new QueryBuild({ fields: ['title'], views:{ title: {id:1, title:1}}})
       let qry = builder.parse({query:{
-          query: 'work'
+          query: 'work',
+          view: 'title'
         }})
       assert.isDefined(qry.fields);
       assert.isDefined(qry.fields.id);
-      assert.equal(qry.fields.id, 1);
       assert.equal(qry.fields.title, 1);
       assert.equal(builder.viewNames.length, 2, 'title and default')
     })
@@ -253,7 +253,7 @@ describe('query-builder', () => {
           "query": 'work'
         }
       });
-      assert.equal(qry.length, 3, '$match, $sort, $project');
+      assert.equal(qry.length, 2, '$match, $sort');
       assert.isDefined(qry[0].$match);
       assert.isDefined(qry[1].$sort);
     })
@@ -265,12 +265,16 @@ describe('query-builder', () => {
         },
         sortOrders: {
           default: ['title'],
+        },
+        views: {
+          title: ['id', 'title']
         }
       })
       let qry = builder.aggregate({
         query: {
           "query": 'work',
-          "page": 1
+          "page": 1,
+          view: 'title'
         }
       });
       assert.equal(qry.length, 5 );
@@ -287,7 +291,7 @@ describe('query-builder', () => {
           "page": 0
         }
       });
-      assert.equal(qry.length, 4);
+      assert.equal(qry.length, 3);
       assert.isDefined(qry[0].$match);
       assert.isDefined(qry[1].$sort);
       assert.isDefined(qry[2].$limit)

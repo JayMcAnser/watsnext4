@@ -14,7 +14,7 @@ const Art = require('../model/art');
 const Setup = require('../lib/setup');
 
 describe('import.art', function() {
-  this.timeout(1000);
+  this.timeout(10000);
 
   let session;
 
@@ -115,12 +115,19 @@ describe('import.art', function() {
       assert.equal(mRec.description, 'descriptionEn');
       assert.equal(mRec.hasSound, 1);
       assert.equal(mRec.audio, 'audio');
-      assert.equal(mRec.credits, 'credits')
+      assert.equal(mRec.credits, 'credits');
+
+      // add a second test record
+      record.art_ID = 2
+      record.title = 'title 2';
+      return imp.runOnData(record).then((mRec) => {
+        assert.equal(mRec.title, 'title 2');
+      });
     })
   });
 
   it('run - clean', () => {
-    const limit = 2;
+    const limit = 20;
     let imp = new ImportArt({ session, limit: limit});
     return imp.run(DbMySql).then( (result) => {
       assert.equal(result.count, limit)

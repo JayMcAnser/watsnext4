@@ -17,7 +17,8 @@ class QueryAgent extends QueryBuilder {
       },
       views: {
         default: {'id': 1, 'name': 1},
-      }
+      },
+      model: 'agent'
     });
   }
 

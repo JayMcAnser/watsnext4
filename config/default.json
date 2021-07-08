@@ -13,7 +13,8 @@
       "rootEmail.doc": "The email account of the root account with all access",
       "rootEmail": "info@toxus.nl",
       "rootPassword.doc": "The plain text password for this account",
-      "rootPassword": "123456"
+      "rootPassword": "123456",
+      "sessionMerge": "3 minutes"
     },
     "MySQL": {
       "host": "mysql.li-ma.nl",
@@ -77,7 +78,7 @@
       "type" : "file",
       "format" : "timestamp",
       "level" : "warn",
-      "filename" : "dropper.warn.log"
+      "filename" : "watsnext.warn.log"
     }
   ],
   "Board" : {

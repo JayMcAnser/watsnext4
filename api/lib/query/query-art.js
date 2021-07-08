@@ -20,9 +20,9 @@ class QueryArt extends QueryBuilder {
         yearDesc: ['-yearFrom']
       },
       views: {
-        default: {'id': 1, 'title': 1},
         title: {id: 1, title:1, description: 1, searchcode: 1}
-      }
+      },
+      model: 'art'
     });
   }
 

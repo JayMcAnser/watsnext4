@@ -1,13 +1,7 @@
 <template>
   <div>
     THIS IS THE ART PAGE
-    <search-bar
-        @changed="setSearch"
-    ></search-bar>
-    <list-grid
-        :items="items"
-    ></list-grid>
-    <pager></pager>
+    <router-view></router-view>
   </div>
 </template>
 

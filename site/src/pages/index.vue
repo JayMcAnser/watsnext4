@@ -192,10 +192,9 @@
       -->
     </div>
 
-    <div class="layout-content">
-      <div class="p-grid">
-        <div class="p-col-12 p-md-6 p-fluid bg-red">
-          <router-view />
+    <div class="layout-content p-p-4">
+        <router-view></router-view>
+          <!--
           <div class="card">
             <h5>InputText</h5>
             <div class="p-grid p-formgrid">
@@ -210,8 +209,7 @@
               </div>
             </div>
           </div>
-        </div>
-      </div>
+          -->
     </div>
   </div>
 </template>

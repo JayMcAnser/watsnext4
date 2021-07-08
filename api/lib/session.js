@@ -35,6 +35,14 @@ class Session extends VendorSession {
     let module = this.rights.filter((x) => x.module === type && x.rights & RIGHTS_READ === RIGHTS_READ);
     return module.length > 0
   }
+
+  canWrite(type) {
+    if (this.isAdmin) {
+      return true;
+    }
+    let module = this.rights.filter((x) => x.module === type && x.rights & RIGHTS_WRITE === RIGHTS_WRITE);
+    return module.length > 0
+  }
 }
 
 module.exports = Session;

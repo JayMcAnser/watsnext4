@@ -4,3 +4,6 @@
 [submodule "api/vendors"]
 	path = api/vendors
 	url = git@github.com:JayMcAnser/api-vendors.git
+[submodule "api/wikipedia"]
+	path = api/wikipedia
+	url = git@github.com:JayMcAnser/wikipedia.git

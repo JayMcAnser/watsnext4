@@ -1,13 +1,10 @@
 <template>
-  <div
-      class=""
-  >Sorry not yet implemented
-  </div>
+  <div> List result</div>
 </template>
 
 <script>
 export default {
-  name: "not-yet"
+  name: "list-result"
 }
 </script>
 

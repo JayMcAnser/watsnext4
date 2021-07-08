@@ -11,7 +11,7 @@
         </panel-menu>
         ll{{expandedKeys}}
 -->
-        <Accordion :active-index="groupActive">
+        <Accordion :active-index="panelActive">
           <AccordionTab
               v-for="tab in navigation" :key="tab.label"
               :header="tab.label">
@@ -27,6 +27,7 @@
           <Button label="active new" @click="active('art/new')"></Button>
           <Button label="active list" @click="active('art/list')"></Button>
         </div>
+        <div>active index: {{ panelActive }}</div>
 
       <!--
         <sidebar-menu :menu="menu">
@@ -67,9 +68,9 @@ let nav = [
   {
     label: 'Art',
     items: [
-      {label: 'List', icon: 'list', key: 'art/list'},
-      {label: 'New', icon: 'icp-new', key: 'art/new'},
-      {label: 'Royalties', icon: 'icp-new', key: 'art/royalties'},
+      {label: 'List', icon: 'list', key: 'art/list', to: '/art/list'},
+      {label: 'New', icon: 'icp-new', key: 'art/new', to: '/notyet'},
+      {label: 'Royalties', icon: 'icp-new', key: 'art/royalties', to: '/notyet'},
     ]
   },
   {
@@ -93,16 +94,16 @@ export default {
      // debug(`menu[${part}] = ${visible}`)
       return visible
     }
-    const groupActive = function(part) {
-      return store.getters['status/menuActive'](part);
-    }
-    const expandedKeys = ref(['File'])
+    const panelActive = ref(1)
+
     const navigation = ref(nav)
     const active = (part) => {
       for (let partIndex = 0; partIndex < navigation.value.length; partIndex++) {
         for (let index = 0; index < navigation.value[partIndex].items.length; index++) {
           if (navigation.value[partIndex].items[index].key === part) {
-            debug('found it')
+            panelActive.value = partIndex
+            debug(`found it ${panelActive.value}`)
+
             navigation.value[partIndex].items[index].class = 'XXXXX'
             console.log(navigation.value)
           } else {
@@ -112,11 +113,10 @@ export default {
       }
     }
     return {
-      expandedKeys,
       navigation,
       active,
       itemVisible,
-      groupActive
+      panelActive
     }
   }
 }

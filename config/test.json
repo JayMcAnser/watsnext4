@@ -2,7 +2,7 @@
   "Path.dataRoot" : "temp/data",
   "Database": {
     "Mongo": {
-      "database": "watsnext-test"
+      "databaseXX": "watsnext-test"
     }
   }
 }
