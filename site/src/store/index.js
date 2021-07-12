@@ -2,7 +2,7 @@
 import { createStore } from 'vuex';
 
 
-import {board} from './board';
+// import {board} from './board';
 import {art} from './art';
 import {element} from './element';
 import {auth} from '../vendors/store/auth';
@@ -33,7 +33,7 @@ const defaultModule = {
 const store = createStore({
   modules: {
     defaultModule,
-    board: board,
+//    board: board,
     art,
     element,
     auth,
