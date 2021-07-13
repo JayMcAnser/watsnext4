@@ -19,8 +19,10 @@ export default {
     const errMsg = computed(() =>  {
       if (Array.isArray(props.errors)) {
         return props.errors.filter( (e) => e && e.trim().length > 0).join('<br/>')
-      } else {
+      } else if (props.errors) {
         return props.errors.trim()
+      } else {
+        return ''
       }
     })
     return {

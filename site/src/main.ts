@@ -13,24 +13,30 @@ import 'primeicons/primeicons.css';
 app.use(PrimeVue)
 
 import Button from "primevue/button";
+import Card from 'primevue/card';
 import TabMenu from "primevue/tabmenu";
 import InputText from 'primevue/inputtext'
 import Accordion from "primevue/accordion";
 import AccordionTab from "primevue/accordiontab";
 import PanelMenu from "primevue/panelmenu";
+import Password from "primevue/password";
 import Listbox from "primevue/listbox";
 import Menu from "primevue/menu";
+import Message from 'primevue/message';
 
 // import VueSidebarMenu from 'vue-sidebar-menu';
 
 app.component('Button', Button)
+app.component('Card', Card)
 app.component('TabMenu', TabMenu )
 app.component('InputText', InputText)
+app.component('Password', Password)
 app.component('Accordion', Accordion);
 app.component('AccordionTab', AccordionTab);
 app.component('Listbox', Listbox)
 app.component('PanelMenu', PanelMenu);
-app.component('Menu', Menu)
+app.component('Menu', Menu);
+app.component('Message', Message)
 // app.component('VueSidebarMenu', VueSidebarMenu)
 
 import { router } from './routes/index'
