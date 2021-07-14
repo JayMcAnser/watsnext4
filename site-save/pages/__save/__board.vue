@@ -45,18 +45,18 @@
     <panel-slide-up>
       <div class="flex flex-row justify-around">
         <div @click="addElement('text')" class="h-26 w-12 p-2">
-          <img v-svg-inline  src="../assets/icons/element-text.svg"  >
+          <img v-svg-inline  src="../../assets/icons/element-text.svg"  >
         </div>
         <div @click="addElement('image')" class="h-26 w-12 p-2">
-          <img v-svg-inline  src="../assets/icons/element-image.svg"  >
+          <img v-svg-inline  src="../../assets/icons/element-image.svg"  >
         </div>
         <div @click="addElement('video')" class="h-26 w-12 p-2">
-          <img v-svg-inline  src="../assets/icons/element-video.svg"  >
+          <img v-svg-inline  src="../../assets/icons/element-video.svg"  >
         </div>
       </div>
       <div class="flex flex-row justify-around">
         <div @click="addElement('layout')" class="h-26 w-12 p-2">
-          <img v-svg-inline  src="../assets/icons/element-layout.svg"  >
+          <img v-svg-inline  src="../../assets/icons/element-layout.svg"  >
         </div>
       </div>
     </panel-slide-up>
@@ -77,15 +77,15 @@
 import {computed, onMounted, ref} from 'vue'
 import {useRoute} from 'vue-router';
 import { useStore } from 'vuex';
-import {debug, warn, error} from '../vendors/lib/logging';
-import PanelSlide from "../components/panel-slide.vue";
-import HeaderBoard from "../components/header-board.vue";
-import HeaderPublic from "../components/header-public.vue";
-import BoardListLayouts from "../components/board-list-layouts.vue";
-import BoardLayout from "../components/board-layout.vue";
-import FooterBoard from "../components/footer-board.vue";
-import PanelSlideUp from "../components/panel-slide-up.vue";
-import Board from '../models/board'
+import {debug, warn, error} from '../../vendors/lib/logging';
+import PanelSlide from "../../components/panel-slide.vue";
+import HeaderBoard from "../../components/header-board.vue";
+import HeaderPublic from "../../components/header-public.vue";
+import BoardListLayouts from "../../components/__save/board-list-layouts.vue";
+import BoardLayout from "../../components/__save/board-layout.vue";
+import FooterBoard from "../../components/footer-board.vue";
+import PanelSlideUp from "../../components/panel-slide-up.vue";
+import Board from '../../models/board'
 
 
 export default {

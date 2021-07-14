@@ -39,12 +39,12 @@
 
 <script>
 import {ref} from "vue";
-import {isEmail, minLength} from "./validators";
+import {isEmail, minLength} from "../validators";
 import {useStore} from "vuex";
 import {useRouter} from "vue-router";
-import PanelError from "./panel-error.vue";
-import HeaderPublic from "../components/header-public.vue";
-import InputText from "../components/input-text.vue";
+import PanelError from "../panel-error.vue";
+import HeaderPublic from "../header-public.vue";
+import InputText from "../input-text.vue";
 
 
 export default {

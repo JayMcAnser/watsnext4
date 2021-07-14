@@ -17,7 +17,7 @@
 </template>
 <script>
 import HeaderDefault from "./header-default.vue";
-import Tabs from "./tabs.vue";
+import Tabs from "./__save/tabs.vue";
 import { ref } from 'vue';
 import { MenuIcon } from '@heroicons/vue/solid';
 /**

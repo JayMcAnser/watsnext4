@@ -1,6 +1,6 @@
 <template>
   <div class="">
-    <img v-svg-inline class="icon" src="../assets/icons/element-file.svg"> {{summery.title}}
+    <img v-svg-inline class="icon" src="../../assets/icons/element-file.svg"> {{summery.title}}
   </div>
 </template>
 

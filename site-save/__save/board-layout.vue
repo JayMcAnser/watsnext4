@@ -12,7 +12,7 @@
 
 import BoardLayoutGrid from "./board-layout-grid.vue";
 import {computed } from 'vue';
-import {warn} from '../vendors/lib/logging'
+import {warn} from '../../vendors/lib/logging'
 const LAYOUTS = {
   grid: BoardLayoutGrid
 }

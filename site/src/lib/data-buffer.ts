@@ -12,9 +12,9 @@ import { axiosActions } from '../vendors/lib/const';
 
 class DataBuffer {
   private url: string
-  private buffer: Map<Object>;
+  private buffer: Map<String, Object>;
 
-  constructor(options ={}) {
+  constructor(options  = {url: undefined}) {
     this.url = options.url;  // the /art or /distribution
     this.buffer = new Map();
   }

@@ -2,9 +2,9 @@
   <div class="layout-wrapper">
     <div v-if="isLoggedIn">
       <!-- TOP MENU -->
-      <div class="layout-topbar"><a class="menu-button"><i class="pi pi-bars"></i></a><a href="#/" class="logo"><img
-          alt="logo" src="/primevue/showcase/img/primevue-logo.2954558d.png"></a>
-        <div class="app-theme"><img src="demo/images/themes/nano.jpg"></div>
+      <div class="layout-topbar"><a class="menu-button"><i class="pi pi-bars"></i></a>
+        <a href="#/" class="logo">Large Logo </a>
+        <div class="app-theme">theme</div>
         <ul class="topbar-menu">
           <li><a href="#/notyet" class="">Get Started</a></li>
           <li class="topbar-submenu">

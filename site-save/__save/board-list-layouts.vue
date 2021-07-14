@@ -29,7 +29,7 @@
 
 <script>
 import { computed } from 'vue';
-import { debug } from '../vendors/lib/logging'
+import { debug } from '../../vendors/lib/logging'
 import { useRouter } from 'vue-router'
 import ElementSummery from "./element-summery.vue";
 export default {

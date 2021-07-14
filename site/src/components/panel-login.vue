@@ -10,8 +10,8 @@
       </template>
       <template #content>
         <Message severity="error"
+                 :closable="false"
                  v-if="error.length"
-                 @close="error=''"
         >
           {{ error }}
         </Message>
@@ -101,6 +101,7 @@ export default {
     const clearError = function() {
       error.value = ''
     }
+
     return {
       username,
       password,

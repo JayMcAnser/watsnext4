@@ -137,7 +137,7 @@ import {
 
 import { SearchIcon } from '@heroicons/vue/solid';
 import { useStore } from 'vuex';
-import MenuMain from "../components/menu-main.vue";
+import MenuMain from "../../components/menu-main.vue";
 
 const userNavigation = [
   { name: 'Your Profile', route: 'profile', href:'#' },

@@ -42,15 +42,15 @@
 </template>
 
 <script>
-import HeaderBoard from "../components/header-board.vue";
+import HeaderBoard from "../../components/header-board.vue";
 import {computed, ref, onMounted, watch, reactive} from "vue";
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router'
-import {debug} from '../vendors/lib/logging';
-import HeaderPublic from "../components/header-public.vue";
-import PanelSlide from "../components/panel-slide.vue";
-import BoardsList from "../components/boards-list.vue";
-import Tabs from "../components/tabs.vue";
+import {debug} from '../../vendors/lib/logging';
+import HeaderPublic from "../../components/header-public.vue";
+import PanelSlide from "../../components/panel-slide.vue";
+import BoardsList from "../../components/__save/boards-list.vue";
+import Tabs from "../../components/__save/tabs.vue";
 
 export default {
   /**
