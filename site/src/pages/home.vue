@@ -13,7 +13,7 @@ export default {
   setup() {
     const store = useStore();
     onMounted( async() => {
-      await store.dispatch('status/menu', {menu: 'home'});
+      await store.dispatch('menu/activate', 'home');
     })
     return {
 

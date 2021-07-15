@@ -13,7 +13,7 @@
 -->
         <Accordion :active-index="panelActive">
           <AccordionTab
-              v-for="tab in navigation" :key="tab.label"
+              v-for="tab in navigation" :key="tab.key"
               :header="tab.label">
             <Menu
                 style="border: 0; width: 100%;"
@@ -22,10 +22,14 @@
             </Menu>
           </AccordionTab>
         </Accordion>
+
+
+
+
         <div class="menu-category">Art</div>
         <div >
           <Button label="active new" @click="active('art/new')"></Button>
-          <Button label="active list" @click="active('art/list')"></Button>
+          <Button label="active list" @click="active('artist/list')"></Button>
         </div>
         <div>active index: {{ panelActive }}</div>
 
@@ -61,12 +65,20 @@
 
 import {useStore} from "vuex";
 import {debug} from '../vendors/lib/logging'
-import {ref} from 'vue'
+import {computed, ref, watch} from 'vue'
 
 
 let nav = [
   {
+    label: 'Home',
+    key: 'home',
+    items: [
+      {label: 'About', key: 'home/about', to: 'home/about'}
+    ]
+  },
+  {
     label: 'Art',
+    key: 'art',
     items: [
       {label: 'List', icon: 'list', key: 'art/list', to: '/art/list'},
       {label: 'New', icon: 'icp-new', key: 'art/new', to: '/notyet'},
@@ -75,6 +87,7 @@ let nav = [
   },
   {
     label: 'Artist',
+    key: 'artist',
     items: [
       {label: 'List', icon: 'list'},
       {label: 'New',  icon:'new', class:'XXXXX'}
@@ -95,30 +108,64 @@ export default {
       return visible
     }
     const panelActive = ref(1)
+    // const activeRoot = computed(() => {
+    //   debug('menu root changed')
+    //   let root = store.getters['menu/active'][0];
+    //   for (let index = 0; index < nav.length; index++) {
+    //     if (root === nav[index].key) {
+    //       return index
+    //     }
+    //   }
+    //   return 0;
+    // })
+ //   const activeRoot = ref(0)
+    const menuRootActive = computed(() => {
+      return store.getters['menu/active'][0]
+    })
 
     const navigation = ref(nav)
-    const active = (part) => {
-      for (let partIndex = 0; partIndex < navigation.value.length; partIndex++) {
-        for (let index = 0; index < navigation.value[partIndex].items.length; index++) {
-          if (navigation.value[partIndex].items[index].key === part) {
-            panelActive.value = partIndex
-            debug(`found it ${panelActive.value}`)
+    const active = async (part) => {
+      await store.dispatch('menu/activate', part);
+//      debug(`set menu: ${root}`);
+      // for (let partIndex = 0; partIndex < navigation.value.length; partIndex++) {
+      //   for (let index = 0; index < navigation.value[partIndex].items.length; index++) {
+      //     if (navigation.value[partIndex].items[index].key === part) {
+      //       panelActive.value = partIndex
+      //       debug(`found it ${panelActive.value}`)
+      //
+      //       navigation.value[partIndex].items[index].class = 'XXXXX'
+      //       console.log(navigation.value)
+      //     } else {
+      //       delete navigation.value[partIndex].items[index].class
+      //     }
+      //   }
+      // }
+    }
+    store.subscribe((mutation, state) => {
 
-            navigation.value[partIndex].items[index].class = 'XXXXX'
-            console.log(navigation.value)
-          } else {
-            delete navigation.value[partIndex].items[index].class
-          }
+      let root = store.getters['menu/active'][0];
+      debug(`changed menu, ${mutation.type}, root: ${root}`);
+      let activeIndex = 0;
+      console.log(nav)
+      for (let index = 0; index < nav.length; index++) {
+        console.log(root === nav[index].key, root, nav[index].key)
+        if (root === nav[index].key) {
+          activeIndex = index
+          break
         }
       }
-    }
+      panelActive.value = activeIndex
+      debug(`activate: ${activeIndex}`)
+    })
     return {
       navigation,
       active,
+      // activeRoot,
       itemVisible,
       panelActive
     }
   }
+
 }
 </script>
 

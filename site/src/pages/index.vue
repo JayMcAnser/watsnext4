@@ -152,9 +152,11 @@
       </div>
       <!-- SIDE MENU -->
       <div class="layout-sidebar">
-        <a href="#/" class="logo">
-          <img alt="logo"   src="../assets/logo.png">
-        </a>
+        <router-link
+            :to="{name: 'home'}"
+        >
+          <span class="logo"><img alt="logo"   src="../assets/logo.png"></span>
+        </router-link>
         <div class="layout-sidebar-filter p-fluid p-input-filled">
           <h5>Site search</h5>
           <span class="p-input-icon-left">
@@ -239,9 +241,9 @@ export default {
   name: "index.vue",
   components: {PanelLogin, MenuMain},
   async created() {
-    debug('create app')
-    const store = useStore();
-    await store.dispatch('auth/restore')
+    // debug('create app')
+    // const store = useStore();
+    // await store.dispatch('auth/restore')
   },
   setup() {
     const search = ref('')

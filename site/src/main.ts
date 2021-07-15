@@ -93,5 +93,6 @@ app.directive('click-outside', {
 })
 
 app.mount('#app')
-console.log('store', store.getters['menu/active'])
+// console.log('store', store);
+store.dispatch('auth/restore')
 export default app;

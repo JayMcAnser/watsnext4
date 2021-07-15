@@ -2,43 +2,32 @@
  * menu store
  *
  */
-import {error} from '../vendors/lib/logging'
-
-// the menu and the submenus and who can see them
-const VALID_STATES = {
-  home: {
-    default: ['all']
-  },
-  distribution: {
-    default: ['all']
-  }
-}
+import {debug, error} from '../vendors/lib/logging'
 
 export const state = () => ({
-  active: 'home',
-  subMenu: 'default'
+  menu: ['home']
 })
 
 
 export const mutations = {
-  active({status}, active) {
-    if (VALID_STATES.hasOwnProperty(active)) {
-      if (VALID_STATES[active].default.indexOf())
-      status.active = active;
-      this.state.subMenu = 'default'
-    } else {
-      error(`[store.menu] unknown state: ${active}`)
-    }
+  active(state, active) {
+    state.menu = active.split('/')
+    debug(`active menu: ${state.menu.join('.')}`)
   }
 }
 
 
 export const actions = {
-  distribution(context) {
-    context.commit('active', 'distribution')
-  },
-  increment(context) {
-    context.commit('increment')
+  /**
+   * activate the menu with a art/list/xx string
+   * @param contect
+   * @param menuString
+   */
+  activate(context, menuString) {
+    if (!menuString) {
+      menuString = 'home'
+    }
+    context.commit('active', menuString)
   }
 }
 
@@ -46,15 +35,13 @@ export const actions = {
 export const getters = {
 
   active: (state) => {
-    return 'THIS IS IT'; // state.active
+    return state.menu
   }
-  //
-  // data: (state) => {
-  //   return state.elementClass;
-  // }
+
 }
 
 export const menu = {
+  namespaced: true,
   state,
   mutations,
   actions,
