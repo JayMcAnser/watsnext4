@@ -5,19 +5,27 @@
  */
 import {debug, error} from '../vendors/lib/logging';
 import {reactive, watch} from 'vue'
-import _ from "lodash";
+import {cloneDeep} from "lodash";
+import * as JsonPatch from 'fast-json-patch';
 
 class Record {
-  private modelName: string;
+  // which api model is used
+  readonly modelName: string;
+  // the data has changed
   private dirty: boolean;
-  private data: Object;
+  // the ref version of the information
+  private data: any;
+  // the information send to the server in patch steps
+  private updateBuffer: Array<any> = []
+  // true if the updateBuffer is going to be send to the server
+  private isSending: boolean = false;
 
-  constructor(modelName, record) {
+  constructor(modelName: string, record: any) {
     console.assert(modelName, 'modelName is required')
     this.modelName = modelName;
     this.data = reactive(record);
     let vm = this;
-    watch(() => _.cloneDeep(this._data), (current, prev) => {
+    watch(() => cloneDeep(this.data), (current, prev) => {
       vm.recordChanged(vm.id, current, prev)
     })
   }
@@ -25,14 +33,41 @@ class Record {
   isDirty() {
     return this.dirty;
   }
+  get id() {
+    return this.data.id
+  }
 
+  get ref() {
+    return this.data;
+  }
   /**
    * send the latest changes to the API
    */
   async flushBuffer() {
-
+    if (this.isSending || this.updateBuffer.length) {
+      debug('force flush buffer')
+    }
   }
 
+  /**
+   * start the wait for sending information to the server
+   */
+  startSend() {
+    debug('send info to server');
+    this.isSending = false
+  }
+
+  /**
+   * add a part to the buffer and start the update timer
+   * @param patch
+   */
+  appendBuffer(patch) {
+    this.updateBuffer = this.updateBuffer.concat(patch);
+    if (!this.isSending && this.updateBuffer.length) {
+      this.isSending = true;
+      this.startSend();
+    }
+  }
   /**
    * called when data is changed
    * @param id
@@ -40,7 +75,10 @@ class Record {
    * @param prev
    */
   recordChanged(id, currentData, prev) {
-
+    let patch = JsonPatch.compare(prev, currentData)
+    if (patch.length) {
+      this.appendBuffer(patch)
+    }
   }
   /**
    * data is full changed.
@@ -56,7 +94,6 @@ class Record {
    */
   async recordData(data) {
     await this.unRefData()
-
   }
 }
 export { Record }
