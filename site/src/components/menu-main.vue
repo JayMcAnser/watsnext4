@@ -73,14 +73,14 @@ let nav = [
     label: 'Home',
     key: 'home',
     items: [
-      {label: 'About', key: 'home/about', to: 'home/about'}
+      {label: 'About', key: 'about', to: '/about'}
     ]
   },
   {
     label: 'Art',
     key: 'art',
     items: [
-      {label: 'List', icon: 'list', key: 'art/list', to: '/art/list'},
+      {label: 'List', icon: 'list', key: 'art/list', to: '/art'},
       {label: 'New', icon: 'icp-new', key: 'art/new', to: '/notyet'},
       {label: 'Royalties', icon: 'icp-new', key: 'art/royalties', to: '/notyet'},
     ]
@@ -89,8 +89,8 @@ let nav = [
     label: 'Artist',
     key: 'artist',
     items: [
-      {label: 'List', icon: 'list'},
-      {label: 'New',  icon:'new', class:'XXXXX'}
+      {label: 'List', icon: 'list', to: '/notyet'},
+      {label: 'New',  icon:'new', class:'XXXXX', to: '/notyet'}
     ]
   }
 ]

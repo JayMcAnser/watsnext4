@@ -19,6 +19,10 @@ const index : Array<RouteRecordRaw> =  [
       {
         path: 'list',
         component: () => import('../components/art/list.vue')
+      },
+      {
+        path: '',
+        component: () => import('../components/art/list.vue')
       }
     ]
   },

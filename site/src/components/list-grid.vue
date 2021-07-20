@@ -21,9 +21,10 @@ import ListResult from "./list-result.vue";
 export default {
   name: "list-grid",
   components: {ListResult, ListSearchOrder},
+
   setup(props, {emit}) {
     const searchChanged = (searchInfo) => {
-      debug(`search for ${searchInfo.search}`, 'list-grid')
+      debug(`search for ${searchInfo.value}`, 'list-grid')
       console.log('search', searchInfo)
     }
     return {
