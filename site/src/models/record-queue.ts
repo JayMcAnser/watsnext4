@@ -66,11 +66,14 @@ class RecordQueue {
   /**
    * send the information to the server
    */
-  sendParts() {
+  async sendParts() {
     let sendMap = this.models;
     this.models = new Map();
-    // DOES NOT WORK, IS NOT ASYNC
-    sendMap.forEach( async (queueEntry: IModelQueue, modelName: string,) => {
+
+    let iterator = sendMap.values();
+    let queueEntry;
+    while (queueEntry = iterator.next().value) {
+      // forEach can NOT be used async
       try {
         await this.apiPost(queueEntry.modelName, queueEntry.id, queueEntry.parts)
       } catch(e) {
@@ -83,7 +86,7 @@ class RecordQueue {
           this.logger(queueEntry.modelName, queueEntry.id, e)
         }
       }
-    })
+    }
   }
 
   apiPostDefault(model: string, id: string, parts: Array<any>) {

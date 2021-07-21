@@ -40,7 +40,7 @@ describe('record-queue', () => {
       let queue = new RecordQueue({interval: 1, apiPost: doPost});
       await queue.append('art', 'ab123', [{action: 'add'}]);
       await queue.append('art', 'ab123', [{action: 'change'}, {action: 'more'}]);
-      await wait(10);
+      await wait(2);
       assert.equal(partLength, 3, 'did combine the updates')
     })
   })
@@ -55,7 +55,7 @@ describe('record-queue', () => {
       let queue = new RecordQueue({interval: 1, apiPost: doPost});
       await queue.append('art', 'ab123', [{action: 'add'}]);
       await queue.append('art', 'cd456', [{action: 'change'}, {action: 'more'}]);
-      await wait(10);
+      await wait(2);
       assert.equal(Object.keys(ids).length, 2, 'separate calls')
     })
   });
