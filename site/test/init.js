@@ -1,4 +1,4 @@
-import DataModel from "../src/lib/data-model";
+
 import Axios, {setHeaders} from "../src/vendors/lib/axios";
 import {axiosActions} from "../src/vendors/lib/const";
 

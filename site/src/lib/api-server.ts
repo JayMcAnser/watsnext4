@@ -1,8 +1,11 @@
-import SearchDefinition from "./search-definition";
+import { SearchDefinition } from "./search-definition";
 import Axios from "../vendors/lib/axios";
 import {axiosActions} from "../vendors/lib/const";
 
 
+export interface IApiServerOptions {
+  server? : string
+}
 /**
  * ApiServer
  *
@@ -10,10 +13,10 @@ import {axiosActions} from "../vendors/lib/const";
  * version 0.0.1  Jay, 2021-07-06
  */
 
-class ApiServer {
-  constructor(options = {
-      server: false,  // use the server, if false /
-    })
+export class ApiServer {
+  private server: string
+
+  constructor(options : IApiServerOptions = {})
   {
     this.server = options.server ? options.server : '/'
   }
@@ -24,8 +27,7 @@ class ApiServer {
    * @param query SearchDefinition the definition of the search
    * @return Promise<Array[data]>
    */
-  async getByQuery(model, query) {
-    console.assert(query instanceof SearchDefinition, 'no query')
+  async getByQuery(model: string, query: SearchDefinition) {
     // we must request the searchDef.query from the API
     let searchResult = await Axios.get(`/${model}`,{params: query.toQuery()});
     if (axiosActions.hasErrors(searchResult)) {
@@ -42,7 +44,7 @@ class ApiServer {
    * @param id String
    * @return {Promise<Object>}
    */
-  async getById(model, id) {
+  async getById(model: string, id: string) {
     let searchResult = await Axios.get(`/${model}/id/${id}`);
     if (axiosActions.hasErrors(searchResult)) {
       throw new Error(axiosActions.errorMessage(searchResult))
@@ -54,7 +56,4 @@ class ApiServer {
       return rec
     }
   }
-
 }
-
-export default ApiServer;

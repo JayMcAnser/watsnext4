@@ -7,7 +7,7 @@ import { ref, reactive, watch, watchEffect } from 'vue';
 import _ from 'lodash';
 import { axiosActions } from '../vendors/lib/const';
 import Axios from '../vendors/lib/axios';
-import SearchDefinition from "./search-definition";
+import {SearchDefinition} from "./search-definition";
 import {writeDelay as DefaultWriteDelay} from './const'
 
 
@@ -91,7 +91,7 @@ class DataModel {
       }
       // https://github.com/axios/axios#cancellation
       vm.cancelToken = Axios.cancelToken.source();
-      
+
 
     }, this.writeDelay)
 
@@ -170,4 +170,6 @@ class DataModel {
   }
 }
 
-export default DataModel;
+export default {
+  DataModel
+};

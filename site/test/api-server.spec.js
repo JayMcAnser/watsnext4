@@ -4,8 +4,8 @@ const chai = require('chai');
 const assert = chai.assert;
 import Init from './init'
 
-import ApiServer from '../src/lib/api-server'
-import SearchDefinition from "../src/lib/search-definition";
+import { ApiServer } from '../src/lib/api-server'
+import { SearchDefinition } from "../src/lib/search-definition";
 
 describe('api-server', () => {
 

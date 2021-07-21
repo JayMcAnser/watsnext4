@@ -1,6 +1,18 @@
+/**
+ * as search query on the API
+ */
+
+
+
+export interface ISearchDefinitionOptions {
+  query?: string
+}
 
 class SearchDefinition {
-  constructor(options = {}) {
+  private query: string;
+  private page: number;
+
+  constructor(options: ISearchDefinitionOptions = {}) {
     this.query = options.query;
     this.page = 0;
   }
@@ -17,4 +29,4 @@ class SearchDefinition {
   }
 }
 
-export default SearchDefinition;
+export { SearchDefinition };

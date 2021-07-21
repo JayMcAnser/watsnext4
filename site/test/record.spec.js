@@ -2,7 +2,7 @@
 import * as chai from 'chai';
 const assert = chai.assert;
 import {Record} from "../src/models/record";
-
+import {RecordQueue} from "../src/models/record-queue";
 
 
 describe('record', () => {
@@ -18,19 +18,22 @@ describe('record', () => {
     })
   });
 
-  describe('react', () => {
+  describe('react to changes', () => {
     let sendCalled = false;
-    class ReactRec extends Record {
-      startSend() {
+
+    // mock class to see if we call the queue
+    class RecQue extends RecordQueue {
+      append(modelName, id, parts, logger) {
         sendCalled = true
       }
     }
 
     it ('rec, update', async() => {
-      let rec = new ReactRec('art',{id: 'abc', name: 'jay'});
+      let rec = new Record('art',{id: 'abc', name: 'jay'});
+      Record.queue = new RecQue()
       assert.isFalse(sendCalled);
       assert.equal(rec.id, 'abc')
-      rec.ref.name = 'JayJay';
+      rec.ref.name = 'Jay Jay';
       await wait()
       assert.isTrue(sendCalled);
     })

@@ -4,7 +4,7 @@
  * version 0.0.1
  */
 
-const DataModel = require('../data-model');
+const { DataModel } = require('../data-model');
 
 class ArtModel extends DataModel {
   constructor(options = {}) {

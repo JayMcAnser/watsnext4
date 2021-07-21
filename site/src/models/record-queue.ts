@@ -27,7 +27,7 @@ class RecordQueue {
   private apiPost: IApiPostFunc;
   private logger: ILogFunction;
 
-  constructor(options: IRecordQueueOptions) {
+  constructor(options?: IRecordQueueOptions) {
     this.apiPost = options && options.apiPost ? options.apiPost : this.apiPostDefault;
     this._interval = options && options.interval ? options.interval : 2000;
     this.logger = options && options.logger ? options.logger : undefined;
@@ -37,7 +37,16 @@ class RecordQueue {
     return this._interval
   }
 
-  append(modelName: string, id: string, parts: Array<any>, logger: ILogFunction) {
+  /**
+   * append new update to the current queue.
+   * is SYNC !
+   *
+   * @param modelName
+   * @param id
+   * @param parts
+   * @param logger
+   */
+  append(modelName: string, id: string, parts: Array<any>, logger?: ILogFunction) {
     let queueKey: string = `${modelName}.${id}`;
     let qi : IModelQueue = {
       modelName,
