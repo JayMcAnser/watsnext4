@@ -16,31 +16,34 @@ export interface IModelQueue {
 
 export interface IRecordQueueOptions {
   interval?: number,
-  apiPost?: IApiPostFunc
+  apiPost?: IApiPostFunc,
+  logger?: ILogFunction
 }
 
 class RecordQueue {
   private models = new Map();
   private _interval: number = 2000
   private timer;
-  private apiPost: IApiPostFunc
+  private apiPost: IApiPostFunc;
+  private logger: ILogFunction;
 
   constructor(options: IRecordQueueOptions) {
     this.apiPost = options && options.apiPost ? options.apiPost : this.apiPostDefault;
     this._interval = options && options.interval ? options.interval : 2000;
+    this.logger = options && options.logger ? options.logger : undefined;
   }
 
   get interval() {
     return this._interval
   }
 
-  append(modelName: string, id: string, parts: Array<any>, logging: ILogFunction) {
+  append(modelName: string, id: string, parts: Array<any>, logger: ILogFunction) {
     let queueKey: string = `${modelName}.${id}`;
-    let qi = {
+    let qi : IModelQueue = {
       modelName,
       id,
       parts,
-      logging
+      logger
     }
     if (!this.models.has(queueKey)) {
       this.models.set(queueKey, qi);
@@ -66,13 +69,18 @@ class RecordQueue {
   sendParts() {
     let sendMap = this.models;
     this.models = new Map();
+    // DOES NOT WORK, IS NOT ASYNC
     sendMap.forEach( async (queueEntry: IModelQueue, modelName: string,) => {
       try {
         await this.apiPost(queueEntry.modelName, queueEntry.id, queueEntry.parts)
       } catch(e) {
+        // error(`error in API: ${e.message}`)
         if (queueEntry.logger) {
-          error(`error in API: ${e.message}`)
-          queueEntry.logger(queueEntry.modelName, queueEntry.id, e.message)
+          // use the local logger
+          queueEntry.logger(queueEntry.modelName, queueEntry.id, e)
+        } else if (this.logger) {
+          // use the global logger
+          this.logger(queueEntry.modelName, queueEntry.id, e)
         }
       }
     })

@@ -75,4 +75,33 @@ describe('record-queue', () => {
     })
   })
 
+  describe('error report', () => {
+    const doPost = (model, id, parts) => {
+      if (model === 'agent') {
+        throw new Error('got agent')
+      }
+    }
+    let err = ''
+    const doError = (model, id, error) => {
+     err = error.message
+    }
+
+    it('local logger', async() => {
+      let queue = new RecordQueue({interval: 1, apiPost: doPost});
+      await queue.append('art', 'ab123', [{action: 'add'}], doError);
+      await queue.append('agent', 'cd456', [{action: 'change'}, {action: 'more'}], doError);
+      await wait(10);
+      assert.equal(err, 'got agent')
+    })
+
+    it('global logger', async() => {
+      err = ''
+      let queue = new RecordQueue({interval: 1, apiPost: doPost, logger: doError});
+      await queue.append('art', 'ab123', [{action: 'add'}]);
+      await queue.append('agent', 'cd456', [{action: 'change'}, {action: 'more'}]);
+      await wait(10);
+      assert.equal(err, 'got agent')
+    })
+
+  })
 })
