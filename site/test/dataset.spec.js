@@ -63,10 +63,58 @@ describe('dataset', () => {
       ds.unLink(qry);
       assert.equal(ds.size, 2, 'same data, so we should reference the previous ones');
       ds.unLink(qry2);
-      assert.equal(ds.size, 0, 'same data, so we should reference the previous ones');
-
+      assert.equal(ds.size, 0, 'empty so should remove');
     });
-
-
   })
+
+  describe('find one', () => {
+    before(() => {
+      MockApi.setQueryResult('art', [{id: 'a1', title: 'title 1'}, {id: 'a2', title: 'title2'}])
+    })
+
+    it ('by id', async() => {
+      let ds = new Dataset({modelName: 'art', apiServer: MockApi})
+      let qry = await ds.findById('a1');
+      assert.equal(qry.records.length, 1);
+      assert.equal(ds.size, 1);
+
+      ds.unLink(qry);
+      assert.equal(ds.size, 0);
+    })
+
+    it ('not found', async() => {
+      let ds = new Dataset({modelName: 'art', apiServer: MockApi})
+      let qry = await ds.findById('a99');
+      assert.isFalse(qry);
+      assert.equal(ds.size, 0)
+
+      ds.unLink(qry);
+      assert.equal(ds.size, 0);
+    })
+  })
+
+  describe('record & query', () => {
+    before(() => {
+      MockApi.setQueryResult('art', [{id: 'a1', title: 'title 1'}, {id: 'a2', title: 'title2'}])
+    })
+
+    it('query result and one record', async() => {
+      let ds = new Dataset({modelName: 'art', apiServer: MockApi})
+      let qry = await ds.query({});
+      assert.equal(qry.records[0].ref.id, 'a1')
+      assert.equal(ds.size, 2);
+
+      let rec = await ds.findById('a1');
+      assert.equal(rec.records.length, 1);
+      assert.equal(ds.size, 2);
+
+      ds.unLink(qry);
+      assert.equal(ds.size, 1, 'removed one left the other one');
+
+      ds.unLink(rec);
+      assert.equal(ds.size, 0, 'removed one left');
+    })
+
+
+  });
 })

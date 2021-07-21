@@ -13,6 +13,13 @@ export interface IApiServerOptions {
  * version 0.0.1  Jay, 2021-07-06
  */
 
+export interface IQueryResult {
+  [index: number]: Object
+}
+export interface IQueryRecord {
+  [index: string]: any
+}
+
 export class ApiServer {
   private server: string
 
@@ -27,7 +34,7 @@ export class ApiServer {
    * @param query SearchDefinition the definition of the search
    * @return Promise<Array[data]>
    */
-  async getByQuery(model: string, query: SearchDefinition) {
+  async getByQuery(model: string, query: SearchDefinition) : Promise<IQueryResult> {
     // we must request the searchDef.query from the API
     let searchResult = await Axios.get(`/${model}`,{params: query.toQuery()});
     if (axiosActions.hasErrors(searchResult)) {
@@ -44,16 +51,16 @@ export class ApiServer {
    * @param id String
    * @return {Promise<Object>}
    */
-  async getById(model: string, id: string) {
+  async getById(model: string, id: string): Promise<IQueryRecord | false> {
     let searchResult = await Axios.get(`/${model}/id/${id}`);
     if (axiosActions.hasErrors(searchResult)) {
       throw new Error(axiosActions.errorMessage(searchResult))
     } else {
       let rec =  axiosActions.data(searchResult);
-      if (Array.isArray(rec)) {
+      if (Array.isArray(rec) && rec.length ) {
         return rec[0]
       }
-      return rec
+      return false;
     }
   }
 }
