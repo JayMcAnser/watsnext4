@@ -6,6 +6,6 @@ const assert = chai.assert;
 
 describe('art-model', () => {
   it('test its working', () => {
-    assert.isFalse(true)
+    assert.isFalse(true, 'Testing test can fail')
   })
 })

@@ -65,6 +65,7 @@ describe('dataset', () => {
       ds.unLink(qry2);
       assert.equal(ds.size, 0, 'empty so should remove');
     });
+
   })
 
   describe('find one', () => {
@@ -91,6 +92,17 @@ describe('dataset', () => {
       ds.unLink(qry);
       assert.equal(ds.size, 0);
     })
+
+    it('unlink record', async () => {
+      let ds = new Dataset({modelName: 'art', apiServer: MockApi})
+      let qry = await ds.findById('a1');
+      assert.equal(qry.records.length, 1);
+      assert.equal(ds.size, 1);
+
+      qry.unlink();
+      assert.equal(ds.size, 0);
+    })
+
   })
 
   describe('record & query', () => {

@@ -4,7 +4,7 @@
   "scripts": {
     "serve": "vite preview",
     "build": "vue-tsc --noEmit && vite build",
-    "test:unit": "vue-cli-service test:unit",
+    "test": "node --expose-internals ./node_modules/.bin/mocha -r esm -r ts-node/register $(find test -name '*spec.js') --exit --recursive",
     "dev": "vite"
   },
   "dependencies": {

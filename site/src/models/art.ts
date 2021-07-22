@@ -2,9 +2,12 @@
  * art related definitions
  */
 
-import Dataset from "./dataset";
+import {Dataset, IDatasetOptions} from "./dataset";
 
 
-export default class ArtModel extends Dataset {
+export class ArtModel extends Dataset {
 
+  constructor(options: IDatasetOptions) {
+    super(Object.assign({}, options, {modelName: 'art'}));
+  }
 }

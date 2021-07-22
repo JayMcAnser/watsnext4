@@ -21,3 +21,7 @@
 // }
 // number of milli sec before we do a write
 export const writeDelay = 500;
+
+export const config = {
+  debug: false
+}

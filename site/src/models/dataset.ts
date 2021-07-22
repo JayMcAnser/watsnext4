@@ -23,6 +23,7 @@ export interface IQueryResult {
   refId: string,
   // this is a ref to records[0] for easy access
   record?: IQueryRecord,
+  unlink(): any
 }
 
 class RecordRef implements IRecordRef {
@@ -70,9 +71,13 @@ export class Dataset {
 
 
   private recordsToQueryResult(records) : IQueryResult {
+    let vm = this;
     let result : IQueryResult = {
       refId: uuid(),
-      records: []
+      records: [],
+      unlink: () => {
+        return vm.unLink(result)
+      }
     }
     for (let index = 0; index < records.length; index++) {
       let rec = records[index];
@@ -147,5 +152,7 @@ export class Dataset {
         }
       }
     }
+    return true;
   }
+
 }

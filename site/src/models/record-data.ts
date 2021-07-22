@@ -3,6 +3,9 @@
  *
  * basic record return from the API, rebuild as an Vue.ref v
  */
+import {Dataset} from "./dataset";
+
+
 import {debug, error} from '../vendors/lib/logging';
 import {reactive, watch} from 'vue'
 import {cloneDeep} from "lodash";
@@ -21,6 +24,7 @@ class RecordData {
   private data: any;
   // the id of this record
   private _id : string;
+
 
   constructor(modelName: string, record: any) {
     console.assert(modelName, 'modelName is required')
@@ -88,5 +92,7 @@ class RecordData {
   setRecordData(data) {
     this.data = reactive(data);
   }
+
+
 }
 export { RecordData }

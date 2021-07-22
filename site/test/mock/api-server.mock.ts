@@ -8,31 +8,39 @@ import {RecordData} from "../../src/models/record-data";
 
 class MockApiServer extends ApiServer {
 
-  public queryResult : Array<IQueryRecord>;
+  public queryResult : Map<string, Array<IQueryRecord>> = new Map();
 
   get isMock(): boolean {
     return true;
   }
   setQueryResult(modelName: string, data: Array<any>) {
-    this.queryResult = [];
+    let records = [];
     for (let index = 0; index < data.length; index++) {
       let rec = new RecordData(modelName, data[index]);
-      this.queryResult.push(rec)
+      records.push(rec)
     }
+    this.queryResult.set(modelName, records);
   }
 
 
   async getByQuery(model: string, query: SearchDefinition) : Promise<IQueryResult> {
-    return this.queryResult
+    if (this.queryResult.has(model)) {
+      return this.queryResult.get(model)
+    }
+    throw new Error(`unknown model ${model}`);
   }
 
   async getById(model: string, id: string): Promise<IQueryRecord | false > {
-    for (let index = 0; index < this.queryResult.length; index++) {
-      if (this.queryResult[index].id === id) {
-        return this.queryResult[index]
+    if (this.queryResult.has(model)) {
+      let recs = this.queryResult.get(model)
+      for (let index = 0; index < recs.length; index++) {
+        if (recs[index].id === id) {
+          return recs[index]
+        }
       }
+      return false
     }
-    return false
+    throw new Error(`unknown model ${model}`);
   }
 }
 
