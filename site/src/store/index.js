@@ -3,12 +3,13 @@ import { createStore } from 'vuex';
 
 
 // import {board} from './board';
-import {art} from './art';
-import {element} from './element';
+// import {art} from './art';
+// import {element} from './element';
 import {auth} from '../vendors/store/auth';
 import {status} from '../vendors/store/status';
 import {user} from '../vendors/store/user';
 import {menu} from './menu';
+import {database} from "./database";
 
 const defaultModule = {
   state: {
@@ -34,8 +35,8 @@ const store = createStore({
   modules: {
     defaultModule,
 //    board: board,
-    art,
-    element,
+    database,
+//    element,
     auth,
     status,
     user,

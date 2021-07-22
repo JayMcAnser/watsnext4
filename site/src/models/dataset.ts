@@ -23,6 +23,7 @@ export interface IQueryResult {
   refId: string,
   // this is a ref to records[0] for easy access
   record?: IQueryRecord,
+  // call this if the query is no longer needed
   unlink(): any
 }
 
