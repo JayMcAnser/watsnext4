@@ -67,9 +67,7 @@ export const actions = {
 
 
 export const getters = {
-  table: (state: IDatabaseStore) => (modelName) => {
-    return state.db.table(modelName)
-  }
+  table: (state: IDatabaseStore) => state.db.table
 }
 
 export const database = {

@@ -27,16 +27,16 @@ export default {
   components: {ListResult, ListSearchOrder},
 
   setup(props, {emit}) {
-    let query: IQueryResult;
+    let   query: IQueryResult;
     const store = useStore();
+    const question = new SearchDefinition('')
     const searchChanged = (searchInfo) => {
-
       debug(`search for ${searchInfo.value}`, 'list-grid')
-      console.log('search', searchInfo)
+      question.query = searchInfo.value
     }
 
     onBeforeMount(() => {
-      this.query = store.getters['database/table']('art').query({})
+      this.query = store.getters['database/table']['art'].query(question)
     })
 
     return {
