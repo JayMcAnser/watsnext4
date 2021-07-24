@@ -5,18 +5,27 @@
 
 
 export interface ISearchDefinitionOptions {
-  query?: string
+  query?: string,
+
 }
 
-class SearchDefinition {
+export interface ISearchDefinition {
+  isEmpty: boolean,
+  toQuery: any
+}
+
+export class SearchDefinition implements ISearchDefinition{
   private query: string;
   private page: number;
 
-  constructor(options: ISearchDefinitionOptions = {}) {
-    this.query = options.query;
+  constructor(options: ISearchDefinitionOptions | string = {}) {
+    this.query = typeof options === 'object' ? options.query : options;
     this.page = 0;
   }
 
+  get isEmpty() : boolean {
+    return !( this.query && this.query.length > 0)
+  }
   /**
    * convert the internal used query definition into the
    * search engine query
@@ -28,5 +37,3 @@ class SearchDefinition {
     }
   }
 }
-
-export { SearchDefinition };

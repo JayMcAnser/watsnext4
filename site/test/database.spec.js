@@ -1,7 +1,7 @@
 import * as chai from 'chai';
 import {Database} from "../src/lib/database";
 const assert = chai.assert;
-import {MockApiServer} from "./mock/api-server.mock";
+import {MockApiServer} from "../mock/api-server.mock";
 
 describe('database', () => {
   const MockApi = new MockApiServer();

@@ -2,8 +2,8 @@
  * basic dataset that is a collection of Record
  */
 import {debug, warn, error } from '../vendors/lib/logging';
-import {SearchDefinition} from "../lib/search-definition";
-import {ApiServer, IQueryRecord} from "../lib/api-server";
+import {ISearchDefinition, SearchDefinition} from "../lib/search-definition";
+import {ApiServer, IApiQueryResult, IQueryRecord} from "../lib/api-server";
 import {RecordData} from "./record-data";
 import {v4 as uuid} from 'uuid';
 
@@ -28,7 +28,7 @@ export interface IQueryResult {
 }
 
 class RecordRef implements IRecordRef {
-  // the fysical record
+  // the physical record
   public record;
   // the components using it
   public usedBy: Array<string> = []
@@ -71,7 +71,7 @@ export class Dataset {
   }
 
 
-  private recordsToQueryResult(records) : IQueryResult {
+  private recordsToQueryResult(records: IApiQueryResult) : IQueryResult {
     let vm = this;
     let result : IQueryResult = {
       refId: uuid(),
@@ -100,14 +100,22 @@ export class Dataset {
    * query the api, buffers the result
    * @param search
    */
-  async query(search: SearchDefinition) : Promise<IQueryResult > {
-    let records = await this.apiServer.getByQuery(this.modelName, search);
+  async query(search: ISearchDefinition | string) : Promise<IQueryResult > {
+
+    let records : IApiQueryResult = [];
+    if (typeof search === 'string') {
+      search = new SearchDefinition(search)
+    }
+    if (!search.isEmpty) {
+      records = await this.apiServer.getByQuery(this.modelName, search);
+    }
     return this.recordsToQueryResult(records)
   }
 
   /**
    * retrieve on record from the server
    * @param id
+   * @param forceApi boolean forces an api call even if the record is in the cache
    * @returns Promise the records. false if not found
    */
   async findById(id, forceApi: boolean = false) : Promise<IQueryResult | Boolean> {

@@ -3,7 +3,8 @@ const assert = chai.assert;
 import {Dataset} from "../src/models/dataset";
 import {RecordData} from "../src/models/record-data";
 import {RecordQueue} from "../src/models/record-queue";
-import {MockApiServer} from "./mock/api-server.mock";
+import {MockApiServer} from "../mock/api-server.mock";
+import {SearchDefinition} from "../src/lib/search-definition";
 
 
 describe('dataset', () => {
@@ -31,11 +32,11 @@ describe('dataset', () => {
 
     it('find', async () => {
       let ds = new Dataset({modelName: 'art', apiServer: MockApi})
-      let qry = await ds.query({});
+      let qry = await ds.query('title');
       assert.equal(qry.records.length, 2)
       assert.equal(ds.size, 2);
 
-      let qry2 = await ds.query({});
+      let qry2 = await ds.query('title');
       assert.equal(qry2.records.length, 2)
       assert.equal(ds.size, 2, 'same data, so we should reference the previous ones');
 
@@ -43,7 +44,7 @@ describe('dataset', () => {
 
     it('use one query', async() => {
       let ds = new Dataset({modelName: 'art', apiServer: MockApi})
-      let qry = await ds.query({});
+      let qry = await ds.query('title');
       assert.equal(qry.records.length, 2)
       assert.equal(ds.size, 2);
       ds.unLink(qry);
@@ -52,11 +53,11 @@ describe('dataset', () => {
 
     it('use multi', async () => {
       let ds = new Dataset({modelName: 'art', apiServer: MockApi})
-      let qry = await ds.query({});
+      let qry = await ds.query('title');
       assert.equal(qry.records.length, 2)
       assert.equal(ds.size, 2);
 
-      let qry2 = await ds.query({});
+      let qry2 = await ds.query('title');
       assert.equal(qry2.records.length, 2)
       assert.equal(ds.size, 2, 'same data, so we should reference the previous ones');
 
@@ -66,6 +67,12 @@ describe('dataset', () => {
       assert.equal(ds.size, 0, 'empty so should remove');
     });
 
+    it('empty query', async () => {
+      let ds = new Dataset({modelName: 'art'})
+      let search = new SearchDefinition({})
+      let qry = await ds.query(search);
+      assert.equal(qry.records.length, 0)
+    })
   })
 
   describe('find one', () => {

@@ -1,4 +1,4 @@
-import { SearchDefinition } from "./search-definition";
+import { ISearchDefinition } from "./search-definition";
 import Axios from "../vendors/lib/axios";
 import {axiosActions} from "../vendors/lib/const";
 
@@ -13,8 +13,9 @@ export interface IApiServerOptions {
  * version 0.0.1  Jay, 2021-07-06
  */
 
-export interface IQueryResult {
-  [index: number]: Object
+export interface IApiQueryResult {
+  [index: number]: any,
+  length: number
 }
 export interface IQueryRecord {
   [index: string]: any
@@ -34,7 +35,7 @@ export class ApiServer {
    * @param query SearchDefinition the definition of the search
    * @return Promise<Array[data]>
    */
-  async getByQuery(model: string, query: SearchDefinition) : Promise<IQueryResult> {
+  async getByQuery(model: string, query: ISearchDefinition) : Promise<IApiQueryResult> {
     // we must request the searchDef.query from the API
     let searchResult = await Axios.get(`/${model}`,{params: query.toQuery()});
     if (axiosActions.hasErrors(searchResult)) {

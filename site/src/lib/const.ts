@@ -23,5 +23,8 @@
 export const writeDelay = 500;
 
 export const config = {
-  debug: false
+  // send debug message to the console
+  debug: true,
+  // do not use the backend. Use the mock data
+  mock: true,
 }

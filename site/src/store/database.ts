@@ -7,6 +7,7 @@ import { debug, warn, error } from '../vendors/lib/logging';
 import {Database} from "../lib/database";
 import {SearchDefinition} from "../lib/search-definition";
 import {IQueryResult} from "../models/dataset";
+import {config} from '../lib/const'
 
 interface IDatabaseStore {
   db: Database
@@ -17,9 +18,22 @@ interface IQuery {
   searchDefinition: SearchDefinition
 }
 
-export const state  = () : IDatabaseStore => ({
-  db: new Database()
-})
+export const state  = () : IDatabaseStore => {
+  {
+    if (config.debug) { debug(`init database,  mock: ${config.mock}` )}
+    if (config.mock) {
+      const MockApiServer = require('../mock/api-server.mock')
+      let apiServer = new MockApiServer();
+      // read the mock data from the
+      return {
+        db: new Database()
+      }
+    }
+    return {
+      db: new Database()
+    }
+  }
+}
 
 
 

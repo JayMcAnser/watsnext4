@@ -2,9 +2,9 @@
  * Mock for fake API server
  */
 
-import {ApiServer, IQueryResult, IQueryRecord} from "../../src/lib/api-server";
-import {SearchDefinition} from "../../src/lib/search-definition";
-import {RecordData} from "../../src/models/record-data";
+import {ApiServer, IApiQueryResult, IQueryRecord} from "../src/lib/api-server";
+import {SearchDefinition} from "../src/lib/search-definition";
+import {RecordData} from "../src/models/record-data";
 
 class MockApiServer extends ApiServer {
 
@@ -23,7 +23,10 @@ class MockApiServer extends ApiServer {
   }
 
 
-  async getByQuery(model: string, query: SearchDefinition) : Promise<IQueryResult> {
+  async getByQuery(model: string, query: SearchDefinition) : Promise<IApiQueryResult> {
+    if (query.isEmpty) {
+      return []
+    }
     if (this.queryResult.has(model)) {
       return this.queryResult.get(model)
     }

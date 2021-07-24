@@ -1,7 +1,8 @@
-import {Dataset} from "../models/dataset";
+import {Dataset, IQueryResult} from "../models/dataset";
 import {ArtModel} from "../models/art";
-import {config} from '../lib/const'
+import {config} from './const'
 import {ApiServer} from "./api-server";
+import {ISearchDefinition} from "./search-definition";
 
 export interface IDatabaseOptions {
   debug?: boolean,
@@ -58,5 +59,9 @@ export class Database {
       return this._tables.get(name).dataset
     }
     throw new Error(`table ${name} does not exists`);
+  }
+
+  async query(modelName: string, searchDef: ISearchDefinition): Promise<IQueryResult> {
+    return this.table('modelName').query(searchDef)
   }
 }
