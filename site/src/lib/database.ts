@@ -16,7 +16,7 @@ interface ITableDefinition {
 export class Database {
   readonly debug;
 
-  private _tables: Map<string, ITableDefinition> = new Map();
+  private _tables: Object = {};
 
   constructor(options? : IDatabaseOptions) {
     this.debug = options && options.hasOwnProperty('debug') ? options.debug : config.debug;
@@ -28,18 +28,14 @@ export class Database {
   }
 
   private createTable(dataset: Dataset) {
-    this._tables.set(dataset.modelName, {
-      dataset: dataset
-    })
+    this._tables[dataset.modelName] = dataset;
   }
 
   /**
    * get a list of names of the table
    */
   get tableNames() : Array<string> {
-    let result = [];
-    this._tables.forEach((tbl, modelName) => result.push(modelName))
-    return result
+    return Object.keys(this._tables);
   }
 
   /**
@@ -54,14 +50,20 @@ export class Database {
    * @param name
    * @return Dataset the reference to the table definition
    */
-  table(name: string) : Dataset {
-    if (this._tables.has(name)) {
-      return this._tables.get(name).dataset
-    }
-    throw new Error(`table ${name} does not exists`);
+  // table(name: string) : Dataset {
+  //   if (this._tables.has(name)) {
+  //     return this._tables.get(name).dataset
+  //   }
+  //   throw new Error(`table ${name} does not exists`);
+  // }
+  get table() {
+    return this._tables
   }
 
+  hasTable(modelName) {
+    return this._tables.hasOwnProperty(modelName)
+  }
   async query(modelName: string, searchDef: ISearchDefinition): Promise<IQueryResult> {
-    return this.table('modelName').query(searchDef)
+    return this.table[modelName].query(searchDef)
   }
 }

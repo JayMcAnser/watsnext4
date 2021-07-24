@@ -21,23 +21,19 @@ describe('database', () => {
 
     it ('table exists', () => {
       let db = new Database();
-      assert.isDefined(db.table('art'));
-      assert.equal(db.table('art').modelName, 'art')
+      assert.isDefined(db.table.art);
+      assert.isDefined(db.table['art'])
+      assert.equal(db.table.art.modelName, 'art')
     });
 
     it ('table does not exist', () => {
       let db = new Database();
-      try {
-        let tbl = db.table('xxx');
-        assert.fail('table should return error');
-      } catch (e) {
-        assert.equal(e.message, 'table xxx does not exists')
-      }
+      assert.isFalse(db.hasTable('xxx'));
     })
 
     it('test mocking', () => {
       let db = new Database({apiServer: MockApi});
-      let art = db.table('art');
+      let art = db.table.art;
       assert.isTrue(art.apiServer.isMock)
     })
   });
@@ -49,12 +45,12 @@ describe('database', () => {
 
     it('get one record', async() => {
       let db = new Database({apiServer: MockApi});
-      let qry = await db.table('art').findById('a1');
+      let qry = await db.table.art.findById('a1');
       assert.isDefined(qry);
       assert.equal(qry.record.ref.title, 'title 1');
-      assert.equal(db.table('art').size, 1)
+      assert.equal(db.table.art.size, 1)
       qry.unlink()
-      assert.equal(db.table('art').size, 0)
+      assert.equal(db.table.art.size, 0)
     })
   })
 
