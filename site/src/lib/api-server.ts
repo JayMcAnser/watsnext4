@@ -1,10 +1,11 @@
 import { ISearchDefinition } from "./search-definition";
 import Axios from "../vendors/lib/axios";
 import {axiosActions} from "../vendors/lib/const";
+import {warn} from '../vendors/lib/logging';
 
 
 export interface IApiServerOptions {
-  server? : string
+  [index: string]: any
 }
 /**
  * ApiServer
@@ -22,11 +23,42 @@ export interface IQueryRecord {
 }
 
 export class ApiServer {
-  private server: string
+ // private server: string
+  private axios: IApiServerOptions;
 
   constructor(options : IApiServerOptions = {})
   {
-    this.server = options.server ? options.server : '/'
+    // this.server = options.server ? options.server : Axios.server
+    this.axios = options.axios ? options.axios : Axios;
+    if (options.hasOwnProperty('logging')) {
+      this.axios.logToConsole(options.logging)
+    }
+  }
+
+  logToConsole(state: boolean) {
+    this.axios.logToConsole(state)
+  }
+
+  get isMock() : boolean {
+    return false;
+  }
+  get server() : string {
+    return this.axios.server
+  }
+  get api() {
+    return this.axios
+  }
+  get url() : string {
+    return this.server
+  }
+  get port() : number {
+    let parts = this.server.split(':');
+    if (parts.length !== 3) {
+      return 3050
+    } else {
+      let splits = parts[2].split('/')
+      return +splits[0]
+    }
   }
 
   /**
@@ -37,12 +69,18 @@ export class ApiServer {
    */
   async getByQuery(model: string, query: ISearchDefinition) : Promise<IApiQueryResult> {
     // we must request the searchDef.query from the API
-    let searchResult = await Axios.get(`/${model}`,{params: query.toQuery()});
-    if (axiosActions.hasErrors(searchResult)) {
-      // await dispatch('auth/logout', undefined,{root: true})
-      throw new Error(axiosActions.errorMessage(searchResult))
-    } else {
-      return axiosActions.data(searchResult)
+    try {
+      let searchResult = await this.axios.get(`${model}`, {params: query.toQuery()});
+      if (axiosActions.hasErrors(searchResult)) {
+        // await dispatch('auth/logout', undefined,{root: true})
+        throw new Error(axiosActions.errorMessage(searchResult))
+      } else {
+        return axiosActions.data(searchResult)
+      }
+    } catch(e) {
+      warn(`api.byQuery.${model}: ${e.message}`)
+     //  console.error((e.message))
+      throw e;
     }
   }
 

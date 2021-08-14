@@ -17,7 +17,10 @@ export default {
   name: "list-result",
   props: {
     query: {
-      type: Object
+      type: Object,
+      default: {
+        records: []
+      }
     }
   },
   setup() {

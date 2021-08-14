@@ -12,7 +12,9 @@
 import ListGrid from "../list-grid.vue";
 export default {
   name: "list",
-  components: {ListGrid}
+  components: {
+    ListGrid
+  }
 }
 </script>
 

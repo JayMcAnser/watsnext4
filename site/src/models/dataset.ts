@@ -10,7 +10,10 @@ import {v4 as uuid} from 'uuid';
 export interface IDatasetOptions {
   modelName: string,
   apiServer?: ApiServer,
-  debug?: boolean
+  debug?: boolean,
+  // if set to true the axios will not report any errors the the console
+  // default: false
+  logging?: boolean,
 }
 
 export interface IRecordRef {
@@ -37,6 +40,16 @@ class RecordRef implements IRecordRef {
     this.record = record
   }
 
+  /**
+   * set all fields of the record to the values of data
+   * @param data
+   */
+  setRecordData(data) {
+    for (let key in data) {
+      if (!data.hasOwnProperty(key)) { continue }
+      this.record[key] = data[key]
+    }
+  }
 }
 
 export class Dataset {
@@ -50,11 +63,15 @@ export class Dataset {
   readonly debug: boolean;
 
   constructor(options?: IDatasetOptions) {
+    console.assert(options.modelName.length > 0, 'dataset requires modelName')
     this.modelName = options && options.modelName ? options.modelName : 'no-table';
     if (options && options.apiServer) {
-      Dataset.apiServer = options.apiServer ? options.apiServer : new ApiServer()
+      Dataset.apiServer = options.apiServer ? options.apiServer : new ApiServer({logging: options.logging})
     }
     this.debug = options.debug && options.hasOwnProperty('debug') ? options.debug : false;
+    if (options.hasOwnProperty('logging')) {
+      Dataset.apiServer.logToConsole(options.logging)
+    }
   }
 
   /**
@@ -83,16 +100,17 @@ export class Dataset {
     for (let index = 0; index < records.length; index++) {
       let rec = records[index];
       let ref;
-      if (this.records.has(rec.id)) {
+      let id = rec.hasOwnProperty('id') ? rec.id : rec._id;
+      if (this.records.has(id)) {
         // use existing RecordRef
-        ref = this.records.get(rec.id);
-        ref.record.setRecordData(rec)
+        ref = this.records.get(id);
+        ref.setRecordData(rec)
       } else {
         ref = new RecordRef(rec);
-        this.records.set(rec.id, ref);
+        this.records.set(id, ref);
       }
       ref.usedBy.push(result.refId)
-      result.records.push(rec);
+      result.records.push(ref.record); // rec);
     }
     return result;
   }
@@ -142,22 +160,23 @@ export class Dataset {
     if (query !== false) {
       for (let recIndex = 0; recIndex < query.records.length; recIndex++) {
         let rec = query.records[recIndex]
-        if (this.records.has(rec.id)) {
-          let recRef = this.records.get(rec.id);
+        let id = rec.hasOwnProperty('id') ? rec.id : rec['_id']; // rec._id is private in typescript ...
+        if (this.records.has(id)) {
+          let recRef = this.records.get(id);
           let index = recRef.usedBy.indexOf(query.refId);
           if (index >= 0) {
             recRef.usedBy.splice(index, 1);
             if (recRef.usedBy.length === 0) {
               if (this.debug) {
-                debug(`removed ${this.modelName}[${rec.id}] from memory`)
+                debug(`removed ${this.modelName}[${id}] from memory`)
               }
-              this.records.delete(rec.id);
+              this.records.delete(id);
             }
           } else {
-            warn(`record ${this.modelName}[${rec.id}] has no reference to ${query.refId}`)
+            warn(`record ${this.modelName}[${id}] has no reference to ${query.refId}`)
           }
         } else {
-          error(`record not found: model: ${this.modelName}[${rec.id}]`)
+          error(`record not found: model: ${this.modelName}[${id}]`)
         }
       }
     }

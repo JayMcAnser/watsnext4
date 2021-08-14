@@ -45,6 +45,11 @@ export class Database {
   set apiServer(server: ApiServer) {
     Dataset.apiServer = server;
   }
+
+  get apiServer() {
+    return Dataset.apiServer
+  }
+
   /**
    * return the dataset for the table
    * @param name

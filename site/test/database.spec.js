@@ -2,6 +2,7 @@ import * as chai from 'chai';
 import {Database} from "../src/lib/database";
 const assert = chai.assert;
 import {MockApiServer} from "../mock/api-server.mock";
+import {ApiServer} from "../src/lib/api-server";
 
 describe('database', () => {
   const MockApi = new MockApiServer();
@@ -52,6 +53,25 @@ describe('database', () => {
       qry.unlink()
       assert.equal(db.table.art.size, 0)
     })
+  })
+
+  describe('api access', () => {
+    // We should run the standard develop server for this to work
+
+    it('check develop server port', () => {
+      let db = new Database({apiServer: new ApiServer()});
+      assert.equal(db.apiServer.port, 3055)
+
+    })
+    // it('get one record', async() => {
+    //   let qry = await db.table.art.findById('a1');
+    //   assert.isDefined(qry);
+    //   assert.equal(qry.record.ref.title, 'title 1');
+    //   assert.equal(db.table.art.size, 1)
+    //   qry.unlink()
+    //   assert.equal(db.table.art.size, 0)
+    // })
+
   })
 
 })

@@ -23,6 +23,7 @@
               <InputText
                   id="username"
                   type="text"
+                  class="input-email"
                   @keydown="clearError"
                   v-model="username"/>
             </span>

@@ -5,13 +5,47 @@
  */
 process.env["NODE_CONFIG_DIR"] = __dirname + '/../config/';
 let Config;
+// ---------
+// startup mode.
 try {
-  Config = require('config');
-} catch(e) {
-  console.error(`[error] ${e.message}`);
-  return 1
+  const isNumeric = require('./lib/util').isNumeric
+  let opt = process.argv;
+  if (opt.indexOf('-d') >= 0) {
+    // make it the develop server
+    process.env.NODE_ENV = 'develop';
+  }
+  try {
+    Config = require('config');
+  } catch(e) {
+    console.error(`[config read] ${e.message}`);
+    process.exit(1);
+  }
+
+  let index = opt.indexOf('-i');
+  if (index >= 0) {
+    // do import of data
+    index++;  // the next value
+    let count = index < opt.length && isNumeric(opt[index]) ? opt[index] : 999999;
+    console.log(`importing ${count} location into distribution`);
+    let importer = require('./import').run;
+
+    const util = require('util')
+    util.promisify(importer)
+    importer(count)
+      .then(x => {
+        console.log('import done');
+        process.exit();
+      })
+  }
+} catch (e) {
+  console.error(`'startup options: ${e.message}`)
+  return(1)
 }
 
+
+
+
+// ----------
 // load the default app
 const App = require('./vendors/main');
 
@@ -69,63 +103,3 @@ App.dbInit = new Promise((resolve, reject) => {
   }
 } );
 module.exports = App
-
-// /**
-//  * Dropper Curator App
-//  * free from: https://medium.com/zero-equals-false/building-a-restful-crud-api-with-node-js-jwt-bcrypt-express-and-mongodb-4e1fb20b7f3d
-//  */
-// const express = require('express');
-// const cors = require('cors');
-// const Logging = require('./vendors/lib/logging');
-// const bodyParser = require('body-parser');
-// const Config = require('config');
-// const ApiReturn = require('./vendors/lib/api-return');
-// const Const = require('./vendors/lib/const')
-// const StaticSite = require('./vendors/lib/static-site');
-// const Path = require('path');
-//
-// // set our logging to the root of the config
-// const { setRootPath } = require('./vendors/lib/helper');
-//
-// setRootPath(Path.join(__dirname, Config.get('Path.configRoot')))
-// const app = express();
-// app.use(cors())
-// Logging.init(app)
-//
-//
-// // app.use(bodyParser.urlencoded({extended: false}));
-// app.use(bodyParser.json())
-// //
-// // app.get('/', function(req, res) {
-// //   ApiReturn.result(req, res, {message : Const.results.dropperActive});
-// // });
-//
-//
-// const AuthController = require('./vendors/controllers/auth');
-//
-// app.use('/api/auth', require('./vendors/routes/auth'));
-// app.use('/api/public',  require('./routes/public'));
-// app.use('/api/user',  AuthController.validate,  require('./vendors/routes/user'));
-// app.use('/api/board', AuthController.validate,  require('./routes/board'));
-//
-// app.use('/api/version', function(req, res) {
-//   ApiReturn.result(req, res, `Dropper API version ${require('./package.json').version}`)
-// })
-// // this must be the last route otherwise it will catch all previous defined routes
-// let staticSite = new StaticSite((app));
-//
-// // handle errors
-// app.use(function(err, req, res, next) {
-//   ApiReturn.error(req, res, err, '[global.error]', err.status)
-// });
-//
-// let listener = app.listen(Config.get('Server.port'),
-//   function() {
-//     Logging.log('info', `dropper server (http://localhost:${Config.get('Server.port')} listening on port ${Config.get('Server.port')}`)
-// //    console.log(`Node server (http://localhost:${Config.get('Server.port')} listening on port ${Config.get('Server.port')}`);
-//   }
-// );
-//
-// module.exports = app;
-
-

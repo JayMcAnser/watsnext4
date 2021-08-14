@@ -89,6 +89,7 @@ class LocationImport {
 
   constructor(options= {}) {
     this.session = options.session;
+    console.assert(this.session, 'import needs session')
     importContact = new ImportContact({session: this.session});
     importCarrier = new ImportCarrier({session: this.session});
     this._limit = options.limit !== undefined ? options.limit : 0;

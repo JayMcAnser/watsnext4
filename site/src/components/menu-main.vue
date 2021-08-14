@@ -1,7 +1,7 @@
 <template>
   <div>
     <div  class="hidden md:flex md:flex-shrink-0">
-      <div class="w-64 flex flex-col">
+      <div class="w-64 flex-col">
 <!--
         <panel-menu
             :model="items"
@@ -25,14 +25,14 @@
 
 
 
-
+<!--
         <div class="menu-category">Art</div>
         <div >
           <Button label="active new" @click="active('art/new')"></Button>
           <Button label="active list" @click="active('artist/list')"></Button>
         </div>
         <div>active index: {{ panelActive }}</div>
-
+-->
       <!--
         <sidebar-menu :menu="menu">
 

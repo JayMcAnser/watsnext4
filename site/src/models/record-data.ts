@@ -27,7 +27,7 @@ class RecordData {
 
 
   constructor(modelName: string, record: any) {
-    console.assert(modelName, 'modelName is required')
+    console.assert(modelName.length > 0, 'modelName is required')
     this.modelName = modelName;
     this._id = record.id;
     this.data = reactive(record);

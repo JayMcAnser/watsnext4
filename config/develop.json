@@ -1,0 +1,15 @@
+{
+  "Database": {
+    "Mongo": {
+      "database": "watsnext-dev",
+      "debug": false
+    }
+  },
+  "Server" : {
+    "port" : 3055
+  },
+  "Import": {
+    "username": "info@toxus.nl",
+    "password": "123456"
+  }
+}

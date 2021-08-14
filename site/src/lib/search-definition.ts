@@ -26,6 +26,13 @@ export class SearchDefinition implements ISearchDefinition{
   get isEmpty() : boolean {
     return !( this.query && this.query.length > 0)
   }
+
+  get value(): string {
+    return this.query
+  }
+  set value(val: string) {
+    this.query = val;
+  }
   /**
    * convert the internal used query definition into the
    * search engine query

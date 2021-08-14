@@ -5,7 +5,7 @@
       "host": "localhost",
       "port": "27017",
       "uriParam": false,
-      "username": false,
+      "user": "root",
       "password": false,
       "database": "watsnext",
       "connectionString": "mongodb+srv://dropperweb:rE-4EGNsPV6LzgP@dropperweb-ussdu.azure.mongodb.net/test?retryWrites=true&w=majority",

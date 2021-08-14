@@ -1,4 +1,5 @@
 
+- fix: error logging with useful messages
 
 # 2021-05-31 
 - user login
