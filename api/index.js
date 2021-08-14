@@ -66,6 +66,7 @@ const StaticSite = require('./vendors/lib/static-site');
 const Helper = require('./vendors/lib/helper')
 
 App.use('/api/art', AuthController.validate , require('./routes/art'));
+App.use('/api/info', AuthController.validate , require('./routes/info'));
 
 // App.use('/api/public',  require('./routes/public'));
 // App.use('/api/board', BoardController.validate,  require('./routes/board'));
