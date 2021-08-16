@@ -2,7 +2,7 @@
   <div>
     <div> List result</div>
     <ul>
-      <li v-for="ref in query.records" :key="ref.id">
+      <li v-for="ref in records" :key="ref.id">
         Do {{ref.title}}
       </li>
     </ul>
@@ -12,21 +12,21 @@
 <script lang="ts">
 
 import {IQueryResult} from "../models/dataset";
+import {ref} from 'vue'
 
 export default {
   name: "list-result",
   props: {
-    query: {
+    dataset: {
       type: Object,
-      default: {
-        records: []
-      }
     }
   },
   setup() {
-
+    const records = ref([
+      { title: 'the one'}
+    ])
     return {
-
+      records
     }
   }
 }

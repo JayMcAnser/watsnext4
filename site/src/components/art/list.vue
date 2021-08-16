@@ -1,6 +1,8 @@
 <template>
   <div>component.art.list
-  <list-grid>
+  <list-grid
+      model-name="art"
+  >
 
   </list-grid>
   </div>

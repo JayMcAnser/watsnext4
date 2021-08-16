@@ -50,6 +50,9 @@ export class Database {
     return Dataset.apiServer
   }
 
+  get apiInfo() : Promise<any> {
+    return this.apiServer.getInfo()
+  }
   /**
    * return the dataset for the table
    * @param name

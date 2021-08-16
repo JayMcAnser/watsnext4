@@ -6,12 +6,12 @@
 
 export interface ISearchDefinitionOptions {
   query?: string,
-
 }
 
 export interface ISearchDefinition {
   isEmpty: boolean,
-  toQuery: any
+  toQuery: any,
+  value?: any
 }
 
 export class SearchDefinition implements ISearchDefinition{

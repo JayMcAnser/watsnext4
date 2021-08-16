@@ -26,5 +26,5 @@ export const config = {
   // send debug message to the console
   debug: true,
   // do not use the backend. Use the mock data
-  mock: true,
+  mock: false,
 }

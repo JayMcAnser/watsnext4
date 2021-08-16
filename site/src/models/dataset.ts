@@ -63,10 +63,12 @@ export class Dataset {
   readonly debug: boolean;
 
   constructor(options?: IDatasetOptions) {
-    console.assert(options.modelName.length > 0, 'dataset requires modelName')
+    if (!options.hasOwnProperty('modelName') || options.modelName.length === 0) {
+      error(`missing modelName`, 'dataset.constructor')
+    }
     this.modelName = options && options.modelName ? options.modelName : 'no-table';
-    if (options && options.apiServer) {
-      Dataset.apiServer = options.apiServer ? options.apiServer : new ApiServer({logging: options.logging})
+    if ((options && options.apiServer) || !Dataset.apiServer) {
+      Dataset.apiServer = options.hasOwnProperty('apiServer') ? options.apiServer : new ApiServer({logging: options.logging})
     }
     this.debug = options.debug && options.hasOwnProperty('debug') ? options.debug : false;
     if (options.hasOwnProperty('logging')) {
@@ -87,6 +89,13 @@ export class Dataset {
     return Dataset.apiServer;
   }
 
+  emptyResult() {
+    return {
+      records: [],
+      refId: '',
+      unlink: () => {},
+    }
+  }
 
   private recordsToQueryResult(records: IApiQueryResult) : IQueryResult {
     let vm = this;
@@ -126,7 +135,10 @@ export class Dataset {
     }
     if (!search.isEmpty) {
       records = await this.apiServer.getByQuery(this.modelName, search);
+    } else {
+      debug(`dataset.query: search is empty`)
     }
+
     return this.recordsToQueryResult(records)
   }
 

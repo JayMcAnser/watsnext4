@@ -65,6 +65,13 @@ export const actions = {
 
   unlink({getters}, query: IQueryResult) {
     query.unlink()
+  },
+  /**
+   * retrieve the server info
+   * @param state
+   */
+  async info({state}) {
+    return state.db.apiInfo()
   }
 }
 

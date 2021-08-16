@@ -1,16 +1,23 @@
 <template>
   <div>
     <list-search-order
-        search ='test'
+        search =''
         @search="searchChanged"
     >
 
     </list-search-order>
+    <!--
     <list-result
-        :query="query"
+        :query="dataset"
     >
 
     </list-result>
+    -->
+    <ul>
+      <li v-for="rec in queryResult.records" :key="rec._id">
+        Do {{rec.title}}
+      </li>
+    </ul>
   </div>
 </template>
 
@@ -19,31 +26,34 @@ import ListSearchOrder from "./list-search-order.vue";
 import {onMounted, ref} from 'vue'
 import {debug} from "../vendors/lib/logging";
 import ListResult from "./list-result.vue";
-import {IQueryResult} from "../models/dataset";
+import {Dataset, IQueryResult} from "../models/dataset";
 import {SearchDefinition} from "../lib/search-definition";
-import {useStore} from "vuex";
 
 export default {
   name: "list-grid",
   components: {ListResult, ListSearchOrder},
-
+  props: {
+    modelName: {
+      type: String,
+      default: 'art'
+    }
+  },
 
   setup(props, {emit}) {
-    let   query: IQueryResult;
-    const store = useStore();
-    const question = new SearchDefinition('')
+    const question = new SearchDefinition('');
+    const dataset = ref(new Dataset({modelName: props.modelName}))
+    let queryResult = ref(dataset.value.emptyResult());
     const searchChanged = async (searchInfo) => {
-      debug(`search for ${searchInfo.value}`, 'list-grid')
-      question.value = searchInfo.value
-      query = await store.getters['database/table']['art'].query(question)
+//      debug(`search for ${searchInfo.value}`, 'list-grid')
+      question.value = searchInfo.value;
+      dataset.value.unLink(queryResult.value);
+      queryResult.value = await dataset.value.query(question);
+//      debug(`found ${queryResult.value.records.length} records, rec: ${JSON.stringify(queryResult.value.records[0])}`)
     }
 
-    onMounted(async () => {
-      query = await store.getters['database/table']['art'].query(question)
-    })
-
     return {
-      query,
+      queryResult,
+      dataset,
       searchChanged
     }
   }
