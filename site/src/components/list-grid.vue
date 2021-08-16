@@ -4,18 +4,13 @@
         search =''
         @search="searchChanged"
     >
-
     </list-search-order>
-    <!--
-    <list-result
-        :query="dataset"
-    >
-
-    </list-result>
-    -->
     <ul>
       <li v-for="rec in queryResult.records" :key="rec._id">
-        Do {{rec.title}}
+        <slot
+            name="record"
+            :data="rec"
+        ></slot>
       </li>
     </ul>
   </div>
@@ -23,15 +18,16 @@
 
 <script lang="ts">
 import ListSearchOrder from "./list-search-order.vue";
-import {onMounted, ref} from 'vue'
+import {onBeforeUnmount, onMounted, ref} from 'vue'
 import {debug} from "../vendors/lib/logging";
 import ListResult from "./list-result.vue";
 import {Dataset, IQueryResult} from "../models/dataset";
 import {SearchDefinition} from "../lib/search-definition";
+import ArtPanel from "./art-panel.vue";
 
 export default {
   name: "list-grid",
-  components: {ListResult, ListSearchOrder},
+  components: {ArtPanel, ListResult, ListSearchOrder},
   props: {
     modelName: {
       type: String,
@@ -50,7 +46,9 @@ export default {
       queryResult.value = await dataset.value.query(question);
 //      debug(`found ${queryResult.value.records.length} records, rec: ${JSON.stringify(queryResult.value.records[0])}`)
     }
-
+    onBeforeUnmount( () => {
+      dataset.value.unLink(queryResult.value);
+    })
     return {
       queryResult,
       dataset,
