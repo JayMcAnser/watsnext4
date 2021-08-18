@@ -3,7 +3,7 @@ process.env.NODE_ENV = 'test';
 
 import * as chai from 'chai';
 const assert = chai.assert;
-import {Dataset} from "../src/models/dataset";
+import {Model} from "../src/models/dataset";
 import {RecordData} from "../src/models/record-data";
 import {RecordQueue} from "../src/models/record-queue";
 import {MockApiServer} from "../mock/api-server.mock";
@@ -149,7 +149,7 @@ describe('dataset', () => {
 
     describe('create', () => {
       it('check not mock', () => {
-        let ds = new Dataset({modelName: 'art', apiServer: apiServer})
+        let ds = new Model({modelName: 'art', apiServer: apiServer})
         assert.isDefined(ds)
         assert.equal(ds.modelName, 'art')
         assert.isFalse(ds.apiServer.isMock)
@@ -158,13 +158,13 @@ describe('dataset', () => {
 
     describe('connection', () => {
       it('is develop server', () => {
-        let ds = new Dataset({modelName: 'art', apiServer: apiServer})
+        let ds = new Model({modelName: 'art', apiServer: apiServer})
         assert.isDefined(ds)
         assert.equal(ds.apiServer.port, 3055)
       });
 
       it('block access if not logged in', async () => {
-        let ds = new Dataset({modelName: 'art', logging: false})
+        let ds = new Model({modelName: 'art', logging: false})
         try {
           let qry = await ds.query('veld');
           assert.fail('should block if not logged in')
@@ -183,7 +183,7 @@ describe('dataset', () => {
       })
 
       it('find multiple times and ref the same', async () => {
-        let ds = new Dataset({modelName: 'art'})
+        let ds = new Model({modelName: 'art'})
         let qry = await ds.query('veld');
         assert.equal(qry.records.length, 2)
         assert.equal(ds.size, 2);

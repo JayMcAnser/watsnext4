@@ -1,4 +1,4 @@
-import {Dataset, IQueryResult} from "../models/dataset";
+import {Model, IQueryResult} from "../models/model";
 import {ArtModel} from "../models/art";
 import {config} from './const'
 import {ApiServer} from "./api-server";
@@ -10,7 +10,7 @@ export interface IDatabaseOptions {
 }
 
 interface ITableDefinition {
-  dataset: Dataset
+  dataset: Model
 }
 
 export class Database {
@@ -27,8 +27,8 @@ export class Database {
     this.createTable(new ArtModel(Object.assign(datasetOptions, {modelName: 'art'})))
   }
 
-  private createTable(dataset: Dataset) {
-    this._tables[dataset.modelName] = dataset;
+  private createTable(model: Model) {
+    this._tables[model.modelName] = model;
   }
 
   /**
@@ -43,11 +43,11 @@ export class Database {
    * @param server
    */
   set apiServer(server: ApiServer) {
-    Dataset.apiServer = server;
+    Model.apiServer = server;
   }
 
   get apiServer() {
-    return Dataset.apiServer
+    return Model.apiServer
   }
 
   get apiInfo() : Promise<any> {
@@ -56,7 +56,7 @@ export class Database {
   /**
    * return the dataset for the table
    * @param name
-   * @return Dataset the reference to the table definition
+   * @return Model the reference to the table definition
    */
   // table(name: string) : Dataset {
   //   if (this._tables.has(name)) {

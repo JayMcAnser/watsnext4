@@ -21,9 +21,13 @@ const index : Array<RouteRecordRaw> =  [
         component: () => import('../components/art/list.vue')
       },
       {
+        path: 'show/:id',
+        component: () => import('../components/art/show.vue')
+      },
+      {
         path: '',
         component: () => import('../components/art/list.vue')
-      }
+      },
     ]
   },
   { path: '/profile', name: 'profile', component: () => import('../pages/profile.vue')},

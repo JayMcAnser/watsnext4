@@ -1,5 +1,5 @@
 /**
- * basic dataset that is a collection of Record
+ * basic model that is a collection of Record
  */
 import {debug, warn, error } from '../vendors/lib/logging';
 import {ISearchDefinition, SearchDefinition} from "../lib/search-definition";
@@ -7,7 +7,7 @@ import {ApiServer, IApiQueryResult, IQueryRecord} from "../lib/api-server";
 import {RecordData} from "./record-data";
 import {v4 as uuid} from 'uuid';
 
-export interface IDatasetOptions {
+export interface IModelOptions {
   modelName: string,
   apiServer?: ApiServer,
   debug?: boolean,
@@ -25,7 +25,7 @@ export interface IQueryResult {
   records: Array<RecordData>,
   refId: string,
   // this is a ref to records[0] for easy access
-  record?: IQueryRecord,
+  record: IQueryRecord,
   // call this if the query is no longer needed
   unlink(): any
 }
@@ -52,7 +52,7 @@ class RecordRef implements IRecordRef {
   }
 }
 
-export class Dataset {
+export class Model {
   static apiServer: ApiServer;
 
   // dataset are like tables, so the have a name
@@ -62,17 +62,17 @@ export class Dataset {
 
   readonly debug: boolean;
 
-  constructor(options?: IDatasetOptions) {
+  constructor(options?: IModelOptions) {
     if (!options.hasOwnProperty('modelName') || options.modelName.length === 0) {
       error(`missing modelName`, 'dataset.constructor')
     }
     this.modelName = options && options.modelName ? options.modelName : 'no-table';
-    if ((options && options.apiServer) || !Dataset.apiServer) {
-      Dataset.apiServer = options.hasOwnProperty('apiServer') ? options.apiServer : new ApiServer({logging: options.logging})
+    if ((options && options.apiServer) || !Model.apiServer) {
+      Model.apiServer = options.hasOwnProperty('apiServer') ? options.apiServer : new ApiServer({logging: options.logging})
     }
     this.debug = options.debug && options.hasOwnProperty('debug') ? options.debug : false;
     if (options.hasOwnProperty('logging')) {
-      Dataset.apiServer.logToConsole(options.logging)
+      Model.apiServer.logToConsole(options.logging)
     }
   }
 
@@ -86,11 +86,12 @@ export class Dataset {
    * returns what ApiServer is globally used
    */
   get apiServer(): ApiServer{
-    return Dataset.apiServer;
+    return Model.apiServer;
   }
 
-  emptyResult() {
+  emptyResult(): IQueryResult {
     return {
+      record: {},
       records: [],
       refId: '',
       unlink: () => {},
@@ -99,13 +100,7 @@ export class Dataset {
 
   private recordsToQueryResult(records: IApiQueryResult) : IQueryResult {
     let vm = this;
-    let result : IQueryResult = {
-      refId: uuid(),
-      records: [],
-      unlink: () => {
-        return vm.unLink(result)
-      }
-    }
+    let result : IQueryResult = this.emptyResult()
     for (let index = 0; index < records.length; index++) {
       let rec = records[index];
       let ref;
@@ -157,6 +152,7 @@ export class Dataset {
       record = await this.apiServer.getById(this.modelName, id);
     }
     if (record === false) {
+      debug(`record.${this.modelName}[${id} not found`)
       return false;
     }
     let result = this.recordsToQueryResult([record]);
@@ -169,7 +165,7 @@ export class Dataset {
    * @param query IQueryResult or false if record wasn't found
    */
   unLink(query: IQueryResult | false) {
-    if (query !== false) {
+    if (query !== false && query.records) {
       for (let recIndex = 0; recIndex < query.records.length; recIndex++) {
         let rec = query.records[recIndex]
         let id = rec.hasOwnProperty('id') ? rec.id : rec['_id']; // rec._id is private in typescript ...

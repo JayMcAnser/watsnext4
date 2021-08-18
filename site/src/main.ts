@@ -36,7 +36,9 @@ app.component('AccordionTab', AccordionTab);
 app.component('Listbox', Listbox)
 app.component('PanelMenu', PanelMenu);
 app.component('Menu', Menu);
-app.component('Message', Message)
+app.component('Message', Message);
+app.component('DataTable', DataTable)
+app.component('Column', Column)
 // app.component('VueSidebarMenu', VueSidebarMenu)
 
 import { router } from './routes/index'
@@ -52,6 +54,8 @@ import VueSvgInlinePlugin from "vue-svg-inline-plugin";
   // smaller footprint see: https://github.com/oruga-ui/oruga
 
 import Rights from './lib/rights';
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
 
 // @ts-ignore
 app.use(router)

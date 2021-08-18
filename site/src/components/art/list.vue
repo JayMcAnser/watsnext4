@@ -4,11 +4,20 @@
       model-name="art"
   >
     <template
+      v-slot:list="slotProps">
+      <art-table
+        :data="slotProps.records">
+      </art-table>
+    </template>
+<!--
+    <template
         v-slot:record="slotProps">
       <art-panel
         :record="slotProps.data">
       </art-panel>
     </template>
+-->
+
   </list-grid>
   </div>
 </template>
@@ -18,9 +27,11 @@
 
 import ListGrid from "../list-grid.vue";
 import ArtPanel from "../art-panel.vue";
+import ArtTable from "./art-table.vue";
 export default {
   name: "list",
   components: {
+    ArtTable,
     ArtPanel,
     ListGrid
   }

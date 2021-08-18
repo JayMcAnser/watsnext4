@@ -5,14 +5,20 @@
         @search="searchChanged"
     >
     </list-search-order>
-    <ul>
-      <li v-for="rec in queryResult.records" :key="rec._id">
-        <slot
-            name="record"
-            :data="rec"
-        ></slot>
-      </li>
-    </ul>
+    <slot name="list"
+          :records="queryResult.records"
+    >
+      <!--
+      <ul>
+        <li  v-for="rec in queryResult.records" :key="rec._id">
+          <slot
+              name="record"
+              :data="rec"
+          ></slot>
+        </li>
+      </ul>
+      -->
+    </slot>
   </div>
 </template>
 
@@ -21,7 +27,7 @@ import ListSearchOrder from "./list-search-order.vue";
 import {onBeforeUnmount, onMounted, ref} from 'vue'
 import {debug} from "../vendors/lib/logging";
 import ListResult from "./list-result.vue";
-import {Dataset, IQueryResult} from "../models/dataset";
+import {Model, IQueryResult} from "../models/model";
 import {SearchDefinition} from "../lib/search-definition";
 import ArtPanel from "./art-panel.vue";
 
@@ -37,7 +43,7 @@ export default {
 
   setup(props, {emit}) {
     const question = new SearchDefinition('');
-    const dataset = ref(new Dataset({modelName: props.modelName}))
+    const dataset = ref(new Model({modelName: props.modelName}))
     let queryResult = ref(dataset.value.emptyResult());
     const searchChanged = async (searchInfo) => {
 //      debug(`search for ${searchInfo.value}`, 'list-grid')
