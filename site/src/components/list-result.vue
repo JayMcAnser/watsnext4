@@ -11,7 +11,7 @@
 
 <script lang="ts">
 
-import {IQueryResult} from "../models/dataset";
+// import {IQueryResult} from "../models/model";
 import {ref} from 'vue'
 
 export default {

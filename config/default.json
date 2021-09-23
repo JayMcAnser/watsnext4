@@ -44,6 +44,9 @@
     "clientSecret": "TEnnwNqFwmre",
     "authUrl": "http://localhost:3000/exact"
   },
+  "Mediakunst": {
+    "id": 2423
+  },
   "Server" : {
     "port" : 3050,
     "secretKey" : "W@tsN3*t"

@@ -10,6 +10,7 @@ import {status} from '../vendors/store/status';
 import {user} from '../vendors/store/user';
 import {menu} from './menu';
 import {database} from "./database";
+import {rights} from "./rights";
 
 const defaultModule = {
   state: {
@@ -41,6 +42,7 @@ const store = createStore({
     status,
     user,
     menu,
+    rights
   }
 })
 export { store };

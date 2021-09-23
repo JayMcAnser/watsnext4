@@ -8,6 +8,7 @@ import 'primeflex/primeflex.css';
 import 'primevue/resources/themes/saga-blue/theme.css';
 import 'primevue/resources/primevue.min.css';
 import 'primeicons/primeicons.css';
+import './styles/watsnext.css'
 
 
 app.use(PrimeVue)
@@ -39,6 +40,7 @@ app.component('Menu', Menu);
 app.component('Message', Message);
 app.component('DataTable', DataTable)
 app.component('Column', Column)
+app.component('Toolbar', Toolbar)
 // app.component('VueSidebarMenu', VueSidebarMenu)
 
 import { router } from './routes/index'
@@ -56,6 +58,7 @@ import VueSvgInlinePlugin from "vue-svg-inline-plugin";
 import Rights from './lib/rights';
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
+import Toolbar from "primevue/toolbar";
 
 // @ts-ignore
 app.use(router)

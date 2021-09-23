@@ -6,6 +6,7 @@ import {ISearchDefinition, SearchDefinition} from "../lib/search-definition";
 import {ApiServer, IApiQueryResult, IQueryRecord} from "../lib/api-server";
 import {RecordData} from "./record-data";
 import {v4 as uuid} from 'uuid';
+import {IFields} from "../lib/fields";
 
 export interface IModelOptions {
   modelName: string,
@@ -190,5 +191,4 @@ export class Model {
     }
     return true;
   }
-
 }

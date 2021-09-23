@@ -203,7 +203,7 @@ class ExactConnection {
       let data = result.data.d.results ? result.data.d.results[0] : {CurrentDivision: false};
       return data.CurrentDivision;
     } else {
-      Logging.warn(`could not get the division from exact`);
+      Logging.log('warn', `could not get the division from exact`);
       return false;
     }
   }

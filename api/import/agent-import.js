@@ -66,7 +66,7 @@ class AgentImport {
       sql = `SELECT * FROM agent WHERE agent_ID=${record.agent_ID}`;
       qry = await con.query(sql);
       if (qry.length === 0) {
-        Logging.warn(`agent[${record.agent_ID}] does not exist. skipped`);
+        Logging.log('warn', `agent[${record.agent_ID}] does not exist. skipped`);
         return undefined
       }
       record = qry[0];

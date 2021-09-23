@@ -207,4 +207,18 @@ describe('model.art', () => {
     })
   });
 
+  describe('exented', () => {
+    it('set newInfo', async () => {
+      let art = await Art.findOne({artId: 30});
+      assert.isDefined(art);
+      assert.isUndefined(art.newInfo)
+      art.newInfo = 'The test of extend';
+      await art.save();
+
+      let art2 = await Art.findOne({artId: 30});
+      assert.isDefined(art2);
+      assert.isDefined(art2.newInfo);
+    })
+  })
+
 });

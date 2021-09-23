@@ -1,10 +1,8 @@
 <template>
-  <div>
-    ArtView {{ recordId }}, {{ record.title}}
-  </div>
-  <art-panel-general
-    :record="record">
-  </art-panel-general>
+  <general
+      :record="record"
+  >
+  </general>
 </template>
 
 <script>
@@ -15,9 +13,11 @@ import { ArtModel } from "../../models/art";
 import {debug} from "../../vendors/lib/logging";
 import {useStore} from "vuex";
 
+import General from "./general.vue";
+
 export default {
   name: "show",
-  components: {ArtPanelGeneral},
+  components: {General, ArtPanelGeneral},
   props: {
 
   },

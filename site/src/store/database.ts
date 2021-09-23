@@ -6,7 +6,7 @@
 import { debug, warn, error } from '../vendors/lib/logging';
 import {Database} from "../lib/database";
 import {SearchDefinition} from "../lib/search-definition";
-import {IQueryResult} from "../models/dataset";
+import {IQueryResult} from "../models/model";
 import {config} from '../lib/const'
 
 import {MockApiServer} from "../../mock/api-server.mock";

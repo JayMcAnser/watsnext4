@@ -3,7 +3,7 @@
  *
  * basic record return from the API, rebuild as an Vue.ref v
  */
-import {Model} from "./dataset";
+import {Model} from "./model";
 
 
 import {debug, error} from '../vendors/lib/logging';

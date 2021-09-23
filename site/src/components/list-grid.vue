@@ -48,12 +48,12 @@ export default {
     const searchChanged = async (searchInfo) => {
 //      debug(`search for ${searchInfo.value}`, 'list-grid')
       question.value = searchInfo.value;
-      dataset.value.unLink(queryResult.value);
+      dataset.value.unLink(queryResult.value as IQueryResult);
       queryResult.value = await dataset.value.query(question);
 //      debug(`found ${queryResult.value.records.length} records, rec: ${JSON.stringify(queryResult.value.records[0])}`)
     }
     onBeforeUnmount( () => {
-      dataset.value.unLink(queryResult.value);
+      dataset.value.unLink(queryResult.value as IQueryResult);
     })
     return {
       queryResult,

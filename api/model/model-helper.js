@@ -100,25 +100,27 @@ const setObjectIds = function(arr, data) {
 const upgradeBuilder = function(name, schema, extraFields) {
 
   if (Object.keys(extraFields).length > 1) {
+    let keyFieldName = Object.keys(extraFields)[0]
     let extraSchema = new Schema(extraFields);
-    let fieldName = Object.keys(extraFields)[0];
+    // let fieldName = Object.keys(extraFields)[0];
     const extraModel = Mongoose.Model(name, extraSchema);
 
 
     schema.post('save', async function (doc) {
-      let search = {};
       let hasData = false;
 
-      search[fieldName] = doc[fieldName]
-      let extra = await extraModel.findOne(search);
+      let extra = await extraModel.findOne({[keyFieldName]: doc[keyFieldName]});
       if (!extra) {
-        extra = new extraModel()
+        let inf = {
+          [keyFieldName] : doc[keyFieldName]
+        }
+        extra = new extraModel(inf)
       }
       for (let key in extraFields) {
         if (!extraFields.hasOwnProperty(key)) {
           continue
         }
-        if (doc[key] !== undefined && key !== fieldName) {
+        if (doc[key] !== undefined && key !== keyFieldName) {
           extra[key] = doc[key];
           hasData = true;
         }
@@ -130,13 +132,13 @@ const upgradeBuilder = function(name, schema, extraFields) {
 
     schema.methods.reSync = async function () {
       let search = {};
-      search[fieldName] = this[fieldName]
-      let extra = await extraModel.findOne(search);
+      // search[fieldName] = this[fieldName]
+      let extra = await extraModel.findOne({[keyFieldName] : this[keyFieldName]});
       if (!extra) {
         return Promise.resolve(false); // nothing is stored
       }
       for (let key in extraFields) {
-        if (!extraFields.hasOwnProperty(key)) {
+        if (key === keyFieldName || !extraFields.hasOwnProperty(key)) {
           continue
         }
         this[key] = extra[key];

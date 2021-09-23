@@ -72,9 +72,17 @@ class QueryBuilder {
     this._processSort(options.sortOrders);
     this._model = options.model;
     this._processViews(options.views);
+    this._defaultLimit = false;
     if (Object.keys(this._filters).length === 0) {
       Logging.logThrow('fields is required', 'querybuild.constructor')
     }
+  }
+
+  get defaultLimit() {
+    return this._defaultLimit
+  }
+  set defaultLimit(value) {
+    this._defaultLimit = value;
   }
 
   get model() {
@@ -207,7 +215,7 @@ class QueryBuilder {
   _sortStatement(sortName) {
     let sort = this._sorts[sortName];
     if (sort === undefined) {
-      Logging.log('warn', `unknown sort name ${sortName}`);
+     //  Logging.log('warn', `unknown sort name ${sortName}`);
       sort = this._sorts['default']
     }
     let result = {}
@@ -289,11 +297,12 @@ class QueryBuilder {
   parse(req) {
     let result = {
       skip: false,
-      limit: false,
-      sort: req.query.hasOwnProperty('sort') ? req.query.sort : 'default',
+      limit: this._defaultLimit,// false,
+      sort: req.query && req.query.hasOwnProperty('sort') ? req.query.sort : 'default',
       query: false,
-      fields: req.query.hasOwnProperty('fields')? req.query.fields : 'default',
-      view: req.query.hasOwnProperty('view') ? req.query.view : 'default'
+      fields: req.query && req.query.hasOwnProperty('fields')? req.query.fields : 'default',
+      view: req.query && req.query.hasOwnProperty('view') ? req.query.view : 'default',
+      filter: {}
     }
     if (req.query) {
       // build the query limiter
@@ -318,9 +327,31 @@ class QueryBuilder {
     return result;
   }
 
+  /**
+   * to overlad the $match filter for all requests
+   *
+   * @param filter
+   * @return {*}
+   */
+  buildFilter(filter) {
+    return filter
+  }
+
+  /**
+   * generate the final filter
+   *
+   * @param req
+   * @return {[{$match: (*|{filter: {}, view: (string|Window|*), query: boolean, limit: boolean, skip: boolean, sort: (*|string), fields: (*|string)})}, {$sort: string}]}
+   */
   aggregate(req) {
     let query = this.parse(req);
-    let result = [{$match: query.filter}, {$sort: query.sort}];
+    query.filter = this.buildFilter(query.filter);
+    let result =  [{$match: query.filter}];
+
+    if (Object.keys(query.sort).length) {
+      let sort = this._sortStatement(query.sort)
+      result.push( {$sort: sort});
+    }
     if (query.limit) {
       if (query.skip) {
         result.push({$skip: query.skip})

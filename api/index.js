@@ -67,6 +67,7 @@ const Helper = require('./vendors/lib/helper')
 
 App.use('/api/art', AuthController.validate , require('./routes/art'));
 App.use('/api/info', AuthController.validate , require('./routes/info'));
+App.use('/api/mediakunst', AuthController.validate, require('./routes/mediakunst'));
 
 // App.use('/api/public',  require('./routes/public'));
 // App.use('/api/board', BoardController.validate,  require('./routes/board'));
@@ -97,6 +98,8 @@ App.dbInit = new Promise((resolve, reject) => {
       return MongoDb.validateInstall().then( () => {
         return resolve(true);
       })
+    }).catch( (e2) => {
+      Logging.log('error', `[mongo].connect ${e2.message}`);
     })
   } catch(e) {
     Logging.log('error', `[mongo] ${e.message}`);

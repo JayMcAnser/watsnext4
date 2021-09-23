@@ -44,8 +44,11 @@ const ArtistSchema = new Schema({
 });
 
 const ArtExtendLayout = {
-  artId: String,
+  artId: String,  // first field is always the ID field
   newInfo: String,
+  isMediakunst: Boolean, // set to true if part of mediakunst
+  mediakunstId: String,  // the link on mediakunst
+  mediakunstDate: Date,
 }
 
 const ArtLayout = Object.assign({
@@ -218,7 +221,7 @@ ArtSchema.methods.setRoyalties = function(data) {
         perc += this.agents[agentIndex].percentage;
       }
     } else {
-      Logging.warn(`art.id ${this._id.toString()}: the _id ${data[l]._id.toString()} was not found in the agents array.`);
+      Logging.log('warn', `art.id ${this._id.toString()}: the _id ${data[l]._id.toString()} was not found in the agents array.`);
     }
   }
   if (perc < 0 || perc > 100) {

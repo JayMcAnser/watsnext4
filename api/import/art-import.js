@@ -140,7 +140,7 @@ class ArtImport {
       sql = `SELECT * FROM art WHERE art_ID=${record.art_ID}`;
       qry = await con.query(sql);
       if (qry.length === 0) {
-        Logging.warn(`art[${record.art_ID}] does not exist. skipped`);
+        Logging.log('warn', `art[${record.art_ID}] does not exist. skipped`);
         return undefined
       }
       record = qry[0];

@@ -127,22 +127,54 @@ describe('import.art', function() {
   });
 
   it('run - clean', () => {
-    const limit = 20;
+    const limit = 10;
     let imp = new ImportArt({ session, limit: limit});
     return imp.run(DbMySql).then( (result) => {
       assert.equal(result.count, limit)
     })
   });
+  //
+  // it ('import url', async() => {
+  //   let imp = new ImportArt({ session, limit: 2});
+  //   let sql = 'SELECT * from art WHERE art_ID=18149';
+  //   let qry = await DbMySql.query(sql);
+  //   assert.equal(qry.length, 1)
+  //   await imp.runOnData(qry[0]);
+  //   let rec = await Art.findOne({artId: 18149});
+  //   assert.isTrue(rec !== null);
+  //   assert.isTrue(Object.keys(rec).length > 0);
+  //   assert.equal(rec.urls.length, 2);
+  // });
 
-  it ('import url', async() => {
-    let imp = new ImportArt({ session, limit: 2});
-    let sql = 'SELECT * from art WHERE art_ID=18149';
+  it('check extended fields after reimport', async () => {
+    let art = await Art.findOne({artId: {$gt:  2}});
+    assert.isTrue(art !== null);
+    assert.isTrue(art.artId > 0, 'found valid artId')
+    let id = art._id;
+    art.newInfo = 'XX';
+    await art.save();
+    let art2 = await Art.findById(id);
+    assert.equal(art2.newInfo, 'XX', 'should reset the newInfo');
+    let artId = art2.artId;
+    await Art.deleteOne({artId: artId});
+
+    let imp = new ImportArt({ session, limit: 1});
+    let sql = `SELECT * from art WHERE art_ID = ${artId}`;
     let qry = await DbMySql.query(sql);
     assert.equal(qry.length, 1)
     await imp.runOnData(qry[0]);
-    let rec = await Art.findOne({artId: 18149});
-    assert.isTrue(rec !== null);
-    assert.isTrue(Object.keys(rec).length > 0);
-    assert.equal(rec.urls.length, 2);
+
+    art2 = await  Art.findOne({artId: artId})
+    assert.equal(art2.newInfo, 'XX', 'should get the info previously stored');
+
+    // check that we do update the extra info
+    art2.newInfo = 'YY';
+    await art2.save();
+
+    await imp.runOnData(qry[0]);
+
+    art2 = await  Art.findOne({artId: artId})
+    assert.equal(art2.newInfo, 'YY', 'should have been updated');
+
   })
 });

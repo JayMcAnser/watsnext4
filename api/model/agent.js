@@ -18,7 +18,17 @@ const ContactSchema = new Schema({
   percentage: Number,
 })
 
-const AgentLayout = {
+const AgentExtendLayout = {
+  agentId: String,
+  isMediakunst: Boolean,     // set to true if part of mediakunst
+  mediakunstId: String,      // the direct link id
+  biography: Object,         // the info from the wikipedia
+  biographyLastChange: Date, // the date the biography changed (for checking)
+  imageId: String,           // the id of the image
+}
+
+
+const AgentLayout = Object.assign({
   agentId: String,
   type: String,
   searchcode:  String,
@@ -40,9 +50,10 @@ const AgentLayout = {
     ref: 'Code'
   }],
   royaltiesError: String,
-};
+}, AgentExtendLayout);
 
 let AgentSchema = new Schema(AgentLayout);
+ModelHelper.upgradeBuilder('AgentExtra', AgentSchema, AgentExtendLayout);
 AgentSchema.plugin(UndoHelper.plugin);
 
 AgentSchema.virtual('contact')
