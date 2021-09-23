@@ -1,7 +1,11 @@
 
+# 2021-09-23
+- add: Mediakunst integration
+- add: import script mediakunst (mediakunst-import.js)
+- add: API endpoint mediakunst, Art  
 - fix: error logging with useful messages
 
-# 20210-08-14
+# 2021-08-14
 - add: /api/info to return general information about the connection
 
 # 2021-05-31 
