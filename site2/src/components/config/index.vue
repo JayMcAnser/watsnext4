@@ -1,15 +1,15 @@
 <template>
   <page-overview>
-    <setup-panel></setup-panel>
+    <api-panel></api-panel>
   </page-overview>
 </template>
 
 <script>
 import PageOverview from "../page-overview.vue";
-import SetupPanel from "./setup-panel.vue";
+import ApiPanel from "./api-panel.vue";
 export default {
   name: "index",
-  components: {SetupPanel, PageOverview}
+  components: {ApiPanel, PageOverview}
 }
 </script>
 

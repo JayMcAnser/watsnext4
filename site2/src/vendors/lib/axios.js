@@ -13,12 +13,14 @@ import { axiosActions } from './const';
 
 let onTokenExpiredFunc = false;
 
-let serverUrl
+let serverUrl;
+let mode;
 
 let env = import.meta.env;
 if (env === undefined && process) {
   import('vite').then(({ loadEnv }) => {
     env = loadEnv(process.env.NODE_ENV, process.cwd());
+    mode = env.MODE
     serverUrl = env && env.VITE_API_URL ? env.VITE_API_URL : 'http://localhost:3050/api';
     Axios.defaults.baseURL = serverUrl;
     Axios.server = Axios.defaults.baseURL;
@@ -29,7 +31,15 @@ if (env === undefined && process) {
   Axios.defaults.baseURL = serverUrl;
 // for easy access an not locking into Axios
   Axios.server = Axios.defaults.baseURL;
+  mode = env.MODE
 }
+export const ServerConfig = () => {
+  return {
+    serverUrl,
+    mode
+  };
+}
+
 Axios.headers = {
   'Accept': 'application/json',
     'Content-Type': 'application/json',
