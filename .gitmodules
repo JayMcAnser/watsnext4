@@ -7,3 +7,7 @@
 [submodule "api/wikipedia"]
 	path = api/wikipedia
 	url = git@github.com:JayMcAnser/wikipedia.git
+
+[submodule "site2/vendors"]
+	path = site2/src/vendors
+	url = git@github.com:JayMcAnser/api-vendors.git

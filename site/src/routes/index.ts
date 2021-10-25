@@ -12,6 +12,16 @@ const index : Array<RouteRecordRaw> =  [
     component: () => import('../pages/logout.vue')
   },
   { path: '/notyet', name: 'notyet', component: () => import('../pages/not-yet.vue')},
+  { path: '/mediakunst',
+    name: 'mediakunst',
+    component: () => import('../components/mediakunst/art-list.vue'),
+    children:[
+      {
+        path: 'art-list',
+        component: () => import('../components/mediakunst/art-list.vue')
+      }
+    ]
+  },
   { path: '/art',
     name: 'art',
     component: () => import('../pages/art.vue'),
@@ -30,6 +40,7 @@ const index : Array<RouteRecordRaw> =  [
       },
     ]
   },
+
   { path: '/profile', name: 'profile', component: () => import('../pages/profile.vue')},
 //  { path: '/board/:id/:layout?', name: 'board', component: () => import('../pages/board.vue')},
   { path: '/test', name: 'test', component: () => import('../pages/test.vue')},

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div  class="hidden md:flex md:flex-shrink-0">
-      <div class="w-64 flex-col">
+      <div class="w-64 flex-col w-full">
 <!--
         <panel-menu
             :model="items"
@@ -91,6 +91,14 @@ let nav = [
     items: [
       {label: 'List', icon: 'list', to: '/notyet'},
       {label: 'New',  icon:'new', class:'XXXXX', to: '/notyet'}
+    ]
+  },
+  {
+    label: 'Mediakunst',
+    key: 'mediakunst',
+    items: [
+      {label: 'Artwork', icon: 'list', to:'/mediakunst/art-list'},
+      {label: 'Artists', icon: 'art', to:'/notyet'}
     ]
   }
 ]
