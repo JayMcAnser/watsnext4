@@ -2,16 +2,20 @@
  * art related definitions
  */
 
-import {Model, IModelOptions} from "./model";
+import {Model, IModelOptions, ISortDefinition} from "./model";
 import {FieldDef, FieldGroup, IFields} from "../lib/fields";
 
+const SortDefinitions : Array<ISortDefinition> = [
+  {label: 'Title', key: 'title'}
+]
 
 export class ArtModel extends Model {
 
-  private groupList: IFields;
 
   constructor(options: IModelOptions) {
-    super(Object.assign({}, options, {modelName: 'art'}));
+    super(
+      Object.assign({}, {sortDefinitions: SortDefinitions}, options, {modelName: 'art'})
+    );
   }
 
   private init() {
@@ -19,13 +23,12 @@ export class ArtModel extends Model {
     let generalGrp = new FieldGroup('general', 'General');
     generalGrp.fields.push(new FieldDef('title', 'Title'));
     generalGrp.triggerFields = ['title']
-    result.groups.push(generalGrp);
+    //result.groups.push(generalGrp);
 
   }
 
   fields(): IFields {
     let result = super.fields();
-
 
     return result;
   }

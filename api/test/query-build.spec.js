@@ -183,7 +183,7 @@ describe('query-builder', () => {
           default: ['title', 'yearFrom'],
           year: ['yearFrom']
         },
-        sortOrders: {
+        sorts: {
           default: ['title', '-yearFrom'],
           year: ['-yearFrom'],
           yearAsc: ['yearFrom']

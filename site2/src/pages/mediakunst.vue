@@ -1,15 +1,18 @@
 <template>
-  <page-canvas
+ <!-- <mediakunst-panel
   title="Mediakunst">
-    The other content
-  </page-canvas>
+
+  </mediakunst-panel>
+  -->
+  <router-view></router-view>
 </template>
 
 <script>
-import PageCanvas from "../components/page-canvas.vue";
+
+import MediakunstPanel from '../components/mediakunst/index.vue'
 export default {
   name: "mediakunst",
-  components: {PageCanvas}
+  components: {MediakunstPanel}
 }
 </script>
 

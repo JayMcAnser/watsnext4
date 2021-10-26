@@ -9,7 +9,7 @@
 
 <script>
 export default {
-  name: "info-panel",
+  name: "panel-info",
   props: {
     title: {
       type: String

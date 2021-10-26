@@ -12,6 +12,7 @@
     "@tailwindcss/forms": "^0.3.4",
     "axios": "^0.23.0",
     "flatted": "^3.2.2",
+    "uuid": "^8.3.2",
     "vue": "^3.2.16",
     "vue-router": "^4.0.12",
     "vuex": "^4.0.2"

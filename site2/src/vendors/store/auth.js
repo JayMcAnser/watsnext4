@@ -157,7 +157,13 @@ export const actions = {
       let evts = getters.eventList(eventObj.action);
       for (let index = 0; index < evts.length; index++) {
         debug(`sendEvent ${eventObj.action} call: ${evts[index].call}`, 'store.auth.sendEvent')
-        await dispatch(evts[index].call, eventObj.data, {root: true})
+        if (typeof evts[index].call === 'function') {
+          debug(`sendEvent ${eventObj.action} call function}`, 'store.auth.sendEvent')
+          await evts[index].call(eventObj.data);
+        } else {
+          debug(`sendEvent ${eventObj.action} call: ${evts[index].call}`, 'store.auth.sendEvent')
+          await dispatch(evts[index].call, eventObj.data, {root: true})
+        }
       }
     } catch(e) {
       error(`error on eventbus ${e.message}`, 'auth.sendEvent')

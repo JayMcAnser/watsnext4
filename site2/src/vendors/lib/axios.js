@@ -33,7 +33,7 @@ if (env === undefined && process) {
   Axios.server = Axios.defaults.baseURL;
   mode = env.MODE
 }
-export const ServerConfig = () => {
+export const serverConfig = () => {
   return {
     serverUrl,
     mode

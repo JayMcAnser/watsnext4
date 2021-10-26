@@ -2,6 +2,7 @@
  * class that converts a query to find command for the mongodb
  *
  * version 0.1 _jay_ 2021-06-02
+ *         0.2 jay 2021-10-26  added info so query has user display info
  */
 const Logging = require('../vendors/lib/logging')
 const Const = require('../lib/const');
@@ -68,8 +69,9 @@ class QueryBuilder {
     // the filters are the definition of the fields to search in.
     this._filters = {}
     this._itemPerPage = ITEMS_PER_PAGE;
+    this._fields = options.fields;
     this._processFields(options.fields);
-    this._processSort(options.sortOrders);
+    this._processSort(options.sorts);
     this._model = options.model;
     this._processViews(options.views);
     this._defaultLimit = false;
@@ -417,6 +419,16 @@ class QueryBuilder {
         updateCount: rec.nModified
       }
     })
+  }
+
+  /**
+   * return the information for the user interface about the model
+   */
+  modelInfo() {
+    return {
+      searchFields: this._fields,
+      sorts: this._sorts
+    }
   }
 }
 

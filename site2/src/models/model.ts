@@ -1,6 +1,7 @@
 /**
  * basic model that is a collection of Record
  */
+// @ts-ignore
 import {debug, warn, error } from '../vendors/lib/logging';
 import {ISearchDefinition, SearchDefinition} from "../lib/search-definition";
 import {ApiServer, IApiQueryResult, IQueryRecord} from "../lib/api-server";
@@ -8,10 +9,15 @@ import {RecordData} from "./record-data";
 import {v4 as uuid} from 'uuid';
 import {IFields} from "../lib/fields";
 
+export interface ISortDefinition  {
+  label: string,
+  key: string,
+}
 export interface IModelOptions {
   modelName: string,
   apiServer?: ApiServer,
   debug?: boolean,
+  sortDefinitions?: Array<ISortDefinition>,
   // if set to true the axios will not report any errors the the console
   // default: false
   logging?: boolean,
@@ -62,6 +68,7 @@ export class Model {
   private records: Map<string, IRecordRef> = new Map();
 
   readonly debug: boolean;
+  readonly _sortDefinitions: Array<ISortDefinition>
 
   constructor(options?: IModelOptions) {
     if (!options.hasOwnProperty('modelName') || options.modelName.length === 0) {
@@ -72,9 +79,10 @@ export class Model {
       Model.apiServer = options.hasOwnProperty('apiServer') ? options.apiServer : new ApiServer({logging: options.logging})
     }
     this.debug = options.debug && options.hasOwnProperty('debug') ? options.debug : false;
-    if (options.hasOwnProperty('logging')) {
+    if (options && options.hasOwnProperty('logging')) {
       Model.apiServer.logToConsole(options.logging)
     }
+    this._sortDefinitions = options &&  options.sortDefinitions ? options?.sortDefinitions : []
   }
 
   /**
@@ -88,6 +96,9 @@ export class Model {
    */
   get apiServer(): ApiServer{
     return Model.apiServer;
+  }
+  get sortDefinitions(): Array<ISortDefinition> {
+    return this.sortDefinitions
   }
 
   emptyResult(): IQueryResult {
@@ -114,6 +125,7 @@ export class Model {
         ref = new RecordRef(rec);
         this.records.set(id, ref);
       }
+      // @ts-ignore
       ref.usedBy.push(result.refId)
       result.records.push(ref.record); // rec);
     }
@@ -144,7 +156,7 @@ export class Model {
    * @param forceApi boolean forces an api call even if the record is in the cache
    * @returns Promise the records. false if not found
    */
-  async findById(id, forceApi: boolean = false) : Promise<IQueryResult | Boolean> {
+  async findById(id: string, forceApi: boolean = false) : Promise<IQueryResult | Boolean> {
     let record;
     if (forceApi === false && this.records.has(id)) {
       // we can use our cached version

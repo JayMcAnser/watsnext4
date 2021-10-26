@@ -1,6 +1,6 @@
 
 <template>
-  <div>
+  <div class="h-full">
     <TransitionRoot as="template" :show="sidebarOpen">
       <Dialog as="div" class="fixed inset-0 flex z-40 md:hidden" @close="sidebarOpen = false">
         <TransitionChild as="template" enter="transition-opacity ease-linear duration-300" enter-from="opacity-0" enter-to="opacity-100" leave="transition-opacity ease-linear duration-300" leave-from="opacity-100" leave-to="opacity-0">
@@ -52,7 +52,7 @@
         </div>
       </div>
     </div>
-    <div class="md:pl-64 flex flex-col">
+    <div class="h-full md:pl-64 flex flex-col">
       <div class="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-white shadow">
         <button type="button" class="px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 md:hidden" @click="sidebarOpen = true">
           <span class="sr-only">Open sidebar</span>
@@ -112,7 +112,7 @@
         </div>
       </div>
 
-      <main class="flex-1">
+      <main class="h-full flex-1">
         <router-view></router-view>
 
       </main>
@@ -154,6 +154,7 @@ const navigation = [
   { label: 'Mediakunst', href: '/mediakunst', icon: UsersIcon, current: false, name: 'mediakunst' },
   { label: 'Royalties', href: '/royalties', icon: FolderIcon, current: false, 'name': 'royalties' },
   { label: 'Distribution', href: '/distribution', icon: CalendarIcon, current: false, name: 'distribution' },
+  { label: 'Watsnext', href: '/watsnext', icon: MenuAlt2Icon, current: false, name: 'watsnext'},
   { label: 'Config', href: '/config', icon: InboxIcon, current: false, name: 'config' },
 ]
 const userNavigation = [

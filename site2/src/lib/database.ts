@@ -22,7 +22,7 @@ export class Database {
     this.debug = options && options.hasOwnProperty('debug') ? options.debug : config.debug;
     let datasetOptions: IDatabaseOptions = {
       debug: this.debug,
-      apiServer: options ? options.apiServer : undefined
+      apiServer: options ? options.apiServer : new ApiServer()
     }
     this.createTable(new ArtModel(Object.assign(datasetOptions, {modelName: 'art'})))
   }
@@ -31,6 +31,13 @@ export class Database {
     this._tables[model.modelName] = model;
   }
 
+  /**
+   * initializes the database by the configuratie return by the user
+   * @param userData
+   */
+  init(userData) {
+
+  }
   /**
    * get a list of names of the table
    */
@@ -50,7 +57,7 @@ export class Database {
     return Model.apiServer
   }
 
-  get apiInfo() : Promise<any> {
+  async apiInfo() {
     return this.apiServer.getInfo()
   }
   /**
@@ -64,7 +71,7 @@ export class Database {
   //   }
   //   throw new Error(`table ${name} does not exists`);
   // }
-  get table() {
+  get tables() {
     return this._tables
   }
 

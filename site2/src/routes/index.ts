@@ -16,8 +16,17 @@ const index : Array<RouteRecordRaw> =  [
   {
     path: '/mediakunst',
     name: 'mediakunst',
-    component: () => import('../pages/mediakunst.vue')
-
+    component: () => import('../pages/mediakunst.vue'),
+    children:[
+      {
+        path: '',
+        component: () => import('../components/mediakunst/index.vue')
+      },
+      {
+        path: 'artwork',
+        component: () => import('../components/mediakunst/artwork-grid.vue')
+      }
+    ]
   },
   {
     path: '/royalties',
@@ -30,10 +39,31 @@ const index : Array<RouteRecordRaw> =  [
     component: () => import('../pages/not-yet.vue')
   },
   {
+    path: '/watsnext',
+    name: 'watsnext',
+    component: () => import('../pages/watsnext.vue'),
+    children:[
+      {
+        path: '',
+        component: () => import('../components/watsnext/index.vue')
+      },
+      {
+        path: 'artwork',
+        component: () => import('../components/watsnext/artwork-grid.vue')
+      },
+    ]
+  },
+  {
     path: '/config',
     name: 'config',
     component: () => import('../pages/config.vue')
   },
+  {
+    // path: "*",
+    path: "/:catchAll(.*)",
+    name: "NotFound",
+    component: () => import('../pages/not-found.vue'),
+  }
 
   /*
     { path: '/about', name: 'about', component: () => import('../pages/about.vue')},

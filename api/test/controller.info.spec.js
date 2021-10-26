@@ -35,5 +35,22 @@ describe('controller.art', () => {
       assert.isDefined(data.mongo)
       assert.isDefined(data.mongo.connectionString)
     })
+
+    it('get model info', async() => {
+      let result = await chai.request(server)
+        .get('/info/models')
+        //        .query({query: 'work'})
+        .set('authorization', `bearer ${TOKEN}`);
+
+      assert.equal(result.status, 200);
+      assert.isUndefined(result.body.errors, 'should not have errors')
+      let data = result.body.data
+      assert.equal(data.username,'test');
+      assert.isDefined(data.models);
+      assert.isDefined(data.models.art);
+      assert.isDefined(data.models.art.searchFields)
+    })
   });
+
+
 });

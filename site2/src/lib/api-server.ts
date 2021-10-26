@@ -1,7 +1,7 @@
 import { ISearchDefinition } from "./search-definition";
 import Axios from "../vendors/lib/axios";
 import {axiosActions} from "../vendors/lib/const";
-import {warn, debug} from '../vendors/lib/logging';
+import {warn, debug, error} from '../vendors/lib/logging';
 
 
 export interface IApiServerOptions {
@@ -64,8 +64,18 @@ export class ApiServer {
   /**
    * retrieve the current server info record
    */
-  async getInfo() : Promise<any> {
-    return this.axios.get('info');
+  async getInfo() {
+    try {
+      let info = await this.axios.get('info');
+      if (axiosActions.hasErrors(info)) {
+        throw new Error(axiosActions.errorMessage(info))
+      } else {
+        return axiosActions.data(info);
+      }
+    } catch (e) {
+      error(`unexpected result: ${e.message}`, 'api.getInfo');
+      throw new Error(axiosActions.errorMessage(e))
+    }
   }
   /**
    * retrieve records byt a query

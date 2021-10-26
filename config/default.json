@@ -77,10 +77,9 @@
       "filename" : "access.curator.log"
     },
     {
-      "type" : "file",
+      "type" : "console",
       "format" : "timestamp",
-      "level" : "warn",
-      "filename" : "watsnext.warn.log"
+      "level" : "debug"
     }
   ],
   "Board" : {

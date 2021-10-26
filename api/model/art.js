@@ -132,7 +132,7 @@ ArtSchema.virtual('period')
     let result = this.yearFrom
     if (this.yearTill) {
       if (result) {
-        result += ` = ${this.yearTill}`
+        result += ` - ${this.yearTill}`
       } else {
         result = $this.yearTill
       }
