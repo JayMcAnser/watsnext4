@@ -10,8 +10,14 @@ class QueryArt extends QueryBuilder {
   constructor(props) {
     super({
       fields:{
-        'default': ['%title', '%searchcode'],
-        searchCode: ['searchcode'],
+        'default': {
+          fields: ['%title', '%searchcode'],
+          caption: 'title and search code'
+        },
+        searchCode: {
+          fields: ['searchcode'],
+          caption: 'search code'
+        },
       },
       sorts: {
         default: ['title'],

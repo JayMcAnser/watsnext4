@@ -1,4 +1,7 @@
 
+# 2021-10-27
+- add: info/models for information abou the models
+
 # 2021-09-23
 - add: Mediakunst integration
 - add: import script mediakunst (mediakunst-import.js)

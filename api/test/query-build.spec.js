@@ -149,6 +149,27 @@ describe('query-builder', () => {
     })
   })
 
+
+  describe('searches', () => {
+    it('query - with caption', () => {
+      let builder = new QueryBuild({
+        fields: {
+          title: {
+            fields: ['title', 'year'],
+            caption: 'user caption'
+          },
+          artist: {
+            fields: ['artist', 'title'],
+            caption: 'test'
+          }
+        },
+      })
+      assert.isDefined(builder.searches);
+      assert.equal(builder.searches.title, 'user caption')
+      assert.equal(builder.searches.artist, 'test')
+    });
+
+  })
   describe('multi filter', () => {
     it('2 filters', () => {
       const pageNo = '2';

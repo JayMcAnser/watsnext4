@@ -1,6 +1,6 @@
 {
-  "name": "dropper-api",
-  "version": "4.0.0",
+  "name": "watsnext-api",
+  "version": "4.0.1  ",
   "description": "The api for WatsNext",
   "main": "index.js",
   "scripts": {

@@ -49,6 +49,9 @@ describe('controller.art', () => {
       assert.isDefined(data.models);
       assert.isDefined(data.models.art);
       assert.isDefined(data.models.art.searchFields)
+      assert.isDefined(data.models.art.searchFields.default);
+      assert.isDefined(data.models.art.searchFields.searchCode);
+      assert.equal(data.models.art.searchFields.searchCode, 'search code');
     })
   });
 

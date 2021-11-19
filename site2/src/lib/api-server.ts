@@ -77,6 +77,20 @@ export class ApiServer {
       throw new Error(axiosActions.errorMessage(e))
     }
   }
+
+  async modelInfo() {
+    try {
+      let info = await this.axios.get('info/models');
+      if (axiosActions.hasErrors(info)) {
+        throw new Error(axiosActions.errorMessage(info))
+      } else {
+        return axiosActions.data(info);
+      }
+    } catch (e) {
+      error(`unexpected result: ${e.message}`, 'api.modelInfo');
+      throw new Error(axiosActions.errorMessage(e))
+    }
+  }
   /**
    * retrieve records byt a query
    * @param model String the name of the model

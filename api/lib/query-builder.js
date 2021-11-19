@@ -58,7 +58,9 @@ class QueryBuilder {
    * options.fields Object | Array
    *   Array: the list of field to compare with. Will become the default search
    *   Object: the names of the filters to use. If default is not included, the first one will be set as default
-   * options.sortOrders Object
+   *      - if type is array => the list of fields to search in
+   *      - if type is object => { fields: array, caption: string, isDefault? : boolean }
+   * options.sorts Object
    *   per sortName the definition of the fields. -[fieldname] makes it descending
    *
    * options.view Object
@@ -69,7 +71,7 @@ class QueryBuilder {
     // the filters are the definition of the fields to search in.
     this._filters = {}
     this._itemPerPage = ITEMS_PER_PAGE;
-    this._fields = options.fields;
+    //this._fields = options.fields;
     this._processFields(options.fields);
     this._processSort(options.sorts);
     this._model = options.model;
@@ -87,6 +89,13 @@ class QueryBuilder {
     this._defaultLimit = value;
   }
 
+  /**
+   * the searches object with the [key] : 'caption' definition
+   * @return {*|{}}
+   */
+  get searches() {
+    return this._searches
+  }
   get model() {
     return this._model
   }
@@ -100,6 +109,7 @@ class QueryBuilder {
    * @private
    */
   _processFields(fields) {
+    this._searches = {}
     if (fields === undefined) { return undefined}
 
     if (Array.isArray(fields)) {
@@ -122,13 +132,26 @@ class QueryBuilder {
         if (!fields.hasOwnProperty(filter)) { continue }
         if (typeof fields[filter] === 'string') {
           Logging.log('warn', 'field type string not yet implemented')
-        } else {
+        } else if (Array.isArray(fields[filter])) {
           let result = {}
           for (let index = 0; index < fields[filter].length; index++) {
             let f = new FieldDef({fieldName: fields[filter][index]})
             result[f.fieldName] = f;
           }
+          this._searches[filter] = filter
           this._filters[filter] = result;
+        } else if (typeof fields[filter] === 'object') {
+          if (!fields[filter].hasOwnProperty('fields')) {
+            Logging.log('error', `missing fields definition in ${filter}`, 'querybuilder.processFields')
+          } else {
+            let result = {}
+            for (let index = 0; index < fields[filter].fields.length; index++) {
+              let f = new FieldDef({fieldName: fields[filter].fields[index]})
+              result[f.fieldName] = f;
+            }
+            this._searches[filter] = fields[filter].caption ? fields[filter].caption : filter
+            this._filters[filter] = result;
+          }
         }
       }
       if (!this._filters.hasOwnProperty('default') && Object.keys(this._filters) > 0) {
@@ -423,11 +446,15 @@ class QueryBuilder {
 
   /**
    * return the information for the user interface about the model
+   * searchFields : array of object
+   *    key: String,      // to send to the api
+   *    caption: String,  // human readable (title, searchcode or title, artist)
    */
   modelInfo() {
     return {
-      searchFields: this._fields,
-      sorts: this._sorts
+      searchFields: this._searches,
+      sorts: this._sorts,
+      views: this._views
     }
   }
 }

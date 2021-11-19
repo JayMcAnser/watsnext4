@@ -36,7 +36,7 @@ describe('query-art', () => {
     it ('find multiple, contain', async() => {
       let qryArt = new QueryArt();
       let def = qryArt.parse({query:{
-          query: 'work'
+          query: 'workXX'
         }});
       let rec = await ArtModel.find(def.filter);
       assert.equal(rec.length, 6);
@@ -45,7 +45,7 @@ describe('query-art', () => {
     it ('find multiple, contain, multi values', async() => {
       let qryArt = new QueryArt();
       let def = qryArt.parse({query:{
-          query: 'again work'
+          query: 'againXX workXX'
         }});
       let rec = await ArtModel.find(def.filter);
       assert.equal(rec.length, 3);
@@ -56,7 +56,7 @@ describe('query-art', () => {
     it ('sort on one statement', async() => {
       let qryArt = new QueryArt();
       let def = qryArt.parse({query:{
-          query: 'work'
+          query: 'workXX'
         }});
       let rec = await ArtModel.find(def.filter).sort(def.sort);
       assert.equal(rec.length, 6);
@@ -65,7 +65,7 @@ describe('query-art', () => {
     it('aggregration', async() => {
       let qryArt = new QueryArt();
       let def = qryArt.aggregate({query:{
-          query: 'work'
+          query: 'workXX'
         }});
       let rec = await ArtModel.aggregate(def)
       assert.equal(rec.length, 6);
@@ -109,20 +109,20 @@ describe('query-art', () => {
     it ('basic', async() => {
       let qryArt = new QueryArt();
       let def = qryArt.aggregate({query:{
-          query: 'work'
+          query: 'workXX'
         }});
       let rec = await ArtModel.aggregate(def);
       assert.equal(rec.length, 6);
       let r = rec[0];
       assert.isDefined(r._id);
       assert.isDefined(r.title);
-      assert.isUndefined(r.searchcode);
+      assert.isDefined(r.searchcode);
     })
 
     it ('extended', async() => {
       let qryArt = new QueryArt();
       let def = qryArt.aggregate({query:{
-          query: 'work',
+          query: 'workXX',
           view: 'title'
         }});
       let rec = await ArtModel.aggregate(def);
@@ -131,6 +131,7 @@ describe('query-art', () => {
       assert.isDefined(r._id);
       assert.isDefined(r.title);
       assert.isDefined(r.searchcode);
+      assert.isUndefined(r.royaltiesPercentage, 'field is not in view')
     })
 
   });

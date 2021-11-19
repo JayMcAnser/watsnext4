@@ -13,10 +13,10 @@ const mockAdd = async function() {
     if (!art) {
       let title = searchCode;
       if (index < 6) {
-        title += ' work'
+        title += ' workXX'
       }
       if (index < 3) {
-        title += ' again'
+        title += ' againXX'
       }
       art = await ArtModel.create(session, {searchcode: searchCode, title});
       await art.save()

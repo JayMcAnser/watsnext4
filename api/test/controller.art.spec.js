@@ -40,6 +40,24 @@ describe('controller.art', () => {
           assert.isTrue(Array.isArray(data))
           assert.equal(data.length, 6);
           assert.isDefined(data[0].title);
+          assert.isDefined(data[0].created)
+          // console.log(data[0])
+          id = data[0]._id
+        })
+    });
+
+    it('list 6 with view', () => {
+      return chai.request(server)
+        .get('/art')
+        .query({query: 'work', view: 'title'})
+        .set('authorization', `bearer ${TOKEN}`)
+        .then((result) => {
+          assert.equal(result.status, 200);
+          let data = result.body.data
+          assert.isTrue(Array.isArray(data))
+          assert.equal(data.length, 6);
+          assert.isDefined(data[0].title);
+          assert.isUndefined(data[0].created)
           // console.log(data[0])
           id = data[0]._id
         })

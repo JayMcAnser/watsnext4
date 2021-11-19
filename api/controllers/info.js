@@ -1,5 +1,7 @@
 const ApiReturn = require('../vendors/lib/api-return');
 const ArtQuery = require('../lib/query/query-art');
+const AgentQuery = require('../lib/query/query-agent');
+const MediakunstArtQuery = require('../lib/query/query-mediakunst-art')
 const Const = require('../lib/const')
 const DbMongo = require('../lib/db-mongo');
 
@@ -59,7 +61,9 @@ module.exports = {
         username: req.session.user.username,
         models: {}
       }
-      infoBlock.models.art = (new ArtQuery()).modelInfo()
+      infoBlock.models.art = (new ArtQuery()).modelInfo();
+      infoBlock.models.agent = (new AgentQuery()).modelInfo();
+      infoBlock.models.mediakunstArt = (new MediakunstArtQuery()).modelInfo()
       // // rights structure
       // for (let index = 0; index < req.session.user.rights.length; index++) {
       //   let key = req.session.user.rights[index].module;

@@ -64,7 +64,6 @@ export const actions = {
   },
 
   async login({commit}, user) {
-    console.log('WHAT', user)
     debug('user login', 'store.user.login')
     commit('login', user)
   },

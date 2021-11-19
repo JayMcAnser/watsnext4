@@ -36,7 +36,7 @@ export default {
   components: {PanelGrid, PageCanvas},
   setup() {
     const model = computed(() => {
-      return database.tables.art
+      return database.getTable('art')
     })
     return {
       fields,

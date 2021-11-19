@@ -30,6 +30,6 @@ class QueryMediakunstArt extends QueryArt {
     }
     return partFilter
   }
-
 }
+
 module.exports = QueryMediakunstArt
