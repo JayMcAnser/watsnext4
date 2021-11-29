@@ -6,6 +6,7 @@
 
 export interface ISearchDefinitionOptions {
   query?: string,
+  limit?: string
 }
 
 export interface ISearchDefinition {
@@ -17,9 +18,11 @@ export interface ISearchDefinition {
 export class SearchDefinition implements ISearchDefinition{
   private query: string;
   private page: number;
+  private limit: string;
 
-  constructor(options: ISearchDefinitionOptions | string = {}) {
-    this.query = typeof options === 'object' ? options.query : options;
+  constructor(options: ISearchDefinitionOptions = {}) {
+    this.query = options.query ? options.query : '';
+    this.limit = options.limit ? options.limit: '25';
     this.page = 0;
   }
 
@@ -41,6 +44,7 @@ export class SearchDefinition implements ISearchDefinition{
   toQuery() {
     return {
       query: this.query,
+      limit: this.limit
     }
   }
 }

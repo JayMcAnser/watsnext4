@@ -35,8 +35,8 @@ export default {
   name: "artwork-grid",
   components: {PanelGrid, PageCanvas},
   setup() {
-    const model = computed(() => {
-      return database.getTable('art')
+    const model = computed(async () => {
+      return await database.getTable('art')
     })
     return {
       fields,

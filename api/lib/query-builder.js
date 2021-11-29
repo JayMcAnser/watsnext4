@@ -340,6 +340,9 @@ class QueryBuilder {
         page = req.query.page
         result.skip = itemsPerPage * page;
         result.limit = itemsPerPage;
+      } else if (req.query.hasOwnProperty('limit') && Number.isInteger(Number.parseInt(req.query.limit))) {
+        result.skip = 0;
+        result.limit = Number.parseInt(req.query.limit)
       }
       result.sort = this._sortStatement(result.sort)
       // create the where
