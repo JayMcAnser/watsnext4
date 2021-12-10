@@ -18,6 +18,9 @@ export interface IApiQueryResult {
   [index: number]: any,
   length: number
 }
+export interface IApiQueryCount {
+  count: number
+}
 export interface IQueryRecord {
   [index: string]: any
 }
@@ -100,6 +103,7 @@ export class ApiServer {
   async getByQuery(model: string, query: ISearchDefinition) : Promise<IApiQueryResult> {
     // we must request the searchDef.query from the API
     try {
+      console.log('its', query)
       debug(`model: ${model}, search for: ${query.value}`, 'api-server.getByQuery')
       let searchResult = await this.axios.get(`${model}`, {params: query.toQuery()});
       if (axiosActions.hasErrors(searchResult)) {
@@ -109,8 +113,21 @@ export class ApiServer {
         return axiosActions.data(searchResult)
       }
     } catch(e) {
-      warn(`api.byQuery.${model}: ${e.message}`)
-     //  console.error((e.message))
+      warn(`api.getByQuery.${model}: ${e.message}`)
+      throw e;
+    }
+  }
+  async getCount(model: string, query: ISearchDefinition) : Promise<IApiQueryCount> {
+    try {
+      debug(`model: ${model}, search for: ${query.value}`, 'api-server.getCount')
+      let searchResult = await this.axios.get(`${model}/count`, {params: query.toQuery()});
+      if (axiosActions.hasErrors(searchResult)) {
+        throw new Error(axiosActions.errorMessage(searchResult))
+      } else {
+        return axiosActions.data(searchResult)
+      }
+    } catch(e) {
+      warn(`api.getCount.${model}: ${e.message}`)
       throw e;
     }
   }

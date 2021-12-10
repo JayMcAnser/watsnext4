@@ -95,7 +95,7 @@ export class Database {
   getTable(modelName: string) : Model {
     return this._tables.get(modelName) as Model
   }
-  async hasTable(modelName : string) {
+  async hasTable(modelName : string) : Promise<boolean> {
     debug('wait for init')
     await this._doneInit;
     debug('init done')
@@ -109,5 +109,21 @@ export class Database {
       error(`table ${modelName} does not exist`, 'database.query');
       throw new Error(`unknown table ${modelName}`);
     }
+  }
+
+  /**
+   * count the total number of records that are found by the query, for the pager
+   * @param modelName
+   * @param searchDef
+   */
+  async count(modelName: string, searchDef: ISearchDefinition) : Promise<any> {
+    if (await this.hasTable(modelName)) {
+      let tbl = this.getTable(modelName);
+      return tbl.query(searchDef)
+    } else {
+      error(`table ${modelName} does not exist`, 'database.query');
+      throw new Error(`unknown table ${modelName}`);
+    }
+
   }
 }

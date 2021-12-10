@@ -31,6 +31,9 @@
         </div>
       </div>
     </div>
+    <panel-pager
+        :search="searchDefinition"
+    ></panel-pager>
   </div>
 </template>
 
@@ -39,10 +42,14 @@ import {ref, onMounted} from "vue";
 import {debug} from "../vendors/lib/logging";
 // import { SearchIcon } from '@heroicons/vue/solid'
 import PanelGridSearchbar from "./panel-grid-searchbar.vue";
+import PanelPager from './panel-pager.vue';
+import {SearchDefinition} from "../lib/search-definition";
+
 
 export default {
   name: "panel-grid",
   components: {
+    PanelPager,
     PanelGridSearchbar,
 //    SearchIcon
   },
@@ -51,19 +58,21 @@ export default {
     model: Object,  // where to run on
   },
   setup(props) {
-    const records = ref([])
+    const records = ref([]);
+    const searchDefinition = new SearchDefinition({ model: props.model});
     const loadRecords = async () => {
       let result = await props.model.query('a')
       records.value = result.records;
     }
     onMounted(async () => {
-      props.model.then( async (model) => {
-        console.log('model', model)
-        // why can this not be done like:  records.value = await model.query('a') ????
-        // records.value = await model.query('a')
-        let result = [] // await model.query('a')
-        records.value = result.records;
-      })
+      records.value = []
+     //  props.model.then( async (model) => {
+     // //   console.log('onMound.model', model)
+     //    // why can this not be done like:  records.value = await model.query('a') ????
+     //    // records.value = await model.query('a')
+     //    let result = [] // await model.query('a')
+     //    records.value = result.records;
+     //  })
     })
     // const search = (event) => {
     //   debug(`update list to ${event.target.value}`)
@@ -88,15 +97,16 @@ export default {
     const searchChanged = (searchFor) => {
       console.log(`searchChanged: `, searchFor);
       props.model.then( async (model) => {
-        console.log('model', model)
+        // console.log('model', model)
+        searchDefinition.setSearch(searchFor.value, searchFor.limit)
         let result = []
-        result = await model.query(searchFor)
+        result = await model.query(searchDefinition)
         records.value = result.records;
       })
     }
     return {
       records,
-      // search,
+      searchDefinition,
       searchChanged
     }
   }

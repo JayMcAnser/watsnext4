@@ -37,6 +37,9 @@ export interface IQueryResult {
   unlink(): any
 }
 
+export interface IQueryCount {
+  count: number,
+}
 class RecordRef implements IRecordRef {
   // the physical record
   public record;
@@ -150,6 +153,16 @@ export class Model {
     return this.recordsToQueryResult(records)
   }
 
+
+  async count(search: ISearchDefinition): Promise<IQueryCount> {
+    let result = {
+      count: 0
+    }
+    if (!search.isEmpty) {
+      result = await this.apiServer.getCount(this.modelName, search);
+    }
+    return result;
+  }
   /**
    * retrieve on record from the server
    * @param id

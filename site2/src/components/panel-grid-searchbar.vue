@@ -18,7 +18,7 @@
           </div>
         </div>
         <div>
-         <!-- for filters and others -->
+         {{ recordCount }}
         </div>
         <div>
           <select
@@ -48,20 +48,23 @@ export default {
   components: {SearchIcon},
   emits: ['searchchange'],
   props: {
-    model: Object
+    model: Object,
+    search: Object
   },
   setup(props, {emit}) {
     const searchFor = ref('');
-    const searchLimit = ref('25')
+    const searchLimit = ref('25');
+    const recordCount = ref('0');
     /**
      * generate the object for the query search
      */
     const makeSearchDef = () => {
-      let search = new SearchDefinition({
-        query: searchFor.value,
+      // props.search.setSearch(searchFor.value, searchLimit.value)
+      return {
+        value: searchFor.value,
         limit: searchLimit.value
-      })
-      return search
+      }
+      // return searchDefinition
     }
     const searchValueChanged = (event) => {
       // debug(`update list to ${event.target.value}`);
@@ -71,7 +74,8 @@ export default {
     return {
       searchValueChanged,
       searchFor,
-      searchLimit
+      searchLimit,
+      recordCount
     }
   }
 }

@@ -52,6 +52,16 @@ describe('query-art', () => {
     })
   });
 
+  describe('count of record in a query', () => {
+    it ('find multiple, list count', async() => {
+      let qryArt = new QueryArt();
+      let def = qryArt.parseCount({query:{
+          query: 'againXX workXX'
+        }});
+      let count = await ArtModel.countDocuments(def.filter);
+      assert.equal(count, 3);
+    })
+  })
   describe('order', () => {
     it ('sort on one statement', async() => {
       let qryArt = new QueryArt();

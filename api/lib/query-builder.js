@@ -331,15 +331,15 @@ class QueryBuilder {
     }
     if (req.query) {
       // build the query limiter
-      let itemsPerPage = this.itemPerPage;
+      let itemsPerPage = req.query.hasOwnProperty('limit') && Number.isInteger(Number.parseInt(req.query.limit)) ? req.query.limit : this.itemPerPage;
       let page = 0;
-      if (req.query.items && Number.isInteger(req.query.items)) {
-        itemsPerPage = req.params.items;
-      }
+      // if (req.query.items && Number.isInteger(req.query.items)) {
+      //   itemsPerPage = req.params.items;
+      // }
       if (req.query.hasOwnProperty('page') && Number.isInteger(Number.parseInt(req.query.page))) {
         page = req.query.page
         result.skip = itemsPerPage * page;
-        result.limit = itemsPerPage;
+        result.limit = Number.parseInt(itemsPerPage);
       } else if (req.query.hasOwnProperty('limit') && Number.isInteger(Number.parseInt(req.query.limit))) {
         result.skip = 0;
         result.limit = Number.parseInt(req.query.limit)
@@ -351,6 +351,13 @@ class QueryBuilder {
       }
       result.fields = this._views[result.view]
     }
+    return result;
+  }
+
+  parseCount(req) {
+    let result = this.parse(req);
+    delete result.limit;
+    delete result.sort;
 
     return result;
   }
@@ -371,12 +378,12 @@ class QueryBuilder {
    * @param req
    * @return {[{$match: (*|{filter: {}, view: (string|Window|*), query: boolean, limit: boolean, skip: boolean, sort: (*|string), fields: (*|string)})}, {$sort: string}]}
    */
-  aggregate(req) {
-    let query = this.parse(req);
+  aggregate(query) {
+    //let query = this.parse(req);
     query.filter = this.buildFilter(query.filter);
     let result =  [{$match: query.filter}];
 
-    if (Object.keys(query.sort).length) {
+    if (query.sort && Object.keys(query.sort).length) {
       let sort = this._sortStatement(query.sort)
       result.push( {$sort: sort});
     }
@@ -398,11 +405,20 @@ class QueryBuilder {
    * @param req
    */
   async data(model, req) {
-    let a = this.aggregate(req);
+    let query = this.parse(req)
+    let a = this.aggregate(query);
     let recs = await model.aggregate(a)
     return recs
   }
 
+  async count(model, req) {
+    let query = this.parseCount(req);
+    let a = this.aggregate(query)
+    let count = await model.aggregate(a);
+    return {
+      count
+    }
+  }
   async byId(model, req) {
     if (!req.params.id) {
       throw new Error('missing id')
