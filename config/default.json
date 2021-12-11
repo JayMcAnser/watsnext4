@@ -63,6 +63,14 @@
     "tokenExpire" : "1h",
     "refreshExpire" : "10d"
   },
+  "Import": {
+    "csv": {
+      "delimiter": ",",
+      "encoding": "utf8",
+      "comment": "#",
+      "hasFieldNames": true
+    }
+  },
   "Path" : {
     "configRoot.doc" : "the full path or relative to api directory where data is stored",
     "configRoot" : "..",
@@ -77,7 +85,9 @@
     "tempDataRoot.doc": "location where the uploaded files are temporary stored",
     "tempDataRoot": "temp/data",
     "mediaRoot.doc": "The global images, if there are not available",
-    "mediaRoot": "api/data/media"
+    "mediaRoot": "api/data/media",
+    "importRoot.Doc": "Where all import files are stored",
+    "importRoot": "data"
   },
   "Logging" : [
     {

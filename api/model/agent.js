@@ -22,6 +22,8 @@ const AgentExtendLayout = {
   agentId: String,
   isMediakunst: Boolean,     // set to true if part of mediakunst
   mediakunstId: String,      // the direct link id
+  wikipediaId: String,
+  wikipediaLastChanged: Date,
   biography: Object,         // the info from the wikipedia
   biographyLastChange: Date, // the date the biography changed (for checking)
   imageId: String,           // the id of the image
