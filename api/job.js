@@ -17,11 +17,14 @@ const sayUsage = () => {
 }
 
 const sayImport = () => {
-  say('import options');
-  say('  -t [wikipedia] set the type of import')
+  say('import options (-t import)');
   say('  -f {name}  set the name of the file to import. Default dir /data')
   say('  -r reset/remove the existing wikipedia, setting only the once in the import file')
   say('  -d debug the process')
+  say('wikipedia options (-t wikipedia');
+  say('  -d debug the process');
+  say('  -f (file)the filename of the template')
+  say('  -i (id) the watsnext id of the artist to import')
 }
 
 const sayError = (msg) => {
@@ -34,7 +37,8 @@ const optionDefinitions = [
   { name: 'file', alias: 'f', type: String},
   { name: 'type', alias: 't', type: String},
   { name: 'reset', alias: 'r', type: Boolean},
-  { name: 'debug', alias: 'd', type: Boolean}
+  { name: 'debug', alias: 'd', type: Boolean},
+  { name: 'id', alias: 'i', type: String},
 //   { name: 'env', alias: 'e', type: String},
 ]
 const commandLineArgs = require('command-line-args')
@@ -57,11 +61,17 @@ switch (options.job) {
   case 'wikipedia':
     const jobWikipedia = require('./jobs/wikipedia').jobWikipedia
     util.promisify(jobWikipedia)
-    jobWikipedia()
-      .then(x => {
-        say('job ended')
+
+    jobWikipedia({debug: options.debug, file: options.file, id: options.id})
+      .then(d => {
+        say(`analysed ${d.length} artist, ${d.filter(x => x.action === 'changed').length} changed, ${d.filter(x => x.status === 'error').length} errors`)
+        if (options.debug) {
+          console.log(d)
+        }
+        process.exit(0)
       }).catch(e => {
       sayError(`wikipedia retrieve: ${e.message}`)
+      process.exit(1)
     })
     break;
   case 'import':
@@ -70,7 +80,7 @@ switch (options.job) {
         const filename = options.file;
         if (!filename || ! filename.length) {
           sayError('filename is missing')
-          return(1)
+          process.exit(1)
         }
         const jobWikiImport = require('./jobs/import-wiki').jobImportWiki
         util.promisify(jobWikiImport)
@@ -80,9 +90,12 @@ switch (options.job) {
           if (options.debug) {
             console.log(x)
           }
+          process.exit(0)
         }).catch(e => {
           sayError(`Import wiki links: ${e.message}`)
+          process.exit(1)
         })
+
         break;
       default:
         sayImport()
@@ -91,5 +104,6 @@ switch (options.job) {
   default:
     sayError(`unknown job: "${options.job}"`)
     sayUsage()
-    return(1)
+    process.exit(1)
 }
+

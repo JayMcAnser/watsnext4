@@ -53,7 +53,9 @@
   "Mediakunst": {
     "id": 2423,
     "wikiImagePath": "api/data/wikipedia",
-    "wikiImageUrl": "api/wiki/image"
+    "wikiImageUrl": "api/wiki/image",
+    "idToInfo": "w/api.php?action=wbgetentities&languages=en&format=json&props=sitelinks/urls&ids=",
+    "idToImage": "w/api.php?action=wbgetentities&languages=en&format=json&ids="
   },
   "Server" : {
     "port" : 3050,
@@ -77,7 +79,7 @@
     "dataRoot.doc" : "the relative to config root path to the data",
     "dataRoot" : "api/data",
     "imageRoot.doc" : "the relative to config root path to the image",
-    "imageRoot" : "api/data/image",
+    "imageRoot" : "data/images",
     "logRoot.doc" : "the relative to config root path to the logging",
     "logRoot" : "api/logging",
     "siteRoot.doc" : "the relative to config root path to the place where the static site is served from",
@@ -87,7 +89,8 @@
     "mediaRoot.doc": "The global images, if there are not available",
     "mediaRoot": "api/data/media",
     "importRoot.Doc": "Where all import files are stored",
-    "importRoot": "data"
+    "importRoot": "data",
+    "templateRoot": "data/templates"
   },
   "Logging" : [
     {
