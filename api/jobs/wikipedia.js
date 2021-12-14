@@ -25,13 +25,38 @@
 const MongoDb = require('../lib/db-mongo');
 const Agent = require('../model/agent');
 // const Logging = require('../vendors/lib/logging');
-const Wikipedia = require('../wikipedia')
+const Wikipedia = require('../wikipedia');
+const Config = require('config')
+const ImageClass = require('../wikipedia').ImageProcess
 const getFullPath = require('../vendors/lib/helper').getFullPath
 const setRootPath = require('../vendors/lib/helper').setRootPath
 setRootPath(__dirname + '/..')
 const Fs = require('fs')
-const sha1 = require('sha-1');
+const sha1 = require('sha-1')
+const Path = require("path");
 
+/**
+ * class to rename the images to the artist-{id}.jpg format for universal access
+ *
+ */
+class ArtistImage extends ImageClass {
+  constructor(props) {
+    super(props);
+    this.imagePath = getFullPath('', {rootKey: 'Path.imageRoot', noExistsCheck: true})
+    this.artistId = props ? props.artistId : undefined
+  }
+
+  createWriteStream(requestInfo) {
+    // let path = Path.join(this.imagePath, name, extension);
+    requestInfo.filename = `artist-${this.artistId + Path.extname(requestInfo.filename)}`;
+    return super.createWriteStream(requestInfo)
+    // requestInfo.fullPath = Path.join(this.imagePath, `artist-${this.artistId + Path.extname(requestInfo.filename)}`)
+    // if (Fs.existsSync(requestInfo.fullPath)) {
+    //   Fs.unlinkSync(requestInfo.fullPath)
+    // }
+    // return Fs.createWriteStream(requestInfo.fullPath);
+  }
+}
 
 const jobWikipedia = async (options= {}) =>  {
   let connections = await buildConnections();
@@ -48,10 +73,12 @@ const jobWikipedia = async (options= {}) =>  {
     throw new Error(`the template ${options.templateFileName} does not exist`)
   }
 
+  options.imageProcess = new ArtistImage()
   options.imagePath = getFullPath('', { rootKey: 'Path.imageRoot', noExistsCheck: true})
   if (debug) { debug(`using template ${options.templateFileName}`)}
   let log = []
   for (let index = 0; index < artistSet.length; index++) {
+    options.imageProcess.artistId = artistSet[index].agentId
     let result = await processArtist(artistSet[index], connections, options)
     log.push(result);
     //if (index > 10) {  break; }
@@ -76,7 +103,7 @@ const buildConnections = async () => {
 /**
  * @param artist - the artist record
  * @param connection object the object with all connection
- * @params options Object the extra info for the config
+ * @param options Object the extra info for the config
  * @return an object holding the status of the process
  */
 const processArtist = async (artist, connection, options) => {
@@ -117,6 +144,11 @@ const processArtist = async (artist, connection, options) => {
     mkJson.hasWikiBiography = 1;
     mkJson.hasBiography = 1;
     mkJson.wikiBiography = doc;
+    if (json.images.length) {
+      mkJson.imageUrl = json.images[0].filename
+    } else {
+      delete mkJson.imageUrl
+    }
     await connection.mediakunst.query(`UPDATE doc SET ` +
         `data_json = ${connection.mediakunst.escape(JSON.stringify(mkJson))} ` +
         `WHERE ` +

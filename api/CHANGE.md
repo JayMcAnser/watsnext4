@@ -1,4 +1,7 @@
 
+# 2021-12-14
+- add: jobs to import wikipedia definitions
+
 # 2021-10-27
 - add: info/models for information abou the models
 
