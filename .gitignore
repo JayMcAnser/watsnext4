@@ -4,6 +4,7 @@
 /site/dist
 /dist
 /api/logging
+/api/data/mongo
 
 # local env files
 site/.env.local
