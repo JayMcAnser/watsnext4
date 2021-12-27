@@ -19,6 +19,18 @@ const ROLE_SUBJECT = require('../model/art').ROLE_SUBJECT;
 
 describe('model.art', () => {
 
+  const ART_1 = 'mdl.art.test 1'
+  const ART_ID_1 = 9876541
+  const ART_2 = 'mdl.art.test 2';
+  const ART_ID_2 = 9876542
+  const CODE_1 = 'mdl.art.code_1';
+  const CODE_ID_1 = 9874561
+  const CODE_2 = 'mdl.art.code_2';
+  const CODE_ID_2 = 9874562
+  const AGENT_1 = 'mdl.art.agent_1'
+  const AGENT_ID_1 = 4567891
+  const AGENT_2 = 'mdl.art.agent_2'
+  const AGENT_ID_2 = 4567892
   let art;
   let artObj;
   let session;
@@ -28,47 +40,52 @@ describe('model.art', () => {
     DbMongo =  await InitTest.DbMongo;
     session = await InitTest.Session;
 
-    await Art.deleteMany({})
-    await Code.deleteMany({})
-    await Agent.deleteMany( {} )
+    await Art.deleteMany({title: ART_1});
+    await Art.deleteMany({title: ART_2});
+ //   await Art.deleteMany({artId: 30});
+    await Code.deleteMany({text: CODE_1})
+    await Code.deleteMany({text: CODE_2})
+    await Agent.deleteMany( {name: AGENT_1} )
+    await Agent.deleteMany( {name: AGENT_2} )
+//    await Agent.deleteMany( {agentId: 30} )
     await Setup.runSetup(session)
   });
 
   it('create', async () => {
-    art = await Art.queryOne(session, {art: '1'});
+    art = await Art.queryOne(session, {art: ART_ID_1});
     if (!art) {
-      art = Art.create(session, {artId: '1', title: 'art.test 1'});
+      art = Art.create(session, {artId: ART_ID_1, title: ART_1});
       await art.save();
-      art = await Art.queryOne(session, {artId: '1'});
+      art = await Art.queryOne(session, {artId: ART_ID_1});
     }
-    assert.equal(art.artId, 1);
-    assert.equal(art.title, 'art.test 1');
+    assert.equal(art.artId, ART_ID_1);
+    assert.equal(art.title, ART_1);
   });
 
   it('load codes', async () => {
-    let code1 = Code.create(session, {codeId: 12, text: 'code 12'});
+    let code1 = Code.create(session, {codeId: CODE_ID_1, text: CODE_1});
     code1 = await code1.save();
-    let art2 = Art.create(session, {artId: 12, title: 'art 12', codes: [code1]});
+    let art2 = Art.create(session, {artId: ART_ID_2, title: ART_2, codes: [code1]});
     art2 = await art2.save();
-    art2 = await Art.findOne({artId: 12})
+    art2 = await Art.findOne({title: ART_2})
       .populate('codes')
     ;
    // art2.session(art2)
     assert.isDefined(art2.codes);
     assert.equal(art2.codes.length, 1);
-    assert.equal(art2.codes[0].text, 'code 12')
+    assert.equal(art2.codes[0].text, CODE_1)
 
     // without the populate
-    art2 = await Art.queryOne(session,{artId: 12});
+    art2 = await Art.queryOne(session,{title: ART_2});
     assert.isDefined(art2.codes);
     assert.equal(art2.codes.length, 1);
 
 
-    let code2 = Code.create(session, {codeId: 22, text: 'code 22'});
+    let code2 = Code.create(session, {codeId: CODE_ID_2, text: CODE_2});
     code2 = await code2.save();
     art2.codeAdd(code2);
     await art2.save()
-    art2 = await Art.queryOne(session, {artId: 12});
+    art2 = await Art.queryOne(session, {title: ART_2});
     assert.equal(art2.codes.length, 2);
 
   });
@@ -98,18 +115,18 @@ describe('model.art', () => {
     let agent1;
 
     before(async() => {
-      art3 = Art.create(session, {artId: 30, title: 'art 30'});
+      art3 = Art.create(session, {artId: ART_ID_2, title: ART_2});
       art3 = await art3.save();
-      art3 = await Art.queryOne(session, {artId: 30})
+      art3 = await Art.queryOne(session, {artId: ART_ID_2})
     });
 
     it('add one artist', async () => {
-      agent1 = Agent.create(session, {agentId: 1, name: 'agent 1'});
+      agent1 = Agent.create(session, {agentId: AGENT_ID_1, name: AGENT_1});
       agent1 = await agent1.save();
-      agent1 = await Agent.findOne({agentId: 1});
+      agent1 = await Agent.findOne({agentId: AGENT_ID_1});
       art3.agentAdd({role: ROLE_CREATOR, agent: agent1, comments: 'first'});
       await art3.save();
-      art3 = await Art.queryOne(session,{artId: 30});
+      art3 = await Art.queryOne(session,{artId: ART_ID_2});
       assert.isDefined(art3.agents);
       assert.equal(art3.agents.length, 1);
       assert.equal(art3.agents[0].role, ROLE_CREATOR);
@@ -119,23 +136,23 @@ describe('model.art', () => {
 
       // -- get the names of the artist
       // TODO: adjust when agent is in v0.2
-      art3 = await Art.findOne({artId: 30})
+      art3 = await Art.findOne({artId:ART_ID_2})
         .populate('agents.agent');
       art3.session(session);
       assert.isDefined(art3.agents);
       assert.equal(art3.agents.length, 1);
       assert.isDefined(art3.creator);
-      assert.equal(art3.creator.name, 'agent 1');
+      assert.equal(art3.creator.name, AGENT_1);
       assert.equal(art3.creator.royaltiesPercentage, 100, 'field is temporary moved to the agent');
     });
 
     it('add other member', async() => {
-      agent2 = Agent.create(session, {agentId: 2, name: 'agent 2'});
+      agent2 = Agent.create(session, {agentId: AGENT_ID_2, name: AGENT_2});
       agent2 = await agent2.save();
-      agent2 = await Agent.findOne({agentId: 2});
+      agent2 = await Agent.findOne({agentId: AGENT_ID_2});
       art3.agentAdd({role: ROLE_CREATOR, agent: agent2, percentage: 100});
       await art3.save();
-      art3 = await Art.queryOne(session,{artId: 30});
+      art3 = await Art.queryOne(session,{artId: ART_ID_2});
       assert.isDefined(art3.agents);
       assert.equal(art3.agents.length, 2);
       assert.equal(art3.creatorIndex, 1);
@@ -146,7 +163,7 @@ describe('model.art', () => {
       // -- make none primary
       art3.agentUpdate(0, { role: ROLE_CREATOR});
       await art3.save();
-      art3 = await Art.findOne({artId: 30});
+      art3 = await Art.findOne({artId: ART_ID_2});
       assert.isDefined(art3.creatorIndex, 0);
       assert.equal(art3.agents[0].percentage, 100);
       assert.equal(art3.agents[1].percentage, 0);
@@ -154,14 +171,14 @@ describe('model.art', () => {
       // give some money to the contributor
       art3.agentUpdate(1, { percentage: 25 });
       await art3.save();
-      art3 = await Art.findOne({artId: 30});
+      art3 = await Art.findOne({artId: ART_ID_2});
       assert.equal(art3.agents[0].percentage, 75);
       assert.equal(art3.agents[1].percentage, 25);
 
       // make the contributor creator
       art3.agentUpdate(1, { role: ROLE_CREATOR });
       await art3.save();
-      art3 = await Art.findOne({artId: 30});
+      art3 = await Art.findOne({artId: ART_ID_2});
       assert.equal(art3.agents[0].percentage, 0);
       assert.equal(art3.agents[1].percentage, 100);
 
@@ -173,7 +190,7 @@ describe('model.art', () => {
       // -- remove creator will promote an otherone to creator
       art3.agentRemove(1);
       await art3.save();
-      art3 = await Art.findOne({artId: 30})
+      art3 = await Art.findOne({artId: ART_ID_2})
       assert.equal(art3.agents.length, 1);
       assert.equal(art3.agents[0].percentage, 100)
       assert.equal(art3.agents[0].role, ROLE_CREATOR)
@@ -209,13 +226,13 @@ describe('model.art', () => {
 
   describe('exented', () => {
     it('set newInfo', async () => {
-      let art = await Art.findOne({artId: 30});
+      let art = await Art.findOne({artId: ART_ID_2});
       assert.isDefined(art);
       assert.isUndefined(art.newInfo)
       art.newInfo = 'The test of extend';
       await art.save();
 
-      let art2 = await Art.findOne({artId: 30});
+      let art2 = await Art.findOne({artId: ART_ID_2});
       assert.isDefined(art2);
       assert.isDefined(art2.newInfo);
     })

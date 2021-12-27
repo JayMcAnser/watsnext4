@@ -25,8 +25,8 @@ describe('import.carrier', function() {
     DbMySql = await InitTest.DbMySQL;
     DbMongo =  await InitTest.DbMongo;
     session = await InitTest.Session;
-    await Carrier.deleteMany({})
-    await Art.deleteMany({})
+    await Carrier.deleteOne({carrierId: 1})
+    // await Art.deleteMany({})
     await DbMySql.connect()
     await Setup.runSetup(session)
   });
@@ -106,7 +106,7 @@ describe('import.carrier', function() {
   });
 
   it('run - clean', () => {
-    const limit = 2;
+    const limit = 1
     let imp = new ImportCarrier({ session, limit: limit});
     return imp.run(DbMySql).then( (result) => {
       assert.equal(result.count, limit)
@@ -114,7 +114,7 @@ describe('import.carrier', function() {
   });
 
   it('import full record with art and sub codes', async () => {
-    const limit = 10;
+    const limit = 1;
     let imp = new ImportCarrier({ session, limit: limit});
     await imp.runOnData({carrier_ID: 2131});
     let carrier = await Carrier.findOne({carrierId: 2131});

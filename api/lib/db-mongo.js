@@ -26,7 +26,14 @@ let DbMongo  = {
     if (Config.has('Database.Mongo.port')) {
       connectionString += ':' + Config.get('Database.Mongo.port')
     }
-    connectionString += '/' + Config.get('Database.Mongo.database');
+    // connectionString += '/' + Config.get('Database.Mongo.database');
+    if (Config.has('Database/Mongo/database')) {
+      throw new Error('Database/Mongo/database is not an allowed key')
+    }
+    if (!Config.has('Database.WatsNext.database')) {
+      throw new Error('missing database (Database.WatsNext.database is missing)')
+    }
+    connectionString += '/' + Config.get('Database.WatsNext.database');
     if (Config.has('Database.Mongo.uriParam') && Config.get('Database.Mongo.uriParam')) {
       connectionString += '?' + Config.get('Database.Mongo.uriParam')
     }

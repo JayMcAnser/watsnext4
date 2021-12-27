@@ -268,7 +268,13 @@ class QueryBuilder {
    * @return false | Object
    */
   _queryStatement(query, fields) {
-    let values = query.split(' ').map((f) => f.trim());
+    let values;
+    if (query) {
+      values = query.split(' ').map((f) => f.trim())
+    } else {
+      return {}
+    }
+
     let result = {};
     // we will query all the fields that are defined in the _searchFields if no other fields are give
     if (!fields === undefined) {
@@ -368,7 +374,7 @@ class QueryBuilder {
    * @param filter
    * @return {*}
    */
-  buildFilter(filter) {
+  postProcessFilter(filter) {
     return filter
   }
 
@@ -380,8 +386,8 @@ class QueryBuilder {
    */
   aggregate(query) {
     //let query = this.parse(req);
-    query.filter = this.buildFilter(query.filter);
-    let result =  [{$match: query.filter}];
+    query.filter = this._queryStatement(query.query, 'default') // this.buildFilter(query.filter);
+    let result =  Object.keys(query.filter).length ? [{$match: query.filter}] : [];
 
     if (query.sort && Object.keys(query.sort).length) {
       let sort = this._sortStatement(query.sort)
@@ -392,11 +398,17 @@ class QueryBuilder {
         result.push({$skip: query.skip})
       }
       result.push({$limit: query.limit})
+    } else if (query.hasOwnProperty('page')) {
+      let itemsPerPage = query.hasOwnProperty('limit') && Number.isInteger(Number.parseInt(query.limit)) ? req.query.limit : this.itemPerPage;
+      if (query.page) {
+        result.push({$skip: itemsPerPage * query.page});
+      }
+      result.push({$limit: Number.parseInt(itemsPerPage)});
     }
     if (this._views[query.view]) {  // only if we are requesting a view
       result.push({$project: this._views[query.view]})
     }
-    return result
+    return this.postProcessFilter(result)
   }
 
   /**
@@ -405,8 +417,9 @@ class QueryBuilder {
    * @param req
    */
   async data(model, req) {
-    let query = this.parse(req)
-    let a = this.aggregate(query);
+    // let query = this.parse(req)
+    // let a = this.aggregate(query);
+    let a = this.aggregate(req.query)
     let recs = await model.aggregate(a)
     return recs
   }

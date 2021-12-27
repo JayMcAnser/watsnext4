@@ -57,19 +57,26 @@ const Mediakunst = require('./model/mediakunst');
  * create a session with the current root user. Does NOT validate the password
  * @type {Promise<unknown>}
  */
-const createSession = new Promise( async (resolve, reject) => {
-  let user =  await User.findOne({email: Config.get('Database.WatsNext.email')})
-  if (!user) {
-    return reject(`the root user ${Config.get('Database.WatsNext.email')} does not exists`)
-  }
-  const AuthController = require('./vendors/controllers/auth')
-  return resolve(AuthController.createSession(user.id))
-});
+const createSession = function() {
+  return new Promise( async (resolve, reject) => {
+    let user =  await User.findOne({email: Config.get('Database.WatsNext.email')})
+    if (!user) {
+      return reject(`the root user ${Config.get('Database.WatsNext.email')} does not exists`)
+    }
+    const AuthController = require('./vendors/controllers/auth')
+    return resolve(AuthController.createSession(user.id))
+  });
+}
 
 const syncMediakunst = async () => {
   await MongoDb.connect();
   await DbMySQL.connect();
-  let session = await createSession;
+  let session;
+  try {
+    session = await createSession();
+  } catch (e) {
+    throw e
+  }
 
   // remove the existing bookmark list so we start with a clean slate
   say('removing existing bookmark list')
@@ -120,6 +127,6 @@ syncMediakunst()
     return 0;
   })
   .catch(e => {
-    console.error(e.message);
-    return 1
+    console.log(`[Error]: ${e}`);
+    process.exit(1)
   })

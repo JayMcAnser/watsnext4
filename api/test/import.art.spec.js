@@ -24,7 +24,8 @@ describe('import.art', function() {
     DbMongo =  await InitTest.DbMongo;
     session = await InitTest.Session;// new Session('test-import-agent')
 
-    await Art.deleteMany({})
+    await Art.deleteOne({artId: 1})
+    await Art.deleteOne({artId: 2})
     await DbMySql.connect()
 
     await Setup.runSetup(session)
@@ -127,7 +128,7 @@ describe('import.art', function() {
   });
 
   it('run - clean', () => {
-    const limit = 10;
+    const limit = 1;
     let imp = new ImportArt({ session, limit: limit});
     return imp.run(DbMySql).then( (result) => {
       assert.equal(result.count, limit)

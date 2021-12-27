@@ -51,7 +51,7 @@ class BookmarkImport {
    *
    * @param con
    * @param record
-   * @param options
+   * @param options { limit }
    * @return {Promise<*>}
    * @private
    */
@@ -88,6 +88,9 @@ class BookmarkImport {
             let art = await this._artImport.runOnData({art_ID: qry[l].ID}, {loadSql: true}); // we have only artId, so look for the art
             if (art) {
               dataRec.items.push({art: art._id});
+            }
+            if (options.limit && options.limit < l) {
+              break;
             }
           }
         } else {
@@ -136,11 +139,17 @@ class BookmarkImport {
     return await this._convertRecord(con, record);
   }
 
-  async runOnId(bookmarkId) {
+  /**
+   *
+   * @param bookmarkId the bookmark list to import
+   * @param options { limit: max number of records to import }
+   * @return {Promise<*>}
+   */
+  async runOnId(bookmarkId, options = {}) {
     let con = DbMySQL.connection;
     let sql = `SELECT * FROM bookmarks where bookmark_ID=${bookmarkId}`;
     let record = await con.query(sql)
-    return await this._convertRecord(con, record[0]);
+    return await this._convertRecord(con, record[0], options);
   }
 }
 

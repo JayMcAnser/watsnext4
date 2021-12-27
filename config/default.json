@@ -7,7 +7,6 @@
       "uriParam": false,
       "user": "root",
       "password": false,
-      "database": "watsnext",
       "debug": false,
       "rootEmail.doc": "The email account of the root account with all access",
       "rootEmail": "info@toxus.nl",
@@ -19,20 +18,21 @@
       "host": "mysql.li-ma.nl",
       "port": 3306,
       "username": "toxus",
-      "password": "--secret--",
+      "password":"-- set in local.json --",
       "database": "watsnext_test"
     },
     "Mediakunst": {
       "host": "37.97.234.177",
       "port": 3306,
       "username": "mediakunst",
-      "password": "--secret--",
+      "password": "-- set in local.json --",
       "database": "mkbeta"
     },
     "WatsNext": {
       "doc": "the system root manager, that can do ANY THING. If it does not exist, its created",
       "root": "root",
-      "password": "skFd6!$@Cr8wsK",
+      "database": "watsnext",
+      "password": "-- set in local.json --",
       "email": "info@toxus.nl"
     }
   },

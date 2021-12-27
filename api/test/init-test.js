@@ -12,7 +12,7 @@ async function init() {
     await DbMySQL.connect();
     await DbMongo.connect();
   } catch (e) {
-    console.error(`error starting db connection: ${e.message}`)
+    console.log(`[Error] starting db connection: ${e.message}`)
     throw e
   }
 }

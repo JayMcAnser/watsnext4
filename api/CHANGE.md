@@ -1,4 +1,7 @@
 
+# 2021-12-23
+- fix: import-mediakunst.js the error when no user is availble
+
 # 2021-12-14
 - add: jobs to import wikipedia definitions
 

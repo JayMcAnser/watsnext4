@@ -16,7 +16,8 @@ const Setup = require('../lib/setup');
 
 const MEDIAKUNST_ID = Config.has('Mediakunst.id') ? Config.get('Mediakunst.id') : 2423
 
-describe('model.mediakunst', () => {
+describe('model.mediakunst', function ()  {
+  this.timeout(40000)
   let session;
 
   before(async () => {
@@ -27,7 +28,7 @@ describe('model.mediakunst', () => {
 
     await Bookmark.deleteOne({bookmarkId: MEDIAKUNST_ID});
     let imp = new BookmarkImport({session});
-    await imp.runOnId(MEDIAKUNST_ID)
+    await imp.runOnId(MEDIAKUNST_ID, { limit: 5})
   });
 
   it ('has a bookmark' , async() => {

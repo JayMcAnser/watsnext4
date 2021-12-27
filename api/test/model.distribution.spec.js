@@ -197,21 +197,18 @@ describe('model.distribution', () => {
     const DIS_ART_TITLE = 'dis.art.4';
     const DIS_ART_ID = '202';
 
+    const ADDR_ID_1 = 1;
+    const ADDR_ID_2 = 2;
     before( async () => {
-      await Distribution.deleteMany({});
-      await Art.deleteMany({});
-      await Agent.deleteMany({});
-      await Contact.deleteMany({})
 
+      Contact.deleteOne({addressId: ADDR_ID_1})
+      Contact.deleteOne({addressId: ADDR_ID_2})
       await Contact.insertMany([
-        { addressId: 1, type: 'Man', guid:'addr_1', firstName: 'Jay', name: 'McAnser'},
-        { addressId: 2, type: 'Institution', guid: 'addr_2', name: 'Museum of Modern Art'}
+        { addressId: ADDR_ID_1, type: 'Man', guid:'addr_1', firstName: 'Jay', name: 'McAnser'},
+        { addressId: ADDR_ID_1, type: 'Institution', guid: 'addr_2', name: 'Museum of Modern Art'}
       ])
     });
 
-    it ('has contacts', async() => {
-      let cnt = await Contact.find({})
-      assert.equal(cnt.length, 2)
-    })
+
   })
 });

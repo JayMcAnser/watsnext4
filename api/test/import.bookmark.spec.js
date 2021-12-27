@@ -12,7 +12,7 @@ const Setup = require('../lib/setup');
 
 describe('import bookmark', function()  {
   this.timeout(60000);
-
+  const BOOKMARK_ID = 1
   let session;
 
   before(async () => {
@@ -21,7 +21,7 @@ describe('import bookmark', function()  {
     DbMongo = await InitTest.DbMongo;
     session = await InitTest.Session;// new Session('test-import-agent')
 
-    await Bookmark.deleteMany({})
+    await Bookmark.deleteOne({bookmarkId: BOOKMARK_ID})
     await DbMySql.connect()
     await Setup.runSetup(session)
   });
@@ -29,7 +29,7 @@ describe('import bookmark', function()  {
   it('field data', () => {
     let imp = new ImportBookmark({session});
     let record = {
-      "bookmark_ID": 1,
+      "bookmark_ID": BOOKMARK_ID,
       "user_ID": 1,
       "type_ID": 2,
       "is_global": "1",
@@ -37,7 +37,7 @@ describe('import bookmark', function()  {
       "name": "test bookmark",
     };
     return imp.runOnData(record).then((mRec) => {
-      assert.equal(mRec.bookmarkId, 1);
+      assert.equal(mRec.bookmarkId, BOOKMARK_ID);
       assert.equal(mRec.type, 'art');
       assert.equal(mRec.user, '1');
       assert.equal(mRec.type, 'art');
@@ -63,20 +63,22 @@ describe('import bookmark', function()  {
   //   })
   // });
 
-  it ('import mediakunst', async() => {
-    const MEDIAKUNST = 2423;
-    let imp = new ImportBookmark({ session, limit: 1});
-    let sql = `SELECT * from bookmarks WHERE bookmark_ID = ${MEDIAKUNST}`;
-    let qry = await DbMySql.query(sql);
-    assert.equal(qry.length, 1)
-    await imp.runOnData(qry[0]);
-    let rec = await Bookmark.findOne({bookmarkId: MEDIAKUNST});
-    assert.isTrue(rec !== null);
-    assert.isTrue(Object.keys(rec).length > 0);
-    assert.isTrue(rec.items.length > 0);
 
-    let mediakunst = await Bookmark().Mediakunst();
-    assert.isDefined(mediakunst);
-    assert.equal(mediakunst._id.toString(), rec._id.toString())
-  })
+  // THERE IS A Separate version for this
+  // it ('import mediakunst', async() => {
+  //   const MEDIAKUNST = 2423;
+  //   let imp = new ImportBookmark({ session, limit: 1});
+  //   let sql = `SELECT * from bookmarks WHERE bookmark_ID = ${MEDIAKUNST}`;
+  //   let qry = await DbMySql.query(sql);
+  //   assert.equal(qry.length, 1)
+  //   await imp.runOnData(qry[0]);
+  //   let rec = await Bookmark.findOne({bookmarkId: MEDIAKUNST});
+  //   assert.isTrue(rec !== null);
+  //   assert.isTrue(Object.keys(rec).length > 0);
+  //   assert.isTrue(rec.items.length > 0);
+  //
+  //   let mediakunst = await Bookmark().Mediakunst();
+  //   assert.isDefined(mediakunst);
+  //   assert.equal(mediakunst._id.toString(), rec._id.toString())
+  // })
 })

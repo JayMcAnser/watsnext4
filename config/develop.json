@@ -1,8 +1,10 @@
 {
   "Database": {
     "Mongo": {
-      "database": "watsnext",
       "debug": false
+    },
+    "WatsNext": {
+      "database": "watsnext_dev"
     }
   },
   "Server" : {

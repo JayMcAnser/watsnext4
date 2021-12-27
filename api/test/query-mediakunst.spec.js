@@ -7,7 +7,7 @@ const QueryMediakunstArt = require('../lib/query/query-mediakunst-art');
 const ArtModel = require('../model/art');
 // const ArtMock = require('./data/art.mock')
 
-describe('query-art', () => {
+describe('query-mediakunst-art', () => {
   // const recordCount = ArtMock.recordCount
   // const SEARCH_CODE_PRE = ArtMock.SEARCH_CODE_PRE
   let session = false;
@@ -27,44 +27,44 @@ describe('query-art', () => {
       let req = {};
       let def = qryMediakunstArt.aggregate(req);
       assert.isDefined(Array.isArray(def));
-      assert.equal(def.length, 3);
+      assert.equal(def.length, 1, 'only the $match');
       assert.isDefined(def[0].$match)
       assert.isTrue(def[0].$match.isMediakunst)
 
       let rec = await ArtModel.aggregate(def);
-      assert.equal(rec.length, 100);
+      assert.equal(rec.length, 6);
       assert.isDefined(rec[0].artId)
+      assert.equal(rec[0].artId, '4')
     });
 
     it('by title - splitted', async () => {
       let qryMediakunstArt = new QueryMediakunstArt();
       let req = {
-        query:{
-          "query": 'Motel'
-        }
+        "query": 'Garden'
       };
       let def = qryMediakunstArt.aggregate(req);
       assert.isDefined(Array.isArray(def));
-      assert.equal(def.length, 3);
+      assert.equal(def.length, 1);
       assert.isDefined(def[0].$match)
 
       let rec = await ArtModel.aggregate(def);
       assert.equal(rec.length, 1);
       assert.isDefined(rec[0].artId)
-      assert.equal(rec[0].artId, "93", 'can change if ohter data is loaded')
+      assert.equal(rec[0].artId, '7', 'can change if other data is loaded')
     })
 
     it('by title - direct', async () => {
       let qryMediakunstArt = new QueryMediakunstArt();
       let req = {
-        query:{
-          "query": 'Motel'
+        query: {
+          query: 'Garden'
         }
       };
+
       let rec = await qryMediakunstArt.data(ArtModel, req);
       assert.equal(rec.length, 1);
       assert.isDefined(rec[0].artId)
-      assert.equal(rec[0].artId, "93", 'can change if ohter data is loaded')
+      assert.equal(rec[0].artId, '7', 'can change if ohter data is loaded')
     })
   })
 })

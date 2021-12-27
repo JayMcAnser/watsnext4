@@ -18,17 +18,24 @@ class QueryMediakunstArt extends QueryArt {
    * @param filter Object the $or statement
    * @return {*}
    */
-  buildFilter(filter) {
-    let partFilter = {isMediakunst: true}
-    if (Object.keys(filter).length ) {
-      partFilter = {
-        $and: [
-          { isMediakunst: true },
-          filter
-        ]
-      };
+  postProcessFilter(filter) {
+  //   let partFilter = {isMediakunst: true}
+    if (filter.length) {
+      let index = filter.findIndex((x) => x.hasOwnProperty('$match'))
+      if (index >= 0) {
+        filter[index].$match = {
+          $and: [
+            {isMediakunst: true},
+            filter[index].$match
+          ]
+        }
+      } else {
+        filter.push({ $match : {isMediakunst: true}})
+      }
+    } else {
+      filter.push({ $match : {isMediakunst: true}})
     }
-    return partFilter
+    return filter
   }
 }
 

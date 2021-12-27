@@ -10,6 +10,7 @@ const chaiHttp = require('chai-http'); //types');
 chai.use(chaiHttp);
 const assert = chai.assert;
 
+const SEARCH_CODE_PRE = 'QBMORE-'
 const Art = require('../model/art')
 const server = Init.server;
 const ArtMock = require('./data/art.mock');
@@ -21,12 +22,12 @@ describe('controller.art', () => {
     let id = '0';
 
     before(async () => {
-      await ArtMock.mockAdd();
+      await ArtMock.mockAdd(SEARCH_CODE_PRE);
       TOKEN = await Init.AuthToken
     });
 
     after( async () => {
-      await ArtMock.mockRemove()
+      await ArtMock.mockRemove(SEARCH_CODE_PRE)
     })
 
     it('list 6 records', () => {

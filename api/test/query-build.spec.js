@@ -265,14 +265,13 @@ describe('query-builder', () => {
         fields: {
           default: ['title']
         },
-        sortOrders: {
+        sorts: {
           default: ['title'],
         }
       })
       let qry = builder.aggregate({
-        query: {
-          "query": 'work'
-        }
+        query: 'work',
+        sort: 'default'
       });
       assert.equal(qry.length, 2, '$match, $sort');
       assert.isDefined(qry[0].$match);
@@ -284,7 +283,7 @@ describe('query-builder', () => {
         fields: {
           default: ['title']
         },
-        sortOrders: {
+        sorts: {
           default: ['title'],
         },
         views: {
@@ -292,11 +291,10 @@ describe('query-builder', () => {
         }
       })
       let qry = builder.aggregate({
-        query: {
           "query": 'work',
           "page": 1,
+          "sort": 'default',
           view: 'title'
-        }
       });
       assert.equal(qry.length, 5 );
       assert.isDefined(qry[0].$match);
@@ -306,12 +304,13 @@ describe('query-builder', () => {
       assert.isDefined(qry[4].$project)
       assert.equal(qry[3].$limit, 20);
 
-      qry = builder.aggregate({
-        query: {
+      qry = builder.aggregate(
+        {
           "query": 'work',
-          "page": 0
+          "page": 0,
+          sort: 'default'
         }
-      });
+      );
       assert.equal(qry.length, 3);
       assert.isDefined(qry[0].$match);
       assert.isDefined(qry[1].$sort);

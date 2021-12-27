@@ -9,16 +9,16 @@ const ArtMock = require('./data/art.mock')
 
 describe('query-art', () => {
   const recordCount = ArtMock.recordCount
-  const SEARCH_CODE_PRE = ArtMock.SEARCH_CODE_PRE
+  const SEARCH_CODE_PRE = 'QBMORE-'
   let session = false;
 
   before( async() => {
     session = await InitTest.Session;
-    await ArtMock.mockAdd()
+    await ArtMock.mockAdd(SEARCH_CODE_PRE)
   })
 
   after( async() => {
-    await ArtMock.mockRemove()
+    await ArtMock.mockRemove(SEARCH_CODE_PRE)
   })
 
   describe('find', () => {
@@ -74,9 +74,9 @@ describe('query-art', () => {
 
     it('aggregration', async() => {
       let qryArt = new QueryArt();
-      let def = qryArt.aggregate({query:{
+      let def = qryArt.aggregate({
           query: 'workXX'
-        }});
+        });
       let rec = await ArtModel.aggregate(def)
       assert.equal(rec.length, 6);
 
@@ -86,30 +86,30 @@ describe('query-art', () => {
   describe('paging', () => {
     it('number of items, page = 0', async () =>  {
       let qryArt = new QueryArt();
-      let def = qryArt.aggregate({query:{
+      let def = qryArt.aggregate({
           query: SEARCH_CODE_PRE,
           page: 0
-        }});
+        });
       let rec = await ArtModel.aggregate(def);
       assert.equal(rec.length, qryArt.itemPerPage);
     });
 
     it('number of items, page = 1', async () =>  {
       let qryArt = new QueryArt();
-      let def = qryArt.aggregate({query:{
+      let def = qryArt.aggregate({
           query: SEARCH_CODE_PRE,
           page: 1
-        }});
+        });
       let rec = await ArtModel.aggregate(def);
       assert.equal(rec.length, recordCount -  qryArt.itemPerPage);
     });
 
     it('number of items, page = not found', async () =>  {
       let qryArt = new QueryArt();
-      let def = qryArt.aggregate({query:{
+      let def = qryArt.aggregate({
           query: SEARCH_CODE_PRE,
           page: 10
-        }});
+        });
       let rec = await ArtModel.aggregate(def);
       assert.equal(rec.length, 0);
     })
@@ -118,9 +118,9 @@ describe('query-art', () => {
   describe('view', () => {
     it ('basic', async() => {
       let qryArt = new QueryArt();
-      let def = qryArt.aggregate({query:{
+      let def = qryArt.aggregate({
           query: 'workXX'
-        }});
+        });
       let rec = await ArtModel.aggregate(def);
       assert.equal(rec.length, 6);
       let r = rec[0];
@@ -131,10 +131,10 @@ describe('query-art', () => {
 
     it ('extended', async() => {
       let qryArt = new QueryArt();
-      let def = qryArt.aggregate({query:{
+      let def = qryArt.aggregate({
           query: 'workXX',
           view: 'title'
-        }});
+        });
       let rec = await ArtModel.aggregate(def);
       assert.equal(rec.length, 6);
       let r = rec[0];

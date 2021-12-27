@@ -49,7 +49,7 @@ describe('controller.mediakunst', () => {
     it('list records', () => {
       return chai.request(server)
         .get('/mediakunst/art')
-        .query({query: "Motel"})
+        .query({query: "Garden"})
         .set('authorization', `bearer ${TOKEN}`)
         .then((result) => {
           assert.equal(result.status, 200);

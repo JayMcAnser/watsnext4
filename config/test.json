@@ -1,8 +1,8 @@
 {
   "Path.dataRoot" : "temp/data",
   "Database": {
-    "Mongo": {
-      "databaseXX": "watsnext-test"
+    "WatsNext": {
+      "database": "watsnext_test"
     }
   }
 }
