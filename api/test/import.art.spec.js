@@ -18,14 +18,16 @@ describe('import.art', function() {
 
   let session;
 
+  const ART_ID_1 = 99991
+  const ART_ID_2 = 29992
   before( async () => {
     await InitTest.init();
     DbMySql = await InitTest.DbMySQL;
     DbMongo =  await InitTest.DbMongo;
     session = await InitTest.Session;// new Session('test-import-agent')
 
-    await Art.deleteOne({artId: 1})
-    await Art.deleteOne({artId: 2})
+    await Art.deleteOne({artId: ART_ID_1})
+    await Art.deleteOne({artId: ART_ID_2})
     await DbMySql.connect()
 
     await Setup.runSetup(session)
@@ -34,7 +36,7 @@ describe('import.art', function() {
   it('field data', () => {
     let imp = new ImportArt({session});
     let record = {
-      "art_ID": 1,
+      "art_ID": ART_ID_1,
       "objecttype_ID": 1,
       "searchcode": "searchcode",
       "creation_date": "1996-07-17",
@@ -102,7 +104,7 @@ describe('import.art', function() {
       "work_access_id": 0
     };
     return imp.runOnData(record).then( (mRec) => {
-      assert.equal(mRec.artId, 1);
+      assert.equal(mRec.artId, ART_ID_1);
       assert.equal(mRec.type, 'video');
       assert.equal(mRec.searchcode, 'searchcode');
       assert.equal(mRec.title, 'title');
@@ -119,7 +121,7 @@ describe('import.art', function() {
       assert.equal(mRec.credits, 'credits');
 
       // add a second test record
-      record.art_ID = 2
+      record.art_ID = ART_ID_2
       record.title = 'title 2';
       return imp.runOnData(record).then((mRec) => {
         assert.equal(mRec.title, 'title 2');

@@ -33,7 +33,7 @@ describe('controller.art', () => {
     it('list 6 records', () => {
       return chai.request(server)
         .get('/art')
-        .query({query: 'work'})
+        .query({query: 'workXX'})
         .set('authorization', `bearer ${TOKEN}`)
         .then((result) => {
           assert.equal(result.status, 200);
@@ -50,7 +50,7 @@ describe('controller.art', () => {
     it('list 6 with view', () => {
       return chai.request(server)
         .get('/art')
-        .query({query: 'work', view: 'title'})
+        .query({query: 'workXX', view: 'title'})
         .set('authorization', `bearer ${TOKEN}`)
         .then((result) => {
           assert.equal(result.status, 200);
