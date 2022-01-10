@@ -55,7 +55,8 @@
     "wikiImagePath": "api/data/wikipedia",
     "wikiImageUrl": "api/wiki/image",
     "idToInfo": "w/api.php?action=wbgetentities&languages=en&format=json&props=sitelinks/urls&ids=",
-    "idToImage": "w/api.php?action=wbgetentities&languages=en&format=json&ids="
+    "idToImage": "w/api.php?action=wbgetentities&languages=en&format=json&ids=",
+    "biographyTemplate": "body.shtml"
   },
   "Server" : {
     "port" : 3050,
@@ -79,7 +80,7 @@
     "dataRoot.doc" : "the relative to config root path to the data",
     "dataRoot" : "api/data",
     "imageRoot.doc" : "the relative to config root path to the image",
-    "imageRoot" : "data/images",
+    "imageRoot" : "data/images2",
     "logRoot.doc" : "the relative to config root path to the logging",
     "logRoot" : "api/logging",
     "siteRoot.doc" : "the relative to config root path to the place where the static site is served from",
@@ -90,7 +91,7 @@
     "mediaRoot": "api/data/media",
     "importRoot.Doc": "Where all import files are stored",
     "importRoot": "data",
-    "templateRoot": "data/templates"
+    "templateRoot": "api/wikipedia/templates"
   },
   "Logging" : [
     {

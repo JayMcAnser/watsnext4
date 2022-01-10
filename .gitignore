@@ -5,6 +5,7 @@
 /dist
 /api/logging
 /api/data/mongo
+/api/wikipedia copy
 
 # local env files
 site/.env.local

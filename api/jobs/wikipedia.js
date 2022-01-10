@@ -29,8 +29,8 @@ const Wikipedia = require('../wikipedia');
 const Config = require('config')
 const ImageClass = require('../wikipedia').ImageProcess
 const getFullPath = require('../vendors/lib/helper').getFullPath
-const setRootPath = require('../vendors/lib/helper').setRootPath
-setRootPath(__dirname + '/..')
+// const setRootPath = require('../vendors/lib/helper').setRootPath
+// setRootPath(__dirname + '/..')
 const Fs = require('fs')
 const sha1 = require('sha-1')
 const Path = require("path");
@@ -67,15 +67,15 @@ const jobWikipedia = async (options= {}) =>  {
     artistSet = await Agent.find({wikipediaId: {$exists: true}})
   }
   if (options.debug) { debug(`found ${artistSet.length} artists to process`) }
-  let template = options.file ? options.file : 'biography.body.template'
-  options.templateFileName = getFullPath(template, {rootKey: 'Path.templateRoot', noExistsCheck: true})
+  let template = options.template ? options.template : Config.get('Mediakunst.biographyTemplate')
+  options.templateFileName = getFullPath(template, {rootKey: 'Path.templateRoot', noExistsCheck: true, relativeTo: ''})
   if (!Fs.existsSync(options.templateFileName)) {
     throw new Error(`the template ${options.templateFileName} does not exist`)
   }
-
+  if (options.debug) { debug(`using template ${options.templateFileName}`)}
   options.imageProcess = new ArtistImage()
   options.imagePath = getFullPath('', { rootKey: 'Path.imageRoot', noExistsCheck: true})
-  if (debug) { debug(`using template ${options.templateFileName}`)}
+  if (debug) { debug(`image path ${options.imagePath}`)}
   let log = []
   for (let index = 0; index < artistSet.length; index++) {
     options.imageProcess.artistId = artistSet[index].agentId
@@ -108,18 +108,27 @@ const buildConnections = async () => {
  */
 const processArtist = async (artist, connection, options) => {
   let qId = artist.wikipediaId;
+  if (!qId) {
+    return {status: 'error', message: `artist ${artist.agentId} has no wiki Qid`, action: 'wikipedia'}
+  }
   let mkArtist = await connection.mediakunst.query(`SELECT * FROM doc WHERE guid="artist-${artist.agentId}"`)
   if (mkArtist.length === 0) {
     return {status: 'warn', message: `artist ${artist.agentId} is not part of Mediakunst`, action: 'skip'}
   }
   mkArtist = mkArtist[0]
+
+  if (!options.imageRoot) {
+    options.imageRoot = Config.get('Path.imageRoot')
+  }
+  options.imageRoot = getFullPath(options.imageRoot, {})
+  Fs.mkdirSync(options.imageRoot, {recursive: true})
   // get the merged content of the biography
   let doc;
   let json;
   try {
     if (debug) { debug(`retrieving ${qId}`)}
     json = await Wikipedia.qIdToJson(qId, artist.name, options)
-    doc = await Wikipedia.merge(json, options.templateFileName, true)
+    doc = await Wikipedia.merge(json, options.templateFileName, true, options)
 //    console.log(doc);
 //    return {status: 'info', message: `artist ${artist.name} (${artist.wikipediaId} parsed`, action: 'done'}
   } catch (e) {
@@ -143,7 +152,14 @@ const processArtist = async (artist, connection, options) => {
     let mkJson = JSON.parse(mkArtist.data_json);
     mkJson.hasWikiBiography = 1;
     mkJson.hasBiography = 1;
-    mkJson.wikiBiography = doc;
+    try {
+      mkJson.wikiBiography = JSON.parse(doc);
+      delete mkJson.wikiBiographyJson
+    } catch (e) {
+      // if error store Json for debugging
+      mkJson.wikiBiographyJson = doc
+      delete mkJson.wikiBiography
+    }
     if (json.images.length) {
       mkJson.imageUrl = json.images[0].filename
     } else {

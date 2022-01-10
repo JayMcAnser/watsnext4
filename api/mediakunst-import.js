@@ -61,7 +61,7 @@ const createSession = function() {
   return new Promise( async (resolve, reject) => {
     let user =  await User.findOne({email: Config.get('Database.WatsNext.email')})
     if (!user) {
-      return reject(`the root user ${Config.get('Database.WatsNext.email')} does not exists`)
+      return reject(`the root import user ${Config.get('Database.WatsNext.email')} does not exists`)
     }
     const AuthController = require('./vendors/controllers/auth')
     return resolve(AuthController.createSession(user.id))

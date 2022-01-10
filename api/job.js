@@ -17,13 +17,13 @@ const sayUsage = () => {
 }
 
 const sayImport = () => {
-  say('import options (-t import)');
+  say('import.wiki options (-t import)');
   say('  -f {name}  set the name of the file to import. Default dir /data')
   say('  -r reset/remove the existing wikipedia, setting only the once in the import file')
   say('  -d debug the process')
   say('wikipedia options (-t wikipedia');
-  say('  -d debug the process');
-  say('  -f (file)the filename of the template')
+  say('  -d debug the process (default: 0)');
+  say('  -t (template) the filename of the template')
   say('  -i (id) the watsnext id of the artist to import')
 }
 
@@ -34,8 +34,8 @@ const optionDefinitions = [
   { name: 'job', alias: 'j', type: String, defaultOption: true},
   { name: 'silent', alias: 's', type: Boolean},
   { name: 'help', alias: 'h', type: Boolean},
+  { name: 'template', alias: 't', type: String},
   { name: 'file', alias: 'f', type: String},
-  { name: 'type', alias: 't', type: String},
   { name: 'reset', alias: 'r', type: Boolean},
   { name: 'debug', alias: 'd', type: Boolean},
   { name: 'id', alias: 'i', type: String},
@@ -62,7 +62,7 @@ switch (options.job) {
     const jobWikipedia = require('./jobs/wikipedia').jobWikipedia
     util.promisify(jobWikipedia)
 
-    jobWikipedia({debug: options.debug, file: options.file, id: options.id})
+    jobWikipedia({debug: options.debug, template: options.template, id: options.id})
       .then(d => {
         say(`analysed ${d.length} artist, ${d.filter(x => x.action === 'changed').length} changed, ${d.filter(x => x.status === 'error').length} errors`)
         if (options.debug) {
@@ -74,32 +74,25 @@ switch (options.job) {
       process.exit(1)
     })
     break;
-  case 'import':
-    switch (options.type) {
-      case 'wiki': // importing wikipedia q ids into the db
-        const filename = options.file;
-        if (!filename || ! filename.length) {
-          sayError('filename is missing')
-          process.exit(1)
-        }
-        const jobWikiImport = require('./jobs/import-wiki').jobImportWiki
-        util.promisify(jobWikiImport)
-        jobWikiImport(filename,{reset: options.reset, debug: options.debug}).then( (x) => {
-          say(`analysed ${x.length} records, ${x.filter(x => x.action === 'changed').length} changes,  ${x.filter(x => x.action === 'not found').length} not found`)
-          say('data imported');
-          if (options.debug) {
-            console.log(x)
-          }
-          process.exit(0)
-        }).catch(e => {
-          sayError(`Import wiki links: ${e.message}`)
-          process.exit(1)
-        })
-
-        break;
-      default:
-        sayImport()
+  case 'import.wiki':
+    const filename = options.file;
+    if (!filename || ! filename.length) {
+      sayError('filename is missing')
+      process.exit(1)
     }
+    const jobWikiImport = require('./jobs/import-wiki').jobImportWiki
+    util.promisify(jobWikiImport)
+    jobWikiImport(filename,{reset: options.reset, debug: options.debug}).then( (x) => {
+      say(`analysed ${x.length} records, ${x.filter(x => x.action === 'changed').length} changes,  ${x.filter(x => x.action === 'not found').length} not found`)
+      say('data imported');
+      if (options.debug) {
+        console.log(x)
+      }
+      process.exit(0)
+    }).catch(e => {
+      sayError(`Import wiki links: ${e.message}`)
+      process.exit(1)
+    })
     break;
   default:
     sayError(`unknown job: "${options.job}"`)
