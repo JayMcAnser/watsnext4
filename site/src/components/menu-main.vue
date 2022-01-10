@@ -98,7 +98,7 @@ let nav = [
     key: 'mediakunst',
     items: [
       {label: 'Artwork', icon: 'list', to:'/mediakunst/art-list'},
-      {label: 'Artists', icon: 'art', to:'/notyet'}
+      {label: 'Artists', icon: 'art', to:'/mediakunst/artist-list'}
     ]
   }
 ]
