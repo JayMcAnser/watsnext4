@@ -19,7 +19,7 @@
       "port": 3306,
       "username": "toxus",
       "password":"-- set in local.json --",
-      "database": "watsnext_test"
+      "database": "watsnext"
     },
     "Mediakunst": {
       "host": "37.97.234.177",

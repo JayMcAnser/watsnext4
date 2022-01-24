@@ -44,7 +44,8 @@ const importFile = async (filename) => {
  * @return {Promise<void>}
  */
 const parseRecord = async (limaId, wikiId) => {
-  let artist = await Agent.findOne({agentId: limaId})
+  let limaAgentId =  limaId.toString().substr('artist-'.length)
+  let artist = await Agent.findOne({agentId: limaAgentId})
   if (!artist) {
     return {status: 'error', message: `artist ${limaId} not found in watsnext`, action: 'not found'}
   }

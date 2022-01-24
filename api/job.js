@@ -30,6 +30,8 @@ const sayImport = () => {
   say('  -p {password} the password to use (default: 123456' );
   say('  -c {number} the number of art works to import');
   say('  -o {filename} output the debug to this file')
+  say('  -r --reset remove the existing records')
+  say('  --part {comma seperated list of objects} like art,carrier,contact')
 
   //say('  -p {names seperated by ,} the parts. Default all')
 }
