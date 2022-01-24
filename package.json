@@ -1,1 +1,6 @@
-{}
+{
+  "scripts": {
+    "import:wiki": "node api/job.js import.wiki -f wikipedia/artist.csv -r -d",
+    "wikipedia": "node api/job.js wikipedia -d"
+  }
+}

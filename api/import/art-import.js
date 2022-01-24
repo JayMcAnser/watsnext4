@@ -118,6 +118,7 @@ class ArtImport {
     this._step = 5;
     this._codeImport = new CodeImport({session: this.session});
     this._agentImport = new AgentImport({ session: this.session});
+    this._logging = options.logging ? options.logging : Logging
   }
 
   /**
@@ -132,6 +133,7 @@ class ArtImport {
   async _convertRecord(con, record, options = {}) {
     let art = await Art.queryOne(this.session,{artId: record.art_ID});
     if (art) {
+      this._logging.log('info', `art[${record.art_ID}]: already exists`)
       return art;
     }
     let sql;
@@ -140,7 +142,7 @@ class ArtImport {
       sql = `SELECT * FROM art WHERE art_ID=${record.art_ID}`;
       qry = await con.query(sql);
       if (qry.length === 0) {
-        Logging.log('warn', `art[${record.art_ID}] does not exist. skipped`);
+         this._logging.log('warn', `art[${record.art_ID}] does not exist. skipped`);
         return undefined
       }
       record = qry[0];
@@ -191,13 +193,15 @@ class ArtImport {
     }
     try {
       if (art.agents.length === 0) {
-        Logging.log('warn', `missing agents of artId: ${art.artId}`);
+         this._logging.log('warn', `missing agents of artId: ${art.artId}`);
       }
       await art.reSync();
       art = await art.save();
+      this._logging.log('info', `art[${record.art_ID}]: imported`)
     } catch (e) {
-      Logging.log('error', `art[${record.art_ID}]: ${e.message}`)
+       this._logging.log('error', `art[${record.art_ID}]: ${e.message}`)
     }
+
     return art;
   }
 
@@ -213,7 +217,7 @@ class ArtImport {
           let dis;
           let sql = `SELECT *
                      FROM art
-                     ORDER BY art_ID LIMIT ${start * vm._step}, ${vm._step}`;
+                     ORDER BY art_ID LIMIT ${start}, ${vm._step}`;
           qry = await con.query(sql);
           if (qry.length > 0) {
             for (let l = 0; l < qry.length; l++) {
@@ -225,8 +229,9 @@ class ArtImport {
           }
 
         } while (qry.length > 0 && (this._limit === 0 || counter.count < this._limit));
+        //console.log('done')
       } catch(e) {
-        Logging.log('error', e.message)
+         this._logging.log('error', e.message)
       }
       ImportHelper.stepEnd('Art');
       return resolve(counter)

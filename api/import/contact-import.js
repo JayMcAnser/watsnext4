@@ -78,7 +78,7 @@ class ContactImport {
     this._step = this._limit < STEP ? this._limit : STEP;
     this._codeImport = new CodeImport({session: this.session});
     this._countries = false;
-
+    this._logging = options.logging ? options.logging : Logging;
   }
 
   async _countryTranslate(con, id) {
@@ -92,7 +92,7 @@ class ContactImport {
     }
     let r = this._countries['c' + id];
     if (r === undefined) {
-      Logging.log('warn', `unknown country code: ${id}`);
+       this._logging.log('warn', `unknown country code: ${id}`);
       r =  'Netherlands'
     }
     return Promise.resolve(r);
@@ -143,7 +143,7 @@ class ContactImport {
       sql = `SELECT * FROM addresses WHERE address_ID=${record.address_ID}`;
       qry = await con.query(sql);
       if (qry.length === 0) {
-        Logging.log('warn', `address[${record.address_ID}] does not exist. skipped`);
+         this._logging.log('warn', `address[${record.address_ID}] does not exist. skipped`);
         return undefined
       }
       record = qry[0];
@@ -253,22 +253,24 @@ class ContactImport {
           }
           break;
         default:
-          Logging.log('warn', `unknown address field type ${rec.code_ID}`)
+          this._logging.log('warn', `unknown address field type ${rec.code_ID}`)
       }
     }
 
     try {
       await contact.reSync();
       contact = await contact.save();
+      this._logging.log('info', `address[${contact.address_ID}]: imported`)
     } catch (e) {
-      Logging.log('error', `importing address[${record.address_ID}]: ${e.message}`)
+       this._logging.log('error', `importing address[${record.address_ID}]: ${e.message}`)
     }
     return contact;
   }
 
   async run(con) {
     if (!con) {
-      Logging.logThrow('missing mySQL connection')
+      this._logging.log('missing mySQL connection')
+      throw new Error('missing mySQL connection')
     }
     let vm = this;
     return new Promise(async (resolve, reject) => {
@@ -278,7 +280,7 @@ class ContactImport {
       ImportHelper.stepStart('Contact');
       do {
         let dis;
-        let sql = `SELECT * FROM addresses ORDER BY address_ID LIMIT ${start * vm._step}, ${vm._step}`;
+        let sql = `SELECT * FROM addresses ORDER BY address_ID LIMIT ${start}, ${vm._step}`;
         qry = await con.query(sql);
         if (qry.length > 0) {
           for (let l = 0; l < qry.length; l++) {

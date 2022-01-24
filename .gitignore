@@ -20,6 +20,8 @@ pnpm-debug.log*
 # config files
 local.json
 /temp
+/_site
+/_site-save
 
 # Editor directories and files
 .idea

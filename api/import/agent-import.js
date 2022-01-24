@@ -44,6 +44,7 @@ class AgentImport {
     this._limit = options.limit !== undefined ? options.limit : 0;
     this._step = this._limit < STEP ? this._limit : STEP;
     this._codeImport = new CodeImport({session: this.session});
+    this._logging = options.logging ? options.logging : Logging
   }
 
   /**
@@ -58,6 +59,7 @@ class AgentImport {
   async _convertRecord(con, record, options = {}) {
     let agent = await Agent.queryOne(this.session, {agentId: record.agent_ID});
     if (agent) {
+      this._logging.log('info', `agent[${record.agent_ID}]: already exists`)
       return agent;
     }
     let sql;
@@ -66,7 +68,7 @@ class AgentImport {
       sql = `SELECT * FROM agent WHERE agent_ID=${record.agent_ID}`;
       qry = await con.query(sql);
       if (qry.length === 0) {
-        Logging.log('warn', `agent[${record.agent_ID}] does not exist. skipped`);
+         this._logging.log('warn', `agent[${record.agent_ID}] does not exist. skipped`);
         return undefined
       }
       record = qry[0];
@@ -95,9 +97,11 @@ class AgentImport {
       // should also import the agent
       agent = Agent.create(this.session, dataRec);
       agent = await agent.save();
+      this._logging.log('info', `agent[${record.agent_ID}]: imported`)
     } catch (e) {
-      Logging.error(`error importing agent[${record.agent_ID}]: ${e.message}`)
+       this._logging.log('error', `agent[${record.agent_ID}]: ${e.message}`)
     }
+
     return agent;
   }
 
@@ -110,7 +114,7 @@ class AgentImport {
       ImportHelper.stepStart('Agent');
       do {
         let dis;
-        let sql = `SELECT * FROM agent ORDER BY agent_ID LIMIT ${stagent * vm._step}, ${vm._step}`;
+        let sql = `SELECT * FROM agent ORDER BY agent_ID LIMIT ${stagent}, ${vm._step}`;
         qry = await con.query(sql);
         if (qry.length > 0) {
           for (let l = 0; l < qry.length; l++) {

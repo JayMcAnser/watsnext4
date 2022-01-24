@@ -83,6 +83,7 @@ class CarrierImport {
     this._step = (this._limit && this._limit < STEP) ? this._limit : STEP;
     this._artImport = new ArtImport({session: this.session});
     this._codeImport = new CodeImport({session: this.session});
+    this._logging = options.logging ? options.logging : Logging;
   }
 
   /**
@@ -150,8 +151,9 @@ class CarrierImport {
       }
       Object.assign(carrier, dataRec);
       carrier = await carrier.save();
+      this._logging.log('info', `carrier[${record.carrier_ID}]: imported`)
     } catch (e) {
-      Logging.log('error', `error importing carrier[${record.carrier_ID}]: ${e.message}`)
+       this._logging.log('error', `carrier[${record.carrier_ID}]: ${e.message}`)
     }
     return carrier;
   }
@@ -165,7 +167,7 @@ class CarrierImport {
       let qry = [];
       do {
         let dis;
-        let sql = `SELECT * FROM carrier ORDER BY carrier_ID LIMIT ${start * vm._step}, ${vm._step}`;
+        let sql = `SELECT * FROM carrier ORDER BY carrier_ID LIMIT ${start}, ${vm._step}`;
         qry = await con.query(sql);
         if (qry.length > 0) {
           for (let l = 0; l < qry.length; l++) {

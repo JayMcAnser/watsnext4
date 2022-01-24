@@ -123,7 +123,8 @@ CarrierSchema.methods.codeSet = function(data) {
 const Carrier = Mongoose.Model('Carrier', CarrierSchema);
 async function run()
 {
-  await Carrier.syncIndexes();
+  // returns an error. WHY do we do it
+  //await Carrier.syncIndexes();
 }
 run()
 module.exports = Carrier;

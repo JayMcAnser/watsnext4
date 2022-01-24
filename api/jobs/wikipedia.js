@@ -29,6 +29,7 @@ const Wikipedia = require('../wikipedia');
 const Config = require('config')
 const ImageClass = require('../wikipedia').ImageProcess
 const getFullPath = require('../vendors/lib/helper').getFullPath
+
 // const setRootPath = require('../vendors/lib/helper').setRootPath
 // setRootPath(__dirname + '/..')
 const Fs = require('fs')
@@ -58,6 +59,15 @@ class ArtistImage extends ImageClass {
   }
 }
 
+/**
+ *
+ * @param options
+ *   id: string the limaId of the artist to import. If missing ALL artist with an id are imported
+ *   reset: boolean all artists are update to the latest version if if not changed
+ *   debug: boolean list what has been done
+ *   template: string the template to use. Default Mediakunst.biographyTemplate
+ * @return {Promise<*[]>}
+ */
 const jobWikipedia = async (options= {}) =>  {
   let connections = await buildConnections();
   let artistSet;
@@ -81,10 +91,8 @@ const jobWikipedia = async (options= {}) =>  {
     options.imageProcess.artistId = artistSet[index].agentId
     let result = await processArtist(artistSet[index], connections, options)
     log.push(result);
-    //if (index > 10) {  break; }
   }
   return log
-  //return Promise.resolve()
 }
 
 /**
@@ -129,8 +137,6 @@ const processArtist = async (artist, connection, options) => {
     if (debug) { debug(`retrieving ${qId}`)}
     json = await Wikipedia.qIdToJson(qId, artist.name, options)
     doc = await Wikipedia.merge(json, options.templateFileName, true, options)
-//    console.log(doc);
-//    return {status: 'info', message: `artist ${artist.name} (${artist.wikipediaId} parsed`, action: 'done'}
   } catch (e) {
     return {status: 'error', message: `wiki for artist ${artist.agentId} (${artist.wikipediaId}) thrown error: ${e.message}`, action: 'wikipedia'}
   }
@@ -138,7 +144,8 @@ const processArtist = async (artist, connection, options) => {
   let status = 'done'
   try {
     let key = sha1(doc);
-    if (artist.wikipediaSha !== key) {
+    if (options.reset || artist.wikipediaSha !== key || artist.wikipediaDoc !== doc) {
+      // store the artist into the mongoDB
       if (options.debug) { debug(`updating watsnext agentId = ${artist.agentId}`)}
       // store the change in the db. so it can be checked
       artist.wikipediaSha = key;
@@ -148,12 +155,13 @@ const processArtist = async (artist, connection, options) => {
       status = 'changed'
     }
 
+    // work in the mediakunst db where the artist is a text.json structure
     // parse the json structure of the record
     let mkJson = JSON.parse(mkArtist.data_json);
     mkJson.hasWikiBiography = 1;
     mkJson.hasBiography = 1;
     try {
-      mkJson.wikiBiography = JSON.parse(doc);
+      mkJson.wikiBiography = doc; // JSON.parse(doc);
       delete mkJson.wikiBiographyJson
     } catch (e) {
       // if error store Json for debugging

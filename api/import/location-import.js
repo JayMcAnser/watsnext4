@@ -94,6 +94,7 @@ class LocationImport {
     importCarrier = new ImportCarrier({session: this.session});
     this._limit = options.limit !== undefined ? options.limit : 0;
     this._step = 5;
+    this._logging = options.logging ? options.logging : Logging
   }
 
   async _convertRecord(con, record, options = {}) {
@@ -135,9 +136,9 @@ class LocationImport {
         }
         dis  = await dis.save();
       }
-
+      this._logging.log('info', `location[${record.location_ID}]: imported`)
     } catch (e) {
-      Logging.log('error', `importing location[${record.location_ID}]: ${e.message}`)
+       this._logging.log('error', `importing location[${record.location_ID}]: ${e.message}`)
     }
     return dis;
   }
@@ -151,7 +152,7 @@ class LocationImport {
       let qry = [];
       do {
         let dis;
-        let sql = `SELECT * FROM locations WHERE objecttype_ID > 0 ORDER BY location_code LIMIT ${start * vm._step}, ${vm._step}`;
+        let sql = `SELECT * FROM locations WHERE objecttype_ID > 0 ORDER BY location_code LIMIT ${start}, ${vm._step}`;
         qry = await con.query(sql);
         if (qry.length > 0) {
           for (let l = 0; l < qry.length; l++) {

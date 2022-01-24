@@ -2,21 +2,19 @@
  * Job to import the qid from the wikipedia into watsnext
  * version 1.0  dd: 2021-10-11  @Jay
  *
- *  csv config can be set in the config by the key: Import.csv
+ * Input a csv file with the
+ * {limaId}, {wikipediaId}
  *
  */
 const Config = require('config')
 const Fs = require('fs')
 const parse = require('csv-parse/sync').parse
 const getFullPath = require('../vendors/lib/helper').getFullPath
-const setRootPath = require('../vendors/lib/helper').setRootPath
 const MongoDb = require('../lib/db-mongo');
 const Agent = require("../model/agent");
-
-setRootPath(__dirname + '/..')
-const keyValue = (key) => {
-  return Config.has(`Import.wiki.${key}`) ?  Config.get(`Import.wiki.${key}`) :  Config.get(`Import.csv.${key}`)
-}
+const setRelativePath = require('../vendors/lib/helper').setRelativePath;
+setRelativePath('')
+// setRootPath(__dirname + '/..')
 /**
  *
  * @param filename string the name of the file to parse
@@ -27,14 +25,14 @@ const importFile = async (filename) => {
   if (!trueFileName || !Fs.existsSync(trueFileName)) {
     throw new Error(`the file ${filename}  (looked for ${trueFileName}) does not exist`)
   }
-  let content = Fs.readFileSync(trueFileName);
+  let content = Fs.readFileSync(trueFileName, {encoding: Config.get('Import.csv.encoding')});
   let records = parse(content, {
-    delimiter: keyValue('delimiter'),
+    delimiter: Config.get('Import.csv.delimiter'),
     trim: true,
-    encoding: keyValue('encoding'),
+    encoding: Config.get('Import.csv.encoding'),
     skip_empty_lines: true,
-    comment: keyValue('comment'),
-    columns: false
+    comment: Config.get('Import.csv.comment'),
+    columns: true
   });
   return records;
 }
@@ -59,14 +57,48 @@ const parseRecord = async (limaId, wikiId) => {
   return {status: 'debug', message: `artist ${limaId} / wiki ${wikiId} not changed`, action: 'nop'}
 }
 
+/**
+ * this defines all the fields that can be found in the csv
+ *
+ * @param record
+ * @return false on unparseble record and record if it's ok
+ */
+const getArtistInfo = function(record) {
+  let result = {mediakunstId: '', wikiId: ''};
+  if (record.hasOwnProperty('item')) { // thats http://www.wikidata.org/entity/Q20164615
+    result.wikiId = record.item.substr('http://www.wikidata.org/entity/'.length)
+  }
+  if (record.hasOwnProperty('LIMA_media_artist_ID')) {
+    result.mediakunstId = `artist-${record.LIMA_media_artist_ID}`
+  }
+  if (record.hasOwnProperty('limaId')) {
+    result.mediakunstId = record.limaId
+  }
+  if (record.hasOwnProperty('wikiId')) {
+    result.wikiId = record.wikiId
+  }
+  if (result.mediakunstId.length && result.wikiId.length) {
+    return result;
+  }
+  return false;
+}
 
+/**
+ *
+ * @param filename
+ * @param options {
+ *    debug: boolean list actions done
+ *    reset: boolean remove existing wikipedia ids
+ * }
+ * @return {Promise<*[]>}
+ */
 const jobImportWiki = async (filename, options= {}) => {
   if (options.debug) { debug(`importing ${filename}`) }
   let records = await importFile(filename);
   if (records) {
-    if (keyValue('hasFieldNames')) {
-      records.splice(0, 1)
-    }
+    // if (Config.get('Import.csv.hasFieldNames')) {
+    //   records.splice(0, 1)
+    // }
     let mongoDb = await MongoDb.connect();
     if (options.debug) { debug(`found ${records.length} records`) }
     if (options.reset) {
@@ -74,7 +106,14 @@ const jobImportWiki = async (filename, options= {}) => {
     }
     let result = []
     for (let index = 0; index < records.length; index++) {
-      result.push(await parseRecord(records[index][0], records[index][1]))
+      let artist = getArtistInfo(records[index])
+      if (artist) {
+        result.push(await parseRecord(artist.mediakunstId, artist.wikiId)) // await parseRecord(records[index][0], records[index][1]))
+      } else {
+        if (options.debug) {
+          debug(`could not parse: ${JSON.stringify(records[index])}`)
+        }
+      }
     }
     return result;
   } else {
