@@ -22,7 +22,8 @@
       "database": "watsnext"
     },
     "Mediakunst": {
-      "host": "37.97.234.177",
+      "XXXhost": "37.97.234.177",
+      "host": "localhost",
       "port": 3306,
       "username": "mediakunst",
       "password": "-- set in local.json --",
@@ -57,7 +58,12 @@
     "listUrl": "/search?query=~(id~3~parts~(~(id~2~value~'[artistName]~fields~(~'title~'artist~'description~'keyword~'collectionSearch~'yearSearch)~combine~'~!!hashKey~'object*3a249))~filters~()~order~(column~'yearOrder~columnDesc~false~row~'titleOrder~rowDesc~false)~random~0)",
     "idToInfo": "w/api.php?action=wbgetentities&languages=en&format=json&props=sitelinks/urls&ids=",
     "idToImage": "w/api.php?action=wbgetentities&languages=en&format=json&ids=",
-    "biographyTemplate": "body.shtml"
+    "biographyTemplate": "body.shtml",
+    "biographyRules": {
+      "minSegments": 1,
+      "firstSegmentParagraphCount": 1,
+      "firstSegmentTextLength": 200
+    }
   },
   "Server" : {
     "port" : 3050,

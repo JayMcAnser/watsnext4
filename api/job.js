@@ -10,20 +10,23 @@ const say = (message) => {
 
 const sayImport = () => {
   say('version 0.1 dd 2022-01-11')
-  say('import.wiki');
-  say(' the information is sync between watsnext and mediakunst by using the csv file. Options:')
-  say('  -f {name}  set the name of the file to import. Default dir /data')
-  say('  -r reset/remove the existing wikipedia, setting only the once in the import file')
-  say('  -d debug the process')
-  say('')
-  say('wikipedia');
+  say('global options:');
+  say(' -s (silent) to stop the counters from displaying')
+
+  say('generate:wikipedia');
   say(' the wikipedia articles are retrieved and stored in mediakunst')
   say('  -d debug the process (default: 0)');
   say('  -t (template) the filename of the template')
   say('  -r (reset) force all biographies to be updated even if not changed')
   say('  -i (id) the watsnext id of the artist to import, if omitted all is imported');
   say('');
-  say('import.watsnext');
+  say('import:wiki');
+  say(' the information is sync between watsnext and mediakunst by using the csv file. Options:')
+  say('  -f {name}  set the name of the file to import. Default dir /data')
+  say('  -r reset/remove the existing wikipedia, setting only the once in the import file')
+  say('  -d debug the process')
+  say('')
+  say('import:watsnext');
   say(' import the watsnext database');
   say('  -d debug the process (default: 0)');
   say('  -e {name} the email address of the user to use (default: watsnext@li-ma.nl)')
@@ -52,7 +55,7 @@ const optionDefinitions = [
   { name: 'password', alias: 'p', type: String},
   { name: 'count', alias: 'c', type: Number},
   { name: 'output', alias: 'o', type: String},
-  { name: 'parts', type: String}
+  { name: 'parts', type: String},
 //   { name: 'env', alias: 'e', type: String},
 ]
 const commandLineArgs = require('command-line-args')
@@ -63,8 +66,9 @@ try {
   return(1)
 }
 
-say('WatsNext Jobs\n');
+
 if (options.help || !options.job || typeof options.job !== 'string') {
+  say('WatsNext Jobs\n');
   sayImport();
   return(0)
 }
@@ -72,13 +76,13 @@ if (options.help || !options.job || typeof options.job !== 'string') {
 const util = require('util')
 
 switch (options.job) {
-  case 'wikipedia':
-    const jobWikipedia = require('./jobs/wikipedia').jobWikipedia
+  case 'generate:wikipedia':
+    const jobWikipedia = require('./jobs/generate.wikipedia').jobWikipedia
     util.promisify(jobWikipedia)
 
     jobWikipedia(options)
       .then(d => {
-        say(`analysed ${d.length} artist, ${d.filter(x => x.action === 'changed').length} changed, ${d.filter(x => x.status === 'error').length} errors`)
+        say(`analysed ${d.length} artist, ${d.filter(x => x.action === 'changed').length} changed, ${d.filter(x => x.status === 'warning').length} warning, ${d.filter(x => x.status === 'error').length} errors`)
         if (options.debug) {
           console.log(d)
         }
@@ -88,7 +92,7 @@ switch (options.job) {
       process.exit(1)
     })
     break;
-  case 'import.wiki':
+  case 'import:wiki':
     const filename = options.file;
     if (!filename || ! filename.length) {
       sayError('filename is missing')
@@ -109,7 +113,7 @@ switch (options.job) {
     })
     break;
 
-  case 'import.watsnext': {
+  case 'import:watsnext': {
     const jobWatsNextImport = require('./jobs/import-watsnext').jobImportWatsNext;
     util.promisify(jobWatsNextImport);
     jobWatsNextImport(options).then( (x) => {

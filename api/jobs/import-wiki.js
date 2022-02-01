@@ -49,9 +49,14 @@ const parseRecord = async (limaId, wikiId) => {
   if (!artist) {
     return {status: 'error', message: `artist ${limaId} not found in watsnext`, action: 'not found'}
   }
-  if (!artist.wikipediaId || artist.wikipediaId !== wikiId) {
-    artist.wikipediaId = wikiId;
-    artist.wikipediaLastChanged = new Date();
+  // temp to clean the database
+
+  if (!artist.wikipedia) {
+    artist.wikipedia = {}
+  }
+  if ((!artist.wikipedia.id || artist.wikipedia.id !== wikiId)) {
+    artist.wikipedia.id = wikiId;
+    artist.wikipedia.lastChanged = new Date();
     await artist.save();
     return {status: 'debug', message: `artist ${limaId} / wiki ${wikiId} updated`, action: 'changed'}
   }
@@ -103,10 +108,15 @@ const jobImportWiki = async (filename, options= {}) => {
     let mongoDb = await MongoDb.connect();
     if (options.debug) { debug(`found ${records.length} records`) }
     if (options.reset) {
-      await Agent.updateMany({wikipediaId: {'$exists': true}}, {wikipediaId: undefined})
+      await Agent.updateMany({'wikipedia.id': {'$exists': true}}, {wikipedia: {id: undefined}})
     }
+    // await Agent.updateMany({}, {$unset: {wikipediaId: '', wikipediaLastChanged: '', wikipediaDoc: '', wikipediaSha: '', wikipediaStatus: '', wikipediaError: '', imageId: ''}})
     let result = []
     for (let index = 0; index < records.length; index++) {
+      if (!options.silent) {
+        let rotate = ['|','/','-','\\'];
+        process.stdout.write(`artist: ${rotate[index % 4]} ${index}\r`);
+      }
       let artist = getArtistInfo(records[index])
       if (artist) {
         result.push(await parseRecord(artist.mediakunstId, artist.wikiId)) // await parseRecord(records[index][0], records[index][1]))

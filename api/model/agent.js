@@ -18,17 +18,31 @@ const ContactSchema = new Schema({
   percentage: Number,
 })
 
+const WikiScheme = new Schema({
+  id: String,
+  lastChanged: Date,
+  doc: String,
+  sha: String,
+  status: String,
+  error: String,
+  imageName: String,
+})
+
 const AgentExtendLayout = {
   agentId: String,
   isMediakunst: Boolean,     // set to true if part of mediakunst
   mediakunstId: String,      // the direct link id
-  wikipediaId: String,       // the qId of Wikipedia
-  wikipediaLastChanged: Date,// last date something changed
-  wikipediaSha: String,      // the check is something changed
-  wikipediaDoc: String,      // the wiki tekst as html
-  biography: Object,         // the biography info from the watsnext
-//   biographyLastChange: Date, // the date the biography changed (for checking)
-  imageId: String,           // the id of the image
+  wikipedia: WikiScheme,    // info about the wikipedia retrieve system
+//   wikipediaId: String,       // the qId of Wikipedia
+//   wikipediaLastChanged: Date,// last date something changed
+//   wikipediaSha: String,      // the check is something changed
+//   wikipediaDoc: String,      // the wiki tekst as html
+//   wikipediaStatus: String,   // the status (retrieved, not-found, no-data, no-wiki-page, other, etc)
+//   wikipediaError: String,    // the error if any
+//   biography: Object,         // the biography info from the watsnext
+// //   biographyLastChange: Date, // the date the biography changed (for checking)
+//   imageId: String,           // the id of the image,
+
 }
 
 
