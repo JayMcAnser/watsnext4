@@ -1,11 +1,12 @@
 process.env["NODE_CONFIG_DIR"] = __dirname + '/../config/';
 
-console.log('sync mediakunst with WatsNext, version 0.1\n');
+console.log('sync mediakunst with WatsNext, version 0.1.1\n');
 
 const optionDefinitions = [
   { name: 'help', alias: 'h', type: Boolean},
   { name: 'env', alias: 'e', type: String},
-  { name: 'silent', alias: 's', type: Boolean}
+  { name: 'silent', alias: 's', type: Boolean},
+  { name: 'noimport', alias: 'n', type: Boolean}
 
   // { name: 'username', alias: 'u', type: String },
   // { name: 'email', alias: 'e', type: String },
@@ -51,6 +52,7 @@ const util = require('util')
 const Bookmark = require('./model/bookmark');
 const BookmarkImport = require('./import/bookmark-import');
 const Mediakunst = require('./model/mediakunst');
+const LoggingServer = require('./lib/logging-server').loggingServer;
 
 
 /**
@@ -78,15 +80,21 @@ const syncMediakunst = async () => {
     throw e
   }
 
-  // remove the existing bookmark list so we start with a clean slate
-  say('removing existing bookmark list')
-  await Bookmark.deleteOne({bookmarkId: Bookmark.MEDIAKUST_ID});
-  let imp = new BookmarkImport({session});
-  say('importing bookmarklist')
-  await imp.runOnId(Bookmark.MEDIAKUST_ID);
-
+  if (!options.noimport) {
+    await LoggingServer.info('start importing mediakunst bookmarklist', {import: 'mediakunst'})
+    // remove the existing bookmark list so we start with a clean slate
+    say('removing existing mediakunst bookmark list')
+    await Bookmark.deleteOne({bookmarkId: Bookmark.MEDIAKUST_ID});
+    let imp = new BookmarkImport({session});
+    say('importing bookmarklist')
+    await imp.runOnId(Bookmark.MEDIAKUST_ID);
+    await LoggingServer.info('done importing mediakunst bookmarklist', {import: 'mediakunst'})
+  } else {
+    say('import skipped: mediakunst bookmark list')
+  }
   // now sync the art and agents with it
-  say('update art / agent with nieuw information')
+  say('update art / agent with nieuw information');
+  await LoggingServer.info('updating art, agent', {import: 'mediakunst'})
   let result = await Mediakunst.importData((type, msg) => {
     if (type === 'msg') {
       say(msg)
@@ -97,16 +105,19 @@ const syncMediakunst = async () => {
         return;
       }
       let rotate = ['|','/','-','\\'];
-      process.stdout.write(`${rotate[msg % 4]}\r`);
+      process.stdout.write(`${msg} - ${rotate[msg % 4]}\r`);
     }
   });
   if (result.errors.artCnt) {
     say(`there where ${result.errors.artCnt} errors in art`)
+    await LoggingServer.warn(`there where ${result.errors.artCnt} errors in art`, {import: 'mediakunst'})
   }
   if (result.errors.artistCnt) {
-    say(`there where ${result.errors.artistCnt} errors with artist`)
+    say(`there where ${result.errors.artistCnt} errors with artist`);
+    await LoggingServer.warn(`there where ${result.errors.artistCnt} errors with artist`, {import: 'mediakunst'})
   }
   say(`total artwork: ${result.totals.artCnt}`);
+  await LoggingServer.info(`total artwork: ${result.totals.artCnt}`, {import: 'mediakunst', artWorkCount: result.totals.artCnt})
   return true;
 }
 
@@ -127,6 +138,7 @@ syncMediakunst()
     return 0;
   })
   .catch(e => {
+    LoggingServer.error(e.message, {import: 'mediakunst', error: e});
     console.log(`[Error]: ${e}`);
     process.exit(1)
   })

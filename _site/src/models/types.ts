@@ -1,8 +1,0 @@
-
-interface UUID {
-
-}
-
-export default {
-
-}

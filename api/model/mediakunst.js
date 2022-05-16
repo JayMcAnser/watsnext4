@@ -74,36 +74,42 @@ const importData = async function(progress = function() {}) {
       progress('msg', 'processing artworks')
       progress('size', media.items.length)
       for (let index = 0; index < media.items.length; index++) {
-        progress('step', index)
-        let art = await Art.findById(media.items[index].art);
-        if (art) {
-          if (!art.isMediakunst) {
-            art.isMediakunst = true;
-            art.mediakunstDate = new Date();
-            await art.save();
-            result.added.artCnt++;
-          }
-          result.totals.artCnt++
-          let agent = await Agent.findById(art.creator)
-          if (agent) {
-            if (!agent.isMediakunst) {
-              agent.isMediakunst = true
-              await agent.save();
-              result.added.agentCnt++;
+      // for (let index = media.items.length - 1; index >= 0 ; index--) {
+        try {
+          progress('step', index)
+          let art = await Art.findById(media.items[index].art);
+          if (art) {
+            if (!art.isMediakunst) {
+              art.isMediakunst = true;
+              art.mediakunstDate = new Date();
+              await art.save();
+              result.added.artCnt++;
+            }
+            result.totals.artCnt++
+            let agent = await Agent.findById(art.creator)
+            if (agent) {
+              if (!agent.isMediakunst) {
+                agent.isMediakunst = true
+                await agent.save();
+                result.added.agentCnt++;
+              }
+            } else {
+              result.errors.agentCnt++
+              Logging.log(`warn`, `missing agent ${art.creator} in artwork ${art._id} (${art.artId})`)
+            }
+            if (artists[art.creator.toString()]) {
+              delete artists[art.creator.toString()];
             }
           } else {
-            result.errors.agentCnt++
-            Logging.log(`warn`, `missing agent ${art.creator} in artwork ${art._id} (${art.artId})`)
+            result.errors.artCnt++
+            Logging.log('warn', `missing artworkd ${media.items[index].art} in bookmarklist`)
           }
-          if (artists[art.creator.toString()]) {
-            delete artists[art.creator.toString()];
+          if (artWorks[art._id.toString()]) {  // remove it from our cached version
+            delete artWorks[art._id.toString()]
           }
-        } else {
-          result.errors.artCnt++
-          Logging.log('warn', `missing artworkd ${media.items[index].art} in bookmarklist`)
-        }
-        if (artWorks[art._id.toString()]) {  // remove it from our cached version
-          delete artWorks[art._id.toString()]
+        } catch(e) {
+          console.log(e);
+          throw e
         }
       }
     }

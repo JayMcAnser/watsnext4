@@ -23,6 +23,8 @@ local.json
 /_site
 /_site-save
 
+_backup
+api/data/__mongo
 # Editor directories and files
 .idea
 .vscode

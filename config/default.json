@@ -22,8 +22,8 @@
       "database": "watsnext"
     },
     "Mediakunst": {
-      "XXXhost": "37.97.234.177",
-      "host": "localhost",
+      "host": "37.97.234.177",
+      "XXXXhost": "localhost",
       "port": 3306,
       "username": "mediakunst",
       "password": "-- set in local.json --",
@@ -100,6 +100,12 @@
     "importRoot": "data",
     "templateRoot": "api/wikipedia/templates"
   },
+  "LoggingServer": {
+  	"url": "https://services.li-ma.nl/log/gelf",
+  	"key": "myL6pkDoS430ZWM92Eg7zl9N9t0wwbgnA5wa2wz9GR6VSLNvjD",
+  	"host": "api.watsnext.nl",
+  	"extra": {}
+  }, 
   "Logging" : [
     {
       "type" : "access",

@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="48" height="57" viewBox="0 0 48 57">
-    <g id="Group_125" data-name="Group 125" transform="translate(-22 -4)">
-        <g id="icon_42_columns" transform="translate(22 4)">
-            <rect id="Rectangle_209" data-name="Rectangle 209" width="48" height="48" fill="none"/>
-            <path id="Path_172" data-name="Path 172" d="M38,12H10V29h9v7H29V23h9ZM11,28V13h8V28Zm17,7H20V13h8Zm9-13H29V13h8Z" fill="#3c3c3c"/>
-        </g>
-        <text id="Sorteer" transform="translate(46 58)" fill="#3c3c3c" font-size="11" font-family="AcuminPro-Regular, Acumin Pro" letter-spacing="0.005em"><tspan x="-18.068" y="0">Sorteer</tspan></text>
-    </g>
-</svg>

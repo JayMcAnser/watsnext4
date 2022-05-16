@@ -76,3 +76,10 @@ defines the root account used by the system. If it does not exist, it will be ge
 
 ### root, password, email
 *self explanatory* (password is plain text!)
+
+## ServerLogging
+defines the server where to log the information to
+* url - (string) the server including the protocol
+* key - (string) the header key to use
+* host - (string) the central host for the stream
+* extra - (object) standard extra parameters send to the server

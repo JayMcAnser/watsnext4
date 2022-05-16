@@ -1,6 +1,11 @@
 
+## 2022-05-16
+- add: import without import (skipping removing bookmarklist)
+- fix: art without creator throws an error
+- add: external gray log server. See doc for config
+
 # 2021-12-23
-- fix: import-mediakunst.js the error when no user is availble
+- fix: import-mediakunst.js the error when no user is available
 
 # 2021-12-14
 - add: jobs to import wikipedia definitions

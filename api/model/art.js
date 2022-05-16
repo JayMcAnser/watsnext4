@@ -32,6 +32,7 @@ const ROLE_CONTRIBUTOR = 'contributor';
 const ROLE_SUBJECT = 'sublect';
 const Config = require('../lib/default-values');
 const Const = require('../lib/const');
+const LoggingServer = require('../lib/logging-server').loggingServer;
 
 const ArtistSchema = new Schema({
   agent: {
@@ -124,7 +125,8 @@ ArtSchema.virtual('creator')
       obj.royaltiesPercentage = this.agents[index].percentage;
       return obj
     };
-    return undefined
+    LoggingServer.error(`the art [${this.artId}] - ${this.title} does not have an creator`, {action: 'data-repair', artId: this.artId, artistCount: this.agents.length})
+    return { agentId: -1, error: 'there is no creator', toString: () => this.error }
   });
 
 ArtSchema.virtual('period')

@@ -1,9 +1,0 @@
-{
-  "baseUrl": "http://localhost:3000",
-  "integrationFolder": "e2e",
-  "pluginsFile": "cypress/plugins/index.js",
-  "supportFile": false,
-  "video": false,
-  "componentFolder": "src",
-  "testFiles": "**/*.spec.{js,jsx,ts,tsx}"
-}

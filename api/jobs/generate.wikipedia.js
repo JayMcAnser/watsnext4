@@ -274,7 +274,16 @@ const processArtistV2 = async function (artist, connection, options = {}) {
         }
         if (!err.isError) {
           wikiBiography = await Wikipedia.merge(json, options.templateFileName, true, options);
+          let docDef = sha1(wikiBiography)
+          if (!artist.sha || docDef !== artist.wikipedia.sha) {
+            artist.wikipedia.doc = wikiBiography;
+            artist.wikipedia.sha = docDef;
+            artist.wikipedia.lastChanged = new Date();
+            artist.wikipedia.status = 'retrieved';
+          }
+          // the image is NOT part of the check
           wikiImageName = json.images && json.images.length ? json.images[0].filename: undefined
+          artist.wikipedia.imageName = wikiImageName;
         }
       }
     } catch (e) {
