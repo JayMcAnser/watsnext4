@@ -16,6 +16,7 @@ const Const = require("../lib/const");
 const Helper = require('../vendors/lib/helper')
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const setRelativePath = require('../vendors/lib/helper').setRelativePath;
+const LoggingServer = require('../lib/logging-server').loggingServer;
 setRelativePath('')
 
 
@@ -39,6 +40,7 @@ Factory.register('session', () => {
  * @return {Promise<*>}
  */
 const jobImportWatsNext = async (options= {}) => {
+
   await init();
   let output = false;
   if (options.output) {
@@ -46,6 +48,7 @@ const jobImportWatsNext = async (options= {}) => {
   }
   let defaults = Object.assign({}, {debug: false, email: 'watsnext@li-ma.nl', password: '123456', count: 9999999, parts: false, output: false}, options)
 
+  await LoggingServer.info(`import:watsnext.start`)
   let user =  await User.findOne({email: defaults.email})
   if (!user) {
     user = await User.create({username:'importer', email: defaults.email, password: defaults.password, isActive: true, rights:[{module: 'system', rights: Const.rights.RIGHTS_ALL}]})
@@ -68,18 +71,23 @@ const jobImportWatsNext = async (options= {}) => {
     // this will remove the existing art works
     if (defaults.parts.indexOf('art') >= 0) {
       await Art.deleteMany({})
+      await LoggingServer.info(`removing art`)
     }
     if (defaults.parts.indexOf('agent') >= 0) {
       await Agent.deleteMany({})
+      await LoggingServer.info(`removing agent`)
     }
     if (defaults.parts.indexOf('carrier') >= 0) {
       await Carrier.deleteMany({})
+      await LoggingServer.info(`removing carrier`)
     }
     if (defaults.parts.indexOf('distribution') >= 0) {
       await Distribution.deleteMany({})
+      await LoggingServer.info(`removing distribution`)
     }
     if (defaults.parts.indexOf('contact') >= 0) {
       await Contact.deleteMany({})
+      await LoggingServer.info(`removing contacts`)
     }
   }
 
@@ -87,7 +95,7 @@ const jobImportWatsNext = async (options= {}) => {
   let logging = undefined;
   if (defaults.debug || output) {
     logging = {
-      log: function(status, message) {
+      log: async function(status, message) {
         if (defaults.debug) {
           switch (defaults.debug) {
             case 1 : // errors
@@ -113,28 +121,39 @@ const jobImportWatsNext = async (options= {}) => {
           output.push({status, message, action: 'continue'})
           // add the converted / errors / warnings to the csv export
         }
+        if (LoggingServer[status]) {
+          await LoggingServer[status](message);
+        } else {
+          console.error(`unknown status: ${status}`);
+          await LoggingServer.error(`unknown status: ${status} - ${message}`);
+        }
       }
     }
   }
   if (defaults.parts.indexOf('art') >= 0) {
     let imp = new ImportArt({session, limit: defaults.count, logging});
     await imp.run(DbMySQL)
+    await LoggingServer.info(`imported art`);
   }
   if (defaults.parts.indexOf('agent') >= 0) {
     let imp = new ImportAgent({session, limit: defaults.count, logging});
     await imp.run(DbMySQL)
+    await LoggingServer.info(`imported agent`);
   }
   if (defaults.parts.indexOf('carrier') >= 0) {
     let imp = new ImportCarrier({session, limit: defaults.count, logging})
     await imp.run(DbMySQL)
+    await LoggingServer.info(`imported carrier`);
   }
   if (defaults.parts.indexOf('distribution') >= 0) {
     let imp = new ImportLocation({session, limit: defaults.count, logging})
     await imp.run(DbMySQL)
+    await LoggingServer.info(`imported distribution`);
   }
   if (defaults.parts.indexOf('contact') >= 0) {
     let imp = new ImportContact({session, limit: defaults.count, logging})
     await imp.run(DbMySQL)
+    await LoggingServer.info(`imported contact`);
   }
   if (output) {
     let filename = Helper.getFullPath(defaults.output, { rootKey: 'Path.logRoot'})
@@ -147,6 +166,7 @@ const jobImportWatsNext = async (options= {}) => {
       ]
     });
     await csvWriter.writeRecords(output);
+    await LoggingServer.info(`import:watsnext.end`)
     return [{status: 'info', message: `log written to ${filename}`}]
   }
   return results

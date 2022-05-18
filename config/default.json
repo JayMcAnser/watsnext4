@@ -105,7 +105,7 @@
   	"key": "myL6pkDoS430ZWM92Eg7zl9N9t0wwbgnA5wa2wz9GR6VSLNvjD",
   	"host": "api.watsnext.nl",
   	"extra": {}
-  }, 
+  },
   "Logging" : [
     {
       "type" : "access",

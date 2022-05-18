@@ -10,6 +10,16 @@ The watsnext interface has many parts. These parts are currently under developme
 All configuration are done by the central config file. The file is in the  **../config** directory. This location is 
 used because the user interface also uses this central configuration.
 
+## Logging - configuration
+The logging can be done to the local logging system or the remote server. In the configuration (**../config**) there are 
+two keys: **Logging** and **LoggingServer**. The **Logging** is the local logging on the server.
+
+### LoggingServer
+The LoggingServer is a GrayLog server and uses the following keys:
+* url - the url of the server to log to, or null / false to stop logging of true to log to the console
+* key - the autorisation key used by the Graylog
+* host - the application sending the message (here: api.watsnext.nl
+* extra - other things to log
 
 
 ## Wikipedia integration  Version 1.0.0
@@ -52,3 +62,27 @@ To import the data needed by mediakunst.net there is a script:
 ```
 This will create a user (email: info@toxus.nl, user: system, pwd: 123456). This user will import all information
 from the watsnext data (configured by the ../config/default.json). This will take a long time on an empty db.
+
+## Jobs
+The job interface handles the scripts to import and convert data for the wikipedia integration
+
+### Sync between wikipedia QID and watsnext ids.
+command:
+```shell
+node job import:wiki -f part.csv
+```
+This command updates the MongoDB with the urls for the known artists. It uses a .CSV file to import the data.
+Standard the files should be relative the **./data** directory, but this can be changed by the setup in the ../config
+definition by the **Path.importRoot** key. The default root is the **../** directory of the API (systemRoot).
+
+The format of the .CSV (comma separated) is:
+* item - the wikipedia url
+* itemLabel - the name of the artist
+* LIMA_media_artist_ID - the id of the artist / agent
+* 
+The format can be change the config in the section **Import.csv** with the keys:
+* delimiter: ",",
+* encoding: "utf8",
+* comment: "#",
+* hasFieldNames: true
+

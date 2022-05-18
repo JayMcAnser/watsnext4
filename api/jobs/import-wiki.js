@@ -13,6 +13,8 @@ const getFullPath = require('../vendors/lib/helper').getFullPath
 const MongoDb = require('../lib/db-mongo');
 const Agent = require("../model/agent");
 const setRelativePath = require('../vendors/lib/helper').setRelativePath;
+const LoggingServer = require('../lib/logging-server').loggingServer;
+
 setRelativePath('')
 // setRootPath(__dirname + '/..')
 /**
@@ -23,6 +25,7 @@ setRelativePath('')
 const importFile = async (filename) => {
   let trueFileName = getFullPath(filename, {rootKey: 'Path.importRoot', noExistsCheck: true})
   if (!trueFileName || !Fs.existsSync(trueFileName)) {
+    await LoggingServer.error(`the file ${filename}  (looked for ${trueFileName}) does not exist`)
     throw new Error(`the file ${filename}  (looked for ${trueFileName}) does not exist`)
   }
   let content = Fs.readFileSync(trueFileName, {encoding: Config.get('Import.csv.encoding')});

@@ -7,6 +7,7 @@ const say = (message) => {
   console.log(message)
 }
 
+const LoggingServer = require('./lib/logging-server').loggingServer;
 
 const sayImport = () => {
   say('version 0.1 dd 2022-01-11')
@@ -89,11 +90,13 @@ switch (options.job) {
         process.exit(0)
       }).catch(e => {
       sayError(`wikipedia retrieve: ${e.message}`)
+      LoggingServer.error(e.message, e)
       process.exit(1)
     })
     break;
   case 'import:wiki':
     const filename = options.file;
+    LoggingServer.info('import:wiki.start')
     if (!filename || ! filename.length) {
       sayError('filename is missing')
       process.exit(1)
@@ -103,12 +106,14 @@ switch (options.job) {
     jobWikiImport(filename,{reset: options.reset, debug: options.debug}).then( (x) => {
       say(`analysed ${x.length} records, ${x.filter(x => x.action === 'changed').length} changes,  ${x.filter(x => x.action === 'not found').length} not found`)
       say('data imported');
+      LoggingServer.info('import:wiki.ended')
       if (options.debug) {
         console.log(x)
       }
       process.exit(0)
-    }).catch(e => {
+    }).catch(async e => {
       sayError(`Import wiki links: ${e.message}`)
+      await LoggingServer.error(e.message, {part: 'import:wiki'})
       process.exit(1)
     })
     break;
@@ -116,15 +121,19 @@ switch (options.job) {
   case 'import:watsnext': {
     const jobWatsNextImport = require('./jobs/import-watsnext').jobImportWatsNext;
     util.promisify(jobWatsNextImport);
+    LoggingServer.info('import:watsnext.start')
     jobWatsNextImport(options).then( (x) => {
       // say(`imported ${x.length} records, ${x.filter(x => x.action === 'changed').length} changes,  ${x.filter(x => x.action === 'not found').length} not found`)
       say('data imported');
+      LoggingServer.info('import:watsnext.ended')
       if (options.debug) {
         console.log(x)
       }
+
       process.exit(0)
-    }).catch(e => {
+    }).catch(async e => {
       sayError(`Import watsnext error: ${e.message}`)
+      await LoggingServer.error(e.message)
       process.exit(1)
     })
     break;
