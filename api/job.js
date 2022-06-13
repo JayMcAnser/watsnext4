@@ -81,60 +81,64 @@ switch (options.job) {
     const jobWikipedia = require('./jobs/generate.wikipedia').jobWikipedia
     util.promisify(jobWikipedia)
 
-    jobWikipedia(options)
-      .then(d => {
-        say(`analysed ${d.length} artist, ${d.filter(x => x.action === 'changed').length} changed, ${d.filter(x => x.status === 'warning').length} warning, ${d.filter(x => x.status === 'error').length} errors`)
-        if (options.debug) {
-          console.log(d)
-        }
-        process.exit(0)
-      }).catch(e => {
-      sayError(`wikipedia retrieve: ${e.message}`)
-      LoggingServer.error(e.message, e)
-      process.exit(1)
-    })
+    LoggingServer.log('generate:wikipedia').then(async() => {
+      jobWikipedia(options)
+        .then(d => {
+          say(`analysed ${d.length} artist, ${d.filter(x => x.action === 'changed').length} changed, ${d.filter(x => x.status === 'warning').length} warning, ${d.filter(x => x.status === 'error').length} errors`)
+          if (options.debug) {
+            console.log(d)
+          }
+          process.exit(0)
+        }).catch(async e => {
+          sayError(`wikipedia retrieve: ${e.message}`)
+          await LoggingServer.error(e.message, e)
+          process.exit(1)
+        })
+    });
     break;
   case 'import:wiki':
     const filename = options.file;
-    LoggingServer.info('import:wiki.start')
     if (!filename || ! filename.length) {
       sayError('filename is missing')
       process.exit(1)
     }
     const jobWikiImport = require('./jobs/import-wiki').jobImportWiki
     util.promisify(jobWikiImport)
-    jobWikiImport(filename,{reset: options.reset, debug: options.debug}).then( (x) => {
-      say(`analysed ${x.length} records, ${x.filter(x => x.action === 'changed').length} changes,  ${x.filter(x => x.action === 'not found').length} not found`)
-      say('data imported');
-      LoggingServer.info('import:wiki.ended')
-      if (options.debug) {
-        console.log(x)
-      }
-      process.exit(0)
-    }).catch(async e => {
-      sayError(`Import wiki links: ${e.message}`)
-      await LoggingServer.error(e.message, {part: 'import:wiki'})
-      process.exit(1)
+    LoggingServer.info('import:wiki.start').then( () => {
+      jobWikiImport(filename,{reset: options.reset, debug: options.debug}).then( async (x) => {
+        say(`analysed ${x.length} records, ${x.filter(x => x.action === 'changed').length} changes,  ${x.filter(x => x.action === 'not found').length} not found`)
+        say('data imported');
+        await LoggingServer.info('import:wiki.ended')
+        if (options.debug) {
+          console.log(x)
+        }
+        process.exit(0)
+      }).catch(async e => {
+        sayError(`Import wiki links: ${e.message}`)
+        await LoggingServer.error(e.message, {part: 'import:wiki'})
+        process.exit(1)
+      })
     })
     break;
 
   case 'import:watsnext': {
     const jobWatsNextImport = require('./jobs/import-watsnext').jobImportWatsNext;
     util.promisify(jobWatsNextImport);
-    LoggingServer.info('import:watsnext.start')
-    jobWatsNextImport(options).then( (x) => {
-      // say(`imported ${x.length} records, ${x.filter(x => x.action === 'changed').length} changes,  ${x.filter(x => x.action === 'not found').length} not found`)
-      say('data imported');
-      LoggingServer.info('import:watsnext.ended')
-      if (options.debug) {
-        console.log(x)
-      }
+    LoggingServer.info('import:watsnext.start').then(() => {
+      jobWatsNextImport(options).then( async (x) => {
+        // say(`imported ${x.length} records, ${x.filter(x => x.action === 'changed').length} changes,  ${x.filter(x => x.action === 'not found').length} not found`)
+        say('data imported');
+       await  LoggingServer.info('import:watsnext.ended')
+        if (options.debug) {
+          console.log(x)
+        }
 
-      process.exit(0)
-    }).catch(async e => {
-      sayError(`Import watsnext error: ${e.message}`)
-      await LoggingServer.error(e.message)
-      process.exit(1)
+        process.exit(0)
+      }).catch(async e => {
+        sayError(`Import watsnext error: ${e.message}`)
+        await LoggingServer.error(e.message)
+        process.exit(1)
+      })
     })
     break;
   }

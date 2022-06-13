@@ -63,6 +63,19 @@ To import the data needed by mediakunst.net there is a script:
 This will create a user (email: info@toxus.nl, user: system, pwd: 123456). This user will import all information
 from the watsnext data (configured by the ../config/default.json). This will take a long time on an empty db.
 
+
+## short run
+To completely rebuild the wikipedia interface use the following commands
+
+```shell
+## import data into the mongo db
+./import-mediakunst.sh
+## import the query.csv (watnext id to wikipedia link
+node job import:wiki -f ../api/data/query.csv
+## import the data into the mediakunst database
+node job generate:wikipedia
+```
+
 ## Jobs
 The job interface handles the scripts to import and convert data for the wikipedia integration
 
@@ -86,3 +99,10 @@ The format can be change the config in the section **Import.csv** with the keys:
 * comment: "#",
 * hasFieldNames: true
 
+### Generate Wikipedia biography in Mediakunst
+command:
+```shell
+node job generate:wikipedia
+```
+The generated HTML fragments are stored in the mySQL database for use in mediakunst.net. This process should run **after**
+the mediakunst import has been done, because it extends the existin data with the biography information.

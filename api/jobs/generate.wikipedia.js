@@ -28,7 +28,8 @@ const Agent = require('../model/agent');
 const Wikipedia = require('../wikipedia');
 const Config = require('config')
 const ImageClass = require('../wikipedia').ImageProcess
-const getFullPath = require('../vendors/lib/helper').getFullPath
+const getFullPath = require('../vendors/lib/helper').getFullPath;
+const LoggingServer= require('../lib/logging-server').loggingServer;
 
 // const setRootPath = require('../vendors/lib/helper').setRootPath
 // setRootPath(__dirname + '/..')
@@ -76,12 +77,15 @@ const jobWikipedia = async (options= {}) =>  {
   } else {
     artistSet = await Agent.find({wikipedia: {$exists: true}})
   }
+  await LoggingServer.info(`generate ${artistSet.length} wikipedia pages`);
   if (options.debug) { debug(`found ${artistSet.length} artists to process`) }
   let template = options.template ? options.template : Config.get('Mediakunst.biographyTemplate')
   options.templateFileName = getFullPath(template, {rootKey: 'Path.templateRoot', noExistsCheck: true, relativeTo: ''})
   if (!Fs.existsSync(options.templateFileName)) {
+    await LoggingServer.error(`the template ${options.templateFileName} does not exist`);
     throw new Error(`the template ${options.templateFileName} does not exist`)
   }
+  await LoggingServer.info(`using template ${options.templateFileName}`);
   if (options.debug) { debug(`using template ${options.templateFileName}`)}
   options.imageProcess = new ArtistImage()
   options.imagePath = getFullPath('', { rootKey: 'Path.imageRoot', noExistsCheck: true})
@@ -93,7 +97,11 @@ const jobWikipedia = async (options= {}) =>  {
       let rotate = ['|','/','-','\\'];
       process.stdout.write(`${rotate[index % 4]} ${index + 1} (name: ${artistSet[index].name})`.padEnd(79, ' ') + '\r');
     }
+
     let result = await processArtistV2(artistSet[index], connections, options)
+    if (result.status === 'stored') {
+      await LoggingServer.info(`generated artist[${artistSet[index].agentId}] - ${artistSet[index].name}`);
+    }
     log.push(result);
   }
   return log
@@ -197,12 +205,13 @@ const storeInMySql = async function(mkArtist, wikiBio, imageFilename = undefined
 }
 
 
-const _setError = function(artist, err, status, message, isError = true) {
+const _setError = async function(artist, err, status, message, isError = true) {
   artist.wikipedia.status = status;
   artist.wikipedia.error = message;
   err.status = status;
   err.message = message
   err.isError = isError;
+  await LoggingServer.warn(`${message} - artist[${artist.agentId}] ${artist.name}`, err);
 }
 /**
  * processing the artist:
@@ -226,7 +235,7 @@ const processArtistV2 = async function (artist, connection, options = {}) {
   let err = {isError: false, status: 'stored', message: ''}
   if (!artist.wikipedia) {
     artist.wikipedia = {}
-    _setError(artist, err, 'wikipedia-missing', 'the wikipedia section is missing')
+    await _setError(artist, err, 'wikipedia-missing', 'the wikipedia section is missing');
   }
   // clear wiki status from artist
   artist.wikipedia.status = '';
@@ -237,7 +246,7 @@ const processArtistV2 = async function (artist, connection, options = {}) {
   if (!err.isError) {
     qId = artist.wikipedia.id;
     if (!qId) {
-      _setError(artist, err,'qid-missing', `artist ${artist.agentId} has no wiki Qid`)
+      await _setError(artist, err,'qid-missing', `artist ${artist.agentId} has no wiki Qid`)
     }
   }
 
@@ -248,7 +257,8 @@ const processArtistV2 = async function (artist, connection, options = {}) {
     let mediakunstId = `artist-${artist.agentId}`;
     mkArtist = await connection.mediakunst.query(`SELECT * FROM doc WHERE guid="${mediakunstId}"`)
     if (mkArtist.length === 0) {
-      _setError(artist, err, 'not-part-of-mediakunst', `the artist ${artist.name} (${mediakunstId}) is not part of mediakunst`)
+      await _setError(artist, err, 'not-part-of-mediakunst', `the artist ${artist.name} (${mediakunstId}) is not part of mediakunst`)
+      mkArtist = false;
     } else {
       mkArtist = mkArtist[0];
     }
@@ -265,12 +275,12 @@ const processArtistV2 = async function (artist, connection, options = {}) {
       // if (debug) { debug(`retrieving ${qId}`)}
       json = await Wikipedia.qIdToJson(qId, artist.name, options);
       if (json.error) {
-        _setError(artist, err, 'no-article', json.error);
+        await _setError(artist, err, 'no-article', json.error);
       } else {
         // validate the biography (size, etc)
         let errMsg = validateBiographyText(json);
         if (errMsg.length > 0) {
-          _setError(artist, err, 'no-valid-bio', errMsg);
+          await _setError(artist, err, 'no-valid-bio', errMsg);
         }
         if (!err.isError) {
           wikiBiography = await Wikipedia.merge(json, options.templateFileName, true, options);
@@ -289,9 +299,9 @@ const processArtistV2 = async function (artist, connection, options = {}) {
     } catch (e) {
       // write the error to the artist record so it can be reconvered
       if (e.message === 'Request failed with status code 404') {
-        _setError(artist, err,'error-not-found', `artist ${artist.agentId} (Qid: ${qId}} does not exist in the Wikipedia`)
+        await _setError(artist, err,'error-not-found', `artist ${artist.agentId} (Qid: ${qId}} does not exist in the Wikipedia`)
       } else {
-        _setError(artist, err, 'error-retrieve', e.message)
+        await _setError(artist, err, 'error-retrieve', e.message)
       }
     }
   }
@@ -305,7 +315,7 @@ const processArtistV2 = async function (artist, connection, options = {}) {
     try {
       mkJson = JSON.parse(mkArtist.data_json);
     } catch (e) {
-      _setError(artist, err, 'doc-error', `artist artist-${artist.agentId} document in mediakunst returns an error`)
+      await _setError(artist, e, 'doc-error', `artist artist-${artist.agentId} document in mediakunst returns an error ${e.message}`)
     }
 
     // store the information
@@ -336,7 +346,7 @@ const processArtistV2 = async function (artist, connection, options = {}) {
           `WHERE ` +
           `id = ${mkArtist.id}`)
       } catch (e) {
-        _setError(artist, err, 'mysql-erro', e.message);
+        await _setError(artist, err, 'mysql-erro', e.message);
       }
     }
   }
