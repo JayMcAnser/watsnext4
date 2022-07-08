@@ -67,7 +67,7 @@ const AgentLayout = Object.assign({
     type: Schema.ObjectId,
     ref: 'Code'
   }],
-  royaltiesError: String,
+//  royaltiesError: String,
 }, AgentExtendLayout);
 
 let AgentSchema = new Schema(AgentLayout);
@@ -158,28 +158,28 @@ AgentSchema.methods.codeSet = function(codes) {
 }
 
 /**
- * validate the royalties definition storing the result in royaltiesError
+ * validate the royalties definition
  *
  * - rule: there should be atleast on contact
  * - rule: total of contact.percentage must be 100
  *
- * @return Boolean true if it valid
+ * @return array of message
  */
 AgentSchema.methods.royaltiesValidate = function() {
   let errors = [];
   if (this.contacts === undefined || this.contacts.length === 0) {
-    errors.push('no contacts defined')
+    errors.push('no contacts defined for this artist')
   } else {
     let perc = 0;
     for (let index = 0; index < this.contacts.length; index++) {
       perc += this.contacts[index].percentage
     }
     if (perc !== 100) {
-      errors.push('total of percentage should be 100%')
+      errors.push('total of artist percentage should be 100%')
     }
   }
-  this.royaltiesError = errors.length ? errors.join('\n') : '';
-  return errors.length === 0
+ // this.royaltiesError = errors.length ? errors.join('\n') : undefined;
+  return errors
 }
 
 

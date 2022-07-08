@@ -189,26 +189,26 @@ describe('model.distribution', () => {
     })
   });
 
-  describe('royalties', () => {
-    let art1;
-    let distr;
-    const DIS_ID = 4;
-    const DIS_CODE = '2000-04'
-    const DIS_ART_TITLE = 'dis.art.4';
-    const DIS_ART_ID = '202';
-
-    const ADDR_ID_1 = 1;
-    const ADDR_ID_2 = 2;
-    before( async () => {
-
-      Contact.deleteOne({addressId: ADDR_ID_1})
-      Contact.deleteOne({addressId: ADDR_ID_2})
-      await Contact.insertMany([
-        { addressId: ADDR_ID_1, type: 'Man', guid:'addr_1', firstName: 'Jay', name: 'McAnser'},
-        { addressId: ADDR_ID_1, type: 'Institution', guid: 'addr_2', name: 'Museum of Modern Art'}
-      ])
-    });
-
-
-  })
+  // describe('royalties', () => {
+  //   let art1;
+  //   let distr;
+  //   const DIS_ID = 4;
+  //   const DIS_CODE = '2000-04'
+  //   const DIS_ART_TITLE = 'dis.art.4';
+  //   const DIS_ART_ID = '202';
+  //
+  //   const ADDR_ID_1 = 1;
+  //   const ADDR_ID_2 = 2;
+  //   before( async () => {
+  //
+  //     Contact.deleteOne({addressId: ADDR_ID_1})
+  //     Contact.deleteOne({addressId: ADDR_ID_2})
+  //     await Contact.insertMany([
+  //       { addressId: ADDR_ID_1, type: 'Man', guid:'addr_1', firstName: 'Jay', name: 'McAnser'},
+  //       { addressId: ADDR_ID_1, type: 'Institution', guid: 'addr_2', name: 'Museum of Modern Art'}
+  //     ])
+  //   });
+  //
+  //
+  // })
 });

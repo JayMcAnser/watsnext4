@@ -148,6 +148,13 @@ const upgradeBuilder = function(name, schema, extraFields) {
   }
 }
 
+const ErrorMessageSchema  = Mongoose.Schema( {
+  type: String,
+  message: String,
+  index: Number,
+  data: Object
+})
+
 module.exports.addObject = addObject;
 module.exports.updateObject = updateObject;
 module.exports.removeObject = removeObject;
@@ -156,3 +163,4 @@ module.exports.addObjectId = addObjectId
 module.exports.removeObjectId = removeObjecId;
 module.exports.setObjectIds = setObjectIds;
 module.exports.upgradeBuilder = upgradeBuilder;
+module.exports.ErrorMessageSchema = ErrorMessageSchema;

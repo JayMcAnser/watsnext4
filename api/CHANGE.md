@@ -1,5 +1,9 @@
 
 
+## 2022-07-06 V4.2.0
+- add: create distribution import structure basics
+- add: test data for the distribution
+-
 
 ## 2022-05-16 V4.1.0
 - add: import without import (skipping removing bookmarklist)

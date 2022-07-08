@@ -6,18 +6,22 @@
 
 const Config = require('config');
 
+const Default = {
+  'royalties.agent.percentage': 60,                // default percentage a artis gets
+  'doc.menu': '[Home](http://localhost:3000/doc/)',
+  'doc.rootUrl': 'http://localhost:3000/doc/'
+
+}
 /**
  *
  * @param key String - a multi level string like: distribution.art.name
  * @param defaultValue - the value if the key is not found
  */
 const getValue = (key, defaultValue) => {
-  // TODO: build a reader for the config
-  switch (key) {
-    case 'doc.menu': return '[Home](http://localhost:3000/doc/)';
-    case 'doc.rootUrl': return 'http://localhost:3000/doc/';
-    default:
-      return defaultValue
+  if (Default.hasOwnProperty(key)) {
+    return Default[key]
+  } else {
+    return defaultValue
   }
 }
 

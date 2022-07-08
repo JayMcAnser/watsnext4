@@ -351,7 +351,7 @@ ArtSchema.methods.urlSet = function(urls) {
  * - rule: art should have an agent
  * - rule: agent. percentage should be less or equal 100
  *
- * @return Boolean True if it's valid
+ * @return array of errors
  */
 ArtSchema.methods.royaltiesValidate = function() {
   let errors = [];
@@ -361,25 +361,25 @@ ArtSchema.methods.royaltiesValidate = function() {
       errors.push('the royalties must be larger the 0')
     }
     if (this.royaltiesPercentage > 100) {
-      errors.push('the max royalties must be less the 100')
+      errors.push('the max royalties must be less or equal 100')
     }
   }
 
   // validate the agent definition
   let percentage = 0;
   if (this.agents === undefined || this.agents.length === 0) {
-    errors.push('no agent found')
+    errors.push('no artist found')
   } else {
     for (let agentIndex = 0; agentIndex < this.agents.length; agentIndex++) {
-      let perc = this.agents[agentIndex].percentage === undefined ? Config.value(Config.royaltiesArtPercentage, 70, 'default percentage for an agent') : this.agents[agentIndex].percentage
+      let perc = this.agents[agentIndex].percentage === undefined ? Config.value('royalties.agent.percentage', 60) : this.agents[agentIndex].percentage
       percentage += perc;
     }
     if (percentage > 100) {
-      errors.push('the percentage is more the 100%')
+      errors.push('the artist percentage is more the 100%')
     }
   }
   this.royaltiesError = errors.length ? errors.join('\n') : ''
-  return errors.length === 0
+  return errors;
 }
 
 
