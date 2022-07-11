@@ -80,8 +80,26 @@ describe('job.distribution', async() => {
       await result.save();
       // reload it from disk and see if all has gone well
       let distStored = await Distribution.findById(data.id);
-      assert.isTrue(distStored.hasRoyaltyErrors)
-    })
+      assert.isTrue(distStored.hasRoyaltyErrors);
+      let a = distStored.royaltyErrors;
+      assert.equal(a.length, 1)
+      assert.equal(a[0].message, 'the artist percentage is more the 100%')
+    });
+
+    it('error - contacts more the 100%', async () => {
+      let data = DataDistribution.DIST_DATA_INDEX[ 'royalties-error-contact-max'];
+      let dist = await Distribution.findById(data.id);
+      let result = await dist.royaltiesCalc();
+      await result.save();
+      // reload it from disk and see if all has gone well
+      let distStored = await Distribution.findById(data.id);
+      assert.isTrue(distStored.hasRoyaltyErrors);
+      let a = distStored.royaltyErrors;
+      assert.equal(a.length, 1)
+      assert.equal(a[0].message, 'total of artist percentage should be 100%')
+
+    });
+
   });
 
 

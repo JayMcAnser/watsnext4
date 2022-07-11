@@ -30,7 +30,12 @@ let ArtistIds = [
   {artistId: 997002, type: 'collective',  contacts: [{addr: 9997001, percentage: 60}, {addr: 9999003, percentage: 40}]},
   {artistId: 997003, type: 'artist', percentage: 65,      contacts: [{addr: 9997003, percentage: 100}]},
   {artistId: 997004, type: 'artist', percentage: 65,      contacts: [{addr: 9997004, percentage: 100}]},
+
+  // error checking
+  {artistId: 998001, type: 'artist',       contacts: [{addr: 9997001, percentage: 110}]},
 ];
+
+
 let ArtIds = [
   {artId: 9998001, royaltiesPercentage: 100,  agents:[{artist: 999001, percentage: 65}] },
   {artId: 9998002, royaltiesPercentage: 0,    agents:[{artist: 999002}] },
@@ -45,6 +50,7 @@ let ArtIds = [
 
   // error - royalties
   {artId: 9996001, agents:[{artist: 997001, percentage: 120}] },
+  {artId: 9996002, agents:[{artist: 998001}] },
 ];
 let CarrierIds = [
   {carrierId: 99997001, art: [{art: 9998001}]}
@@ -77,7 +83,10 @@ let DistributionIds = [
   {distributionId: 99995001, addrInvoice: 9999002, rentalDate: -1, lines: [
       {order: 'a-0', price: 1000, art: 9996001 }]
   },
-
+  // error royalties
+  {distributionId: 99995002, addrInvoice: 9999002, rentalDate: -1, lines: [
+      {order: 'a-0', price: 1000, art: 9996002 }]
+  },
 
   // selecting
   {distributionId: 99986003, addrInvoice: 9999002, rentalDate: -20, lines: [
@@ -102,6 +111,7 @@ const DIST_DATA_INDEX = {
   'royalties-collective': DistributionIds.find( x => x.distributionId === 99996005),
   'royalties-multiline': DistributionIds.find( x => x.distributionId === 99996006),
   'royalties-error-agent-max': DistributionIds.find( x => x.distributionId === 99995001),
+  'royalties-error-contact-max': DistributionIds.find( x => x.distributionId === 99995002),
 }
 
 const addDistribution = async function(session) {

@@ -142,7 +142,6 @@ DistributionSchema.virtual('totalCosts')
  */
 DistributionSchema.virtual('hasRoyaltyErrors')
   .get( function() {
-    let result = 0;
     if (this.lines && this.lines.length) {
       for (let l = 0; l < this.lines.length; l++) {
         if (this.lines[l].royaltiesErrors.length) {
@@ -151,6 +150,18 @@ DistributionSchema.virtual('hasRoyaltyErrors')
       }
     }
     return false;
+  });
+DistributionSchema.virtual('royaltyErrors')
+  .get( function() {
+    let result = [];
+    if (this.lines && this.lines.length) {
+      for (let l = 0; l < this.lines.length; l++) {
+        if (this.lines[l].royaltiesErrors.length) {
+          result.push(...this.lines[l].royaltiesErrors)
+        }
+      }
+    }
+    return result;
   });
 
 
