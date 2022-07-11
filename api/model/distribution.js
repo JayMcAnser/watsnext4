@@ -10,6 +10,7 @@ const UndoHelper = require('mongoose-undo');
 const ModelHelper = require('./model-helper');
 const Art = require('./art');
 const Carrier = require('./carrier');
+const User = require('./user');
 const LoggingServer = require('../lib/logging-server').loggingServer;
 const _ = require('lodash');
 const Util = require('../lib/util');
@@ -60,13 +61,24 @@ const LineSchema = {
   ],
 };
 
+const LockLayout = {
+  isLocked: {type: Boolean},
+  user: {
+    type: Schema.ObjectId,
+    ref: 'User'
+  },
+  date: {type: Date, default: Date.now}
+}
 
 const DistributionExtendLayout = {
   locationId: { type: String}, // the locationId of the DistributionLayout
   exactInvoice: {type: String},
   noRoyalties: {type: Boolean},  // if set to true this contract does not include royalties
 
-  isLocked: {type: Boolean},  // if true the royalties are never recalculated
+  eventEndDate: {type: Date},   // should not have the time part for quering
+
+  isLocked: {type: Boolean},    // if true the royalties are never recalculated
+  lockHistory: [LockLayout],     // history of locking and unlocking
 }
 const DistributionLayout = Object.assign({
   locationId: String,
@@ -91,7 +103,7 @@ const DistributionLayout = Object.assign({
   header: {type: String},
   footer: {type: String},
   eventStartDate: {type: Date}, // should not have the time part for quering
-  eventEndDate: {type: Date},   // idem
+
   comments: {type: String},
   vat: {type: Number},
   productionCosts: {type: Number},
@@ -278,6 +290,40 @@ DistributionSchema.methods.lineCount = function() {
 };
 
 /**
+ * lock the distribution record an remembers who did it
+ * @param session
+ * @return {Promise<void>}
+ */
+DistributionSchema.methods.lockRoyalties = async function(session) {
+  if (!this.isLocked) {
+    this.lockHistory.push({
+      isLocked: true,
+      user: session.user
+    });
+    this.isLocked = true;
+    await this.save();
+  }
+  return this;
+}
+
+DistributionSchema.methods.unlockRoyalties = async function(session) {
+  if (this.isLocked) {
+    this.lockHistory.push({
+      isLocked: false,
+      user: session.user
+    });
+    this.isLocked = false;
+    await this.save();
+  }
+  return this;
+}
+DistributionSchema.virtual('canRoyaltyCalc')
+  .get( function() {
+    return !this.isLocked;
+  });
+
+
+/**
  * calculate all information for the royalties calculation
  * the calculation are store in a per line structure.
  * Errors are stored in royaltiesErrors
@@ -373,6 +419,82 @@ DistributionSchema.methods.royaltiesCalc = async function() {
   return this;
 }
 
+
+// DistributionSchema.static('findRoyaltiesMatch', function(options = {}) {
+//   let qry = {$and: []};
+//   if (options.startDate) {
+//     // qry.$and.push({$eventStartDate: {$gte: {$dateFromString: {dateString: Moment(options.startDate).startOf('day').toISOString()}}}});
+//     qry.$and.push({
+//         '$gte':
+//           {
+//             '$eventStartDate': {
+//               $dateFromString: {dateString: Moment(options.startDate).startOf('day').toISOString()}
+//             }
+//           }
+//       }
+//     )
+//   }
+//   if (options.endDate) {
+//     qry.$and.push({eventStartDate: {$lte: Moment(options.endDate).startOf('day').format()}});
+//   }
+//   if (options.hasOwnProperty('shouldProcess')) {
+//     if (options.shouldProcess) {
+//       qry.$and.push({$or: [{isLocked: false}, {isLocked: {$exists: false}}]})
+//     } else {
+//       qry.$and.push({isLocked: true});
+//     }
+//   }
+//   if (qry.$and.length === 0) {
+//     delete qry.$and;
+//   }
+//   return {$match: qry}
+// })
+
+DistributionSchema.static('findRoyaltiesMatch', function(options = {}) {
+  let expr = {$and: []};
+  if (options.startDate) {
+    expr.$and.push(
+      {
+        $gte: ['$eventStartDate', {"$dateFromString": {"dateString": Moment(options.startDate).startOf('day').toISOString()}}]
+      }
+    )
+  }
+  if (options.endDate) {
+    expr.$and.push(
+      {
+        $lte: ['$eventStartDate', {"$dateFromString": {"dateString": Moment(options.endDate).startOf('day').toISOString()}}]
+      }
+    )
+  }
+  //   // qry.$and.push({$eventStartDate: {$gte: {$dateFromString: {dateString: Moment(options.startDate).startOf('day').toISOString()}}}});
+  //   qry.$and.push({
+  //       '$gte':
+  //         {
+  //           '$eventStartDate': {
+  //             $dateFromString: {dateString: Moment(options.startDate).startOf('day').toISOString()}
+  //           }
+  //         }
+  //     }
+  //   )
+  // }
+  // if (options.endDate) {
+  //   qry.$and.push({eventStartDate: {$lte: Moment(options.endDate).startOf('day').format()}});
+  // }
+  // if (options.hasOwnProperty('shouldProcess')) {
+  //   if (options.shouldProcess) {
+  //     qry.$and.push({$or: [{isLocked: false}, {isLocked: {$exists: false}}]})
+  //   } else {
+  //     qry.$and.push({isLocked: true});
+  //   }
+  // }
+  if (expr.$and.length === 0) {
+    return {$match: {}}
+  } else {
+    return {$match: {$expr: expr}}
+  }
+  // return {$match: qry}
+})
+
 /**
  * retrieve the distribution records,
  * options -
@@ -383,25 +505,27 @@ DistributionSchema.methods.royaltiesCalc = async function() {
  * @return the MongoDb query
  */
 DistributionSchema.static('findRoyalties', function(options = {}) {
-  let qry = {$and: []};
-  if (options.startDate) {
-    qry.$and.push({eventStartDate: {$gte: Moment(options.startDate).startOf('day').format()}});
-  }
-  if (options.endDate) {
-    qry.$and.push({eventStartDate: {$lte: Moment(options.endDate).startOf('day').format()}});
-  }
-  if (options.hasOwnProperty('shouldProcess')) {
-    if (options.shouldProcess) {
-      qry.$and.push({$or: [{isLocked: false}, {isLocked: {$exists: false}}]})
-    } else {
-      qry.$and.push({isLocked: true});
-    }
-  }
-
-  if (qry.$and.length === 0) {
-    delete qry.$and;
-  }
-  return this.find(qry)
+  // let qry = {$and: []};
+  // if (options.startDate) {
+  //   qry.$and.push({eventStartDate: {$gte: Moment(options.startDate).startOf('day').format()}});
+  // }
+  // if (options.endDate) {
+  //   qry.$and.push({eventStartDate: {$lte: Moment(options.endDate).startOf('day').format()}});
+  // }
+  // if (options.hasOwnProperty('shouldProcess')) {
+  //   if (options.shouldProcess) {
+  //     qry.$and.push({$or: [{isLocked: false}, {isLocked: {$exists: false}}]})
+  //   } else {
+  //     qry.$and.push({isLocked: true});
+  //   }
+  // }
+  //
+  // if (qry.$and.length === 0) {
+  //   delete qry.$and;
+  // }
+  // return this.find(qry)
+  let aggr = this.findRoyaltiesMatch(options);
+  return this.aggregate([aggr])
 })
 
 module.exports = Mongoose.Model('Distribution', DistributionSchema);

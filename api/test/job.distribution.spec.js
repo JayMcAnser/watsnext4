@@ -161,21 +161,39 @@ describe('job.distribution', async() => {
         await rec.save();
         assert.isFalse(rec.hasRoyaltyErrors, 'no errors (yet)')
       }
+    });
+
+
+  })
+
+  describe('locking', async() => {
+    it('lock', async() => {
+      let data = DataDistribution.DIST_DATA_INDEX['royalties-artist'];
+      let dist = await Distribution.findById(data.id);
+      assert.isTrue(dist.canRoyaltyCalc)
+      await dist.lockRoyalties(session);
+      dist = await Distribution.findById(data.id);
+      assert.isFalse(!dist.isLocked);
+      assert.equal(dist.lockHistory.length, 1);
+      assert.isTrue(dist.lockHistory[0].isLocked)
+    });
+
+    it('test lock', async() => {
+      let data = DataDistribution.DIST_DATA_INDEX['royalties-artist'];
+      let dist = await Distribution.findById(data.id);
+      assert.isFalse(dist.canRoyaltyCalc)
     })
-    // it('recalc - err error', async() => {
-    //   let index = 0;
-    //   assert.isTrue(!!recs[index].lines[0].art.creator, 'art should have a creator')
-    //   let artist = await Agent.findById(recs[index].lines[0].art.creator);
-    //   assert.isDefined(artist);
-    //   let perc = artist.percentage;
-    //   artist.percentage = 120; // make it to big
-    //   await artist.save();
-    //   let rec = await recs[index].royaltiesCalc();
-    //   await rec.save();
-    //   assert.isTrue(rec.hasRoyaltyErrors, 'the error')
-    //   artist.percentage = perc;
-    //   await artist.save();
-    // })
+
+    it('unlock', async() => {
+      let data = DataDistribution.DIST_DATA_INDEX['royalties-artist'];
+      let dist = await Distribution.findById(data.id);
+      assert.isTrue(dist.isLocked);
+      await dist.unlockRoyalties(session);
+      dist = await Distribution.findById(data.id);
+      assert.isFalse(dist.isLocked);
+      assert.equal(dist.lockHistory.length, 2);
+      assert.isFalse(dist.lockHistory[1].isLocked)
+    });
 
   })
 
