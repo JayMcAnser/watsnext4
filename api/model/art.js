@@ -31,6 +31,7 @@ const ROLE_CREATOR = 'creator';
 const ROLE_CONTRIBUTOR = 'contributor';
 const ROLE_SUBJECT = 'sublect';
 const Config = require('../lib/default-values');
+const Agent = require('./agent');
 const Const = require('../lib/const');
 const LoggingServer = require('../lib/logging-server').loggingServer;
 
@@ -40,7 +41,7 @@ const ArtistSchema = new Schema({
     ref: 'Agent'
   },
   role: String,
-  percentage: Number,
+  percentage: Number, // if undefined the data is copied from agent.percentage to set the default
   comments: String
 });
 
@@ -101,6 +102,19 @@ ModelHelper.upgradeBuilder('ArtExtra', ArtSchema, ArtExtendLayout);
 
 ArtSchema.plugin(UndoHelper.plugin);
 
+
+ArtSchema.pre('save', async function() {
+  // check that every artist has it's percentage set
+  for (let index = 0; index < this.agents.length; index++) {
+    let agent = this.agents[index];
+    if (agent.percentage === undefined) {
+      let artist = await Agent.findById(agent.agent);
+      if (artist) {
+        agent.percentage = artist.percentage;
+      }
+    }
+  }
+})
 
 const _validateSession = function(session) {
   if (session && session.user === undefined) {
@@ -257,9 +271,6 @@ ArtSchema.methods.agentAdd = function(data) {
     if (!dataRec.role) {
       dataRec.role = this.agents.length ? ROLE_CONTRIBUTOR : ROLE_CREATOR;
     }
-    if (!dataRec.percentage) {
-      dataRec.percentage = 0;
-    }
     index = this.agents.length;
     this.agents.push(dataRec);
     this._setCreator(index, data.role === ROLE_CREATOR)
@@ -358,7 +369,7 @@ ArtSchema.methods.royaltiesValidate = function() {
   // validate the art
   if (this.royaltiesPercentage !== undefined) {
     if (this.royaltiesPercentage < 0) {
-      errors.push('the royalties must be larger the 0')
+      errors.push('the royalties must be larger or equal to 0')
     }
     if (this.royaltiesPercentage > 100) {
       errors.push('the max royalties must be less or equal 100')
@@ -371,7 +382,7 @@ ArtSchema.methods.royaltiesValidate = function() {
     errors.push('no artist found')
   } else {
     for (let agentIndex = 0; agentIndex < this.agents.length; agentIndex++) {
-      let perc = this.agents[agentIndex].percentage === undefined ? Config.value('royalties.agent.percentage', 60) : this.agents[agentIndex].percentage
+      let perc = this.agents[agentIndex].percentage;
       percentage += perc;
     }
     if (percentage > 100) {

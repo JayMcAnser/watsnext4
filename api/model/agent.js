@@ -6,6 +6,7 @@ const Mongoose = require('../lib/db-mongo');
 const Schema = Mongoose.Schema;
 const UndoHelper = require('mongoose-undo');
 const ModelHelper = require('./model-helper');
+const Config = require('../lib/default-values');
 
 const ContactSchema = new Schema({
   contact: {
@@ -59,7 +60,7 @@ const AgentLayout = Object.assign({
   born: String,
   bornInCountry: String,
   customerNr: String,
-  percentage: {type: Number},
+  percentage: {type: Number},  // the default royalties for the artist. If undefined Config('royalties.agent.percentage') is used
   contacts: [
     ContactSchema
   ],
@@ -73,6 +74,12 @@ const AgentLayout = Object.assign({
 let AgentSchema = new Schema(AgentLayout);
 ModelHelper.upgradeBuilder('AgentExtra', AgentSchema, AgentExtendLayout);
 AgentSchema.plugin(UndoHelper.plugin);
+
+AgentSchema.pre('save', function() {
+  if (this.percentage === undefined) {
+    this.percentage = Config.value('royalties.agent.percentage', 60)
+  }
+})
 
 AgentSchema.virtual('contact')
   .get(function() {

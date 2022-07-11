@@ -14,6 +14,7 @@ const LoggingServer = require('../lib/logging-server').loggingServer;
 const _ = require('lodash');
 const Util = require('../lib/util');
 const Config = require('../lib/default-values');
+const Moment = require('moment')
 
 
 const RoyaltieSchema  = Mongoose.Schema( {
@@ -31,7 +32,7 @@ const RoyaltieSchema  = Mongoose.Schema( {
   art:  {
     type: Schema.Types.ObjectId,
     ref: 'Art'
-  },
+  }
 })
 
 RoyaltieSchema.virtual('amount').get(function() {
@@ -53,13 +54,19 @@ const LineSchema = {
   },
   // royalties can be to multiple person.
   //isManualRoyalties: Boolean, // if true the calculation of the royalties can not be done
-  royalties: [RoyaltieSchema]
+  royalties: [RoyaltieSchema],
+  royaltiesErrors:  [
+    ModelHelper.ErrorMessageSchema
+  ],
 };
 
 
 const DistributionExtendLayout = {
   locationId: { type: String}, // the locationId of the DistributionLayout
-  exactInvoice: {type: String}
+  exactInvoice: {type: String},
+  noRoyalties: {type: Boolean},  // if set to true this contract does not include royalties
+
+  isLocked: {type: Boolean},  // if true the royalties are never recalculated
 }
 const DistributionLayout = Object.assign({
   locationId: String,
@@ -83,20 +90,14 @@ const DistributionLayout = Object.assign({
   event: {type: String},
   header: {type: String},
   footer: {type: String},
-  eventStartDate: {type: Date},
-  eventEndDate: {type: Date},
+  eventStartDate: {type: Date}, // should not have the time part for quering
+  eventEndDate: {type: Date},   // idem
   comments: {type: String},
   vat: {type: Number},
   productionCosts: {type: Number},
   shippingCosts: {type: Number},
   otherCosts: {type: Number},
   otherCostsText: {type: String},
-  // error when calculating the royalties[
-  noRoyalties: {type: Boolean},  // if set to true this contract does not include royalties
-  royaltiesErrors:  [
-    ModelHelper.ErrorMessageSchema
-  ],
-
   // for the undo definition
   created: UndoHelper.createSchema,
   lines: [LineSchema],
@@ -106,6 +107,7 @@ let DistributionSchema = new Schema(DistributionLayout);
 ModelHelper.upgradeBuilder('DistributionExtra', DistributionSchema, DistributionExtendLayout)
 
 DistributionSchema.plugin(UndoHelper.plugin);
+
 
 DistributionSchema.virtual('subTotalCosts')
   .get( function() {
@@ -119,6 +121,7 @@ DistributionSchema.virtual('subTotalCosts')
     }
     return result;
 });
+
 DistributionSchema.virtual('totalCosts')
   .get( function() {
     let result = this.subTotalCosts;
@@ -135,9 +138,34 @@ DistributionSchema.virtual('totalCosts')
   });
 
 /**
+ * check if there is an error in the royaties
+ */
+DistributionSchema.virtual('hasRoyaltyErrors')
+  .get( function() {
+    let result = 0;
+    if (this.lines && this.lines.length) {
+      for (let l = 0; l < this.lines.length; l++) {
+        if (this.lines[l].royaltiesErrors.length) {
+          return true;
+        }
+      }
+    }
+    return false;
+  });
+
+
+/**
  * fill in the default contacts if none is given
  */
 DistributionSchema.pre('save', async function() {
+  if (this.eventStartDate) {
+    this.eventStartDate = Moment(this.eventStartDate).startOf('date');
+  }
+  if (this.eventEndDate) {
+    this.eventEndDate = Moment(this.eventEndDate).startOf('date');
+  }
+
+
   if (this.contact && ! this.invoice) {
     this.invoice = this.contact;
   }
@@ -246,13 +274,14 @@ DistributionSchema.methods.lineCount = function() {
  * information should be saved afterwards
  */
 DistributionSchema.methods.royaltiesCalc = async function() {
-  this.royaltiesErrors = [];
+  if (this.isLocked) {
+    return this;
+  }
+ // this.royaltiesErrors = [];
   for (let indexLine = 0; indexLine < this.lines.length; indexLine++) {
     let line = this.lines[indexLine];
-    if (this.noRoyalties) {
-      line.royalties = [];
-    } else {
-      line.royalties = [];
+    line.royalties = [];
+    if (!this.noRoyalties) {
       // let artPercentage = 0;
       let agentPercentage = 0;
       let contactPercentage = 0;
@@ -269,7 +298,7 @@ DistributionSchema.methods.royaltiesCalc = async function() {
           // the percentage is
           let valid = art.royaltiesValidate()
           if (valid.length > 0) {
-            this.royaltiesErrors.push({type: 'error', message: valid.join('\n'), data: valid, index: indexLine})
+            line.royaltiesErrors.push({type: 'error', message: valid.join('\n'), data: valid, index: indexLine})
             continue; // can not compute this line
           }
           // the default percentage can be overrule by the art work. if its 0 or undefined artPercentage is not used
@@ -282,7 +311,7 @@ DistributionSchema.methods.royaltiesCalc = async function() {
             if (agent) {
               let valid = agent.royaltiesValidate();
               if (valid.length > 0) {
-                this.royaltiesErrors.push({type: 'error', message: valid.join('\n'), data: valid, index: indexAgent})
+                line.royaltiesErrors.push({type: 'error', message: valid.join('\n'), data: valid, index: indexAgent})
                 continue; // don't do anything else
               }
               // the percentage is defined in by the agent, but can be overruled by the artwork
@@ -305,32 +334,63 @@ DistributionSchema.methods.royaltiesCalc = async function() {
                       // now finaly store the royalties record
                       line.royalties.push(royalty);
                     } else {
-                      this.royaltiesErrors.push({type: 'error', message: 'contact not found', index: indexContact})
+                      line.royaltiesErrors.push({type: 'error', message: 'contact not found', index: indexContact})
                     }
                   }
                 }
               }
             } else {
-              this.royaltiesErrors.push({type: 'error', message: 'artist not found', index: indexAgent})
+              line.royaltiesErrors.push({type: 'error', message: 'artist not found', index: indexAgent})
             }
           }
         } else {
-          this.royaltiesErrors.push({type: 'error', message: 'art not found', index: indexLine})
+          line.royaltiesErrors.push({type: 'error', message: 'art not found', index: indexLine})
         }
         // validate the royalties
         // if (royalty.artPercentage > 100) {
         //   errors.push(`line ${indexLine}: art percentage is large then 100`)
         // }
         if (agentPercentage > 100) {
-          this.royaltiesErrors.push({type: 'error', message: `the total agent percentage is to much. (${agentPercentage}%`})
+          line.royaltiesErrors.push({type: 'error', message: `the total agent percentage is to much. (${agentPercentage}%`})
         }
         if (contactPercentage > 100) {
-          this.royaltiesErrors.push({type: 'error', message: `the total contact percentage is to much. (${contactPercentage}%`})
+          line.royaltiesErrors.push({type: 'error', message: `the total contact percentage is to much. (${contactPercentage}%`})
         }
       }
     }
   }
   return this;
 }
+
+/**
+ * retrieve the distribution records,
+ * options -
+ *   - startDate: first date that is included (default: all)
+ *   - endDate: last date the is included (default: today)
+ *   - shouldProcess: the royalties should still be process, or where already processed
+ *
+ * @return the MongoDb query
+ */
+DistributionSchema.static('findRoyalties', function(options = {}) {
+  let qry = {$and: []};
+  if (options.startDate) {
+    qry.$and.push({eventStartDate: {$gte: Moment(options.startDate).startOf('day').format()}});
+  }
+  if (options.endDate) {
+    qry.$and.push({eventStartDate: {$lte: Moment(options.endDate).startOf('day').format()}});
+  }
+  if (options.hasOwnProperty('shouldProcess')) {
+    if (options.shouldProcess) {
+      qry.$and.push({$or: [{isLocked: false}, {isLocked: {$exists: false}}]})
+    } else {
+      qry.$and.push({isLocked: true});
+    }
+  }
+
+  if (qry.$and.length === 0) {
+    delete qry.$and;
+  }
+  return this.find(qry)
+})
 
 module.exports = Mongoose.Model('Distribution', DistributionSchema);

@@ -6,21 +6,45 @@ const Contact = require('../../model/contact');
 const Art = require('../../model/art');
 const Carrier = require('../../model/carrier');
 const Distribution = require('../../model/distribution');
+const Moment = require('moment');
 
 let AddressIds = [
   {addrId: 9999001, name: 'artist-1'},
   {addrId: 9999002, name: 'contract-1'},
-  {addrId: 9999003, name: 'location-1'}
+  {addrId: 9999003, name: 'location-1'},
+  {addrId: 9999004, name: 'artist-2'},
+
+  // selecting
+  {addrId: 9997001, name: 'artist-1'},
+  {addrId: 9997002, name: 'contract-1'},
+  {addrId: 9997003, name: 'location-1'},
+  {addrId: 9997004, name: 'artist-2'}
 ];
 let ArtistIds = [
-  {artistId: 9999001, type: 'artist', percentage: 60, contacts: [{addr: 9999001, percentage: 100}]},
-  {artistId: 999002, type: 'collective', percentage: 60, contacts: [{addr: 9999001, percentage: 60}, {addr: 9999003, percentage: 40}]},
-  {artistId: 999003, type: 'artist', percentage: 60, contacts: [{addr: 9999003, percentage: 100}]},
+  {artistId: 999001, type: 'artist', contacts: [{addr: 9999001, percentage: 100}]},
+  {artistId: 999002, type: 'collective', contacts: [{addr: 9999001, percentage: 60}, {addr: 9999003, percentage: 40}]},
+  {artistId: 999003, type: 'artist', percentage: 65, contacts: [{addr: 9999003, percentage: 100}]},
+  {artistId: 999004, type: 'artist', percentage: 65, contacts: [{addr: 9999004, percentage: 100}]},
+
+  {artistId: 997001, type: 'artist',       contacts: [{addr: 9997001, percentage: 100}]},
+  {artistId: 997002, type: 'collective',  contacts: [{addr: 9997001, percentage: 60}, {addr: 9999003, percentage: 40}]},
+  {artistId: 997003, type: 'artist', percentage: 65,      contacts: [{addr: 9997003, percentage: 100}]},
+  {artistId: 997004, type: 'artist', percentage: 65,      contacts: [{addr: 9997004, percentage: 100}]},
 ];
 let ArtIds = [
-  {artId: 9998001, royaltiesPercentage: 100, agents:[{artist: 9999001, percentage: 100}] },
-  {artId: 9998002, royaltiesPercentage: 0, agents:[{artist: 999002, percentage: 100}] },
-  {artId: 9998003, royaltiesPercentage: 0, agents:[{artist: 999002, percentage: 100}] }
+  {artId: 9998001, royaltiesPercentage: 100,  agents:[{artist: 999001, percentage: 65}] },
+  {artId: 9998002, royaltiesPercentage: 0,    agents:[{artist: 999002}] },
+  {artId: 9998003, royaltiesPercentage: 0,    agents:[{artist: 999003}] },
+  {artId: 9998004, royaltiesPercentage: 0,    agents:[{artist: 999003}] },
+
+  // selecting
+  {artId: 9997001, royaltiesPercentage: 100,  agents:[{artist: 997001}] },
+  {artId: 9997002, royaltiesPercentage: 0,    agents:[{artist: 997002}] },
+  {artId: 9997003, royaltiesPercentage: 0,    agents:[{artist: 997003}] },
+  {artId: 9997004, royaltiesPercentage: 0,    agents:[{artist: 997003, percentage: 100}] },
+
+  // error - royalties
+  {artId: 9996001, agents:[{artist: 997001, percentage: 120}] },
 ];
 let CarrierIds = [
   {carrierId: 99997001, art: [{art: 9998001}]}
@@ -28,23 +52,56 @@ let CarrierIds = [
 
 let DistributionIds = [
   // checks for data integrety
-  {distributionId: 99996002, addrInvoice: 9999002, lines: [
-      {order: 'a-0', price: 1000, artIndex:0 }]
+  {distributionId: 99996001, addrInvoice: 9999002, rentalDate: -1, lines: [
+      {order: 'a-0', price: 1000, art: 9998001 }]
   },
-  {distributionId: 99996001, addrInvoice: 9999002, lines: [
+  {distributionId: 99996002, addrInvoice: 9999002, rentalDate: -1, lines: [
       {order: 'a-0', price: 1000, carrierIndex:0 }]
   },
-  {distributionId: 99996003, addrInvoice: 9999002, lines: [
-      {order: 'a-0', price: 1000, art: 9998002 }]
+  {distributionId: 99996003, addrInvoice: 9999002, rentalDate: -1, lines: [
+      {order: 'a-0', price: 200, art: 9998003 }]
   },
-  {distributionId: 99996003, addrInvoice: 9999002, lines: [
+  {distributionId: 99996004, addrInvoice: 9999002, rentalDate: -1, lines: [
       {order: 'a-0', price: 1000, art: 9998002 },
       {order: 'a-0', price: 1000, art: 9998003 }]
+  },
+  {distributionId: 99996005, addrInvoice: 9999002, rentalDate: -1, lines: [
+      {order: 'a-0', price: 200, art: 9998002 }]
+  },
+  {distributionId: 99996006, addrInvoice: 9999002, rentalDate: -10, lines: [
+      {order: 'a-0', price: 200, art: 9998003 },
+      {order: 'a-1', price: 400, art: 9998004 }
+    ],
+  },
+  // error royalties
+  {distributionId: 99995001, addrInvoice: 9999002, rentalDate: -1, lines: [
+      {order: 'a-0', price: 1000, art: 9996001 }]
+  },
+
+
+  // selecting
+  {distributionId: 99986003, addrInvoice: 9999002, rentalDate: -20, lines: [
+      {order: 'a-0', price: 200, art: 9998003 }]
+  },
+  {distributionId: 99986004, addrInvoice: 9999002, rentalDate: -20, lines: [
+      {order: 'a-0', price: 1000, art: 9998002 },
+      {order: 'a-0', price: 1000, art: 9998003 }]
+  },
+  {distributionId: 99986005, addrInvoice: 9999002, rentalDate: -20, lines: [
+      {order: 'a-0', price: 200, art: 9998002 }]
+  },
+  {distributionId: 99986006, addrInvoice: 9999002, rentalDate: -20, lines: [
+      {order: 'a-0', price: 200, art: 9998003 },
+      {order: 'a-1', price: 400, art: 9998004 }
+    ],
   },
 ]
 
 const DIST_DATA_INDEX = {
-  'royalties-artist': 2
+  'royalties-artist': DistributionIds.find( x => x.distributionId === 99996003),
+  'royalties-collective': DistributionIds.find( x => x.distributionId === 99996005),
+  'royalties-multiline': DistributionIds.find( x => x.distributionId === 99996006),
+  'royalties-error-agent-max': DistributionIds.find( x => x.distributionId === 99995001),
 }
 
 const addDistribution = async function(session) {
@@ -71,17 +128,20 @@ const addDistribution = async function(session) {
     ArtistIds[index].id = artist._id
   }
 
+  // --- the artworks
   for (let index = 0; index < ArtIds.length; index++) {
     let art = await Art.create(session, { artId: ArtIds[index].artId, title: `art.${ArtIds[index].artId}`, type: 'video', royaltiesPercentage: ArtIds[index].royaltiesPercentage})
     for (let agIndex = 0; agIndex < ArtIds[index].agents.length; agIndex++) {
       // let cIndex = ArtIds[index].agents[agIndex].index;
       let artist = ArtistIds.find(ar => ar.artistId === ArtIds[index].agents[agIndex].artist)
-      art.agents.push({agent: artist.id, percentage: ArtIds[index].royaltiesPercentage, role: 'creator' })
+      // art.agentAdd({agent: artist.id});
+      art.agents.push({agent: artist.id, percentage:  ArtIds[index].agents[agIndex].percentage})
     }
     await art.save();
     ArtIds[index].id = art.id;
   }
 
+  // the carriers
   for (let index = 0; index < CarrierIds.length; index++) {
     let carrier = await Carrier.create(session, { carrierId: CarrierIds[index].carrierId, type: 'file'})
     for (let aIndex = 0; aIndex < CarrierIds[index].art.length; aIndex++) {
@@ -93,9 +153,10 @@ const addDistribution = async function(session) {
     CarrierIds[index].id = carrier._id;
   }
 
+  // --- the distribution
   for (let index = 0; index < DistributionIds.length; index++) {
     let invAddr = AddressIds.find( x => x.addrId === DistributionIds[index].addrInvoice);
-    let distr = await Distribution.create(session, {locationId: DistributionIds[index].distributionId, event: `event.${DistributionIds[index].distributionId}`, invoice: invAddr.id});
+    let distr = await Distribution.create(session, {locationId: DistributionIds[index].distributionId, event: `event.${DistributionIds[index].distributionId}`, invoice: invAddr.id, eventStartDate: Moment().add(DistributionIds[index].rentalDate, 'days' )});
     for (let lineIndex = 0; lineIndex < DistributionIds[index].lines.length; lineIndex++) {
       let line = DistributionIds[index].lines[lineIndex]
       if (line.artIndex !== undefined) {
