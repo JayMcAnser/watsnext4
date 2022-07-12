@@ -77,7 +77,7 @@ const DistributionExtendLayout = {
 
   eventEndDate: {type: Date},   // should not have the time part for quering
 
-  isLocked: {type: Boolean},    // if true the royalties are never recalculated
+  isLocked: {type: Boolean, default: false},    // if true the royalties are never recalculated
   lockHistory: [LockLayout],     // history of locking and unlocking
 }
 const DistributionLayout = Object.assign({
@@ -465,6 +465,16 @@ DistributionSchema.static('findRoyaltiesMatch', function(options = {}) {
         $lte: ['$eventStartDate', {"$dateFromString": {"dateString": Moment(options.endDate).startOf('day').toISOString()}}]
       }
     )
+  }
+  if (options.hasOwnProperty('shouldProcess')) {
+    if (options.shouldProcess) {
+      //qry.$and.push({$or: [{isLocked: false}, {isLocked: {$exists: false}}]})
+      // expr.$and.push({$or: [{$eq: [{isLocked: false}, {isLocked: {$gt: null}}]}]})
+      expr.$and.push({$eq: ['$isLocked', false]})
+    } else {
+      // qry.$and.push({isLocked: true});
+      expr.$and.push({$eq: ['$isLocked', true]})
+    }
   }
   //   // qry.$and.push({$eventStartDate: {$gte: {$dateFromString: {dateString: Moment(options.startDate).startOf('day').toISOString()}}}});
   //   qry.$and.push({
