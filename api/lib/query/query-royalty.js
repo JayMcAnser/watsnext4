@@ -46,8 +46,9 @@ class QueryRoyalty extends QueryBuilder {
       config.shouldProcess = !!req.query.process
     }
     let a = this.aggregate(req.query);
-    let recs = Distribution.findRoyalties(config)
-      .aggregate(this.aggregate(req.query));
+    let match = Distribution.findRoyaltiesMatch(config);
+    a.push(match);
+    let recs = await Distribution .aggregate(a);
     return recs;
 
   }

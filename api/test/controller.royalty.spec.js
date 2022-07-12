@@ -48,17 +48,19 @@ describe('controller.royalties', async() => {
     let count = 0;
     let QUERY = {start: Moment().subtract(21, 'day').toISOString(), end: new Moment().subtract('19', 'days').toISOString()};
 
-    it('active', async() => {
+    it('all', async() => {
       return chai.request(server)
         .get('/royalty/list')
         .set('authorization', `bearer ${TOKEN}`)
         .then((result) => {
           assert.equal(result.status, 200);
+          assert.isUndefined(result.body.errors)
           assert.isTrue(result.body.data.length > 1);
           count = result.body.data.length;
         })
     });
-    it('interval', async () => {
+
+    it('range', async () => {
       return chai.request(server)
         .get('/royalty/list')
         .set('authorization', `bearer ${TOKEN}`)

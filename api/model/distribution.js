@@ -476,33 +476,11 @@ DistributionSchema.static('findRoyaltiesMatch', function(options = {}) {
       expr.$and.push({$eq: ['$isLocked', true]})
     }
   }
-  //   // qry.$and.push({$eventStartDate: {$gte: {$dateFromString: {dateString: Moment(options.startDate).startOf('day').toISOString()}}}});
-  //   qry.$and.push({
-  //       '$gte':
-  //         {
-  //           '$eventStartDate': {
-  //             $dateFromString: {dateString: Moment(options.startDate).startOf('day').toISOString()}
-  //           }
-  //         }
-  //     }
-  //   )
-  // }
-  // if (options.endDate) {
-  //   qry.$and.push({eventStartDate: {$lte: Moment(options.endDate).startOf('day').format()}});
-  // }
-  // if (options.hasOwnProperty('shouldProcess')) {
-  //   if (options.shouldProcess) {
-  //     qry.$and.push({$or: [{isLocked: false}, {isLocked: {$exists: false}}]})
-  //   } else {
-  //     qry.$and.push({isLocked: true});
-  //   }
-  // }
   if (expr.$and.length === 0) {
     return {$match: {}}
   } else {
     return {$match: {$expr: expr}}
   }
-  // return {$match: qry}
 })
 
 /**
@@ -515,25 +493,6 @@ DistributionSchema.static('findRoyaltiesMatch', function(options = {}) {
  * @return the MongoDb query
  */
 DistributionSchema.static('findRoyalties', function(options = {}) {
-  // let qry = {$and: []};
-  // if (options.startDate) {
-  //   qry.$and.push({eventStartDate: {$gte: Moment(options.startDate).startOf('day').format()}});
-  // }
-  // if (options.endDate) {
-  //   qry.$and.push({eventStartDate: {$lte: Moment(options.endDate).startOf('day').format()}});
-  // }
-  // if (options.hasOwnProperty('shouldProcess')) {
-  //   if (options.shouldProcess) {
-  //     qry.$and.push({$or: [{isLocked: false}, {isLocked: {$exists: false}}]})
-  //   } else {
-  //     qry.$and.push({isLocked: true});
-  //   }
-  // }
-  //
-  // if (qry.$and.length === 0) {
-  //   delete qry.$and;
-  // }
-  // return this.find(qry)
   let aggr = this.findRoyaltiesMatch(options);
   return this.aggregate([aggr])
 })
