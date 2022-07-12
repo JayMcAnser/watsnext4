@@ -11,6 +11,7 @@ const Distribution = require('../model/distribution');
 const assert = chai.assert;
 const Moment = require('moment');
 const Agent = require('../model/agent');
+const {asyncConfig} = require("config/async");
 
 
 describe('job.distribution', async() => {
@@ -28,6 +29,7 @@ describe('job.distribution', async() => {
       let data = DataDistribution.DIST_DATA_INDEX['royalties-artist'];
       let dist = await Distribution.findById(data.id);
       assert.equal(dist.locationId, data.distributionId);
+      assert.isUndefined(dist.lines[0].artist, 'filled in by the calculation')
       let result = await dist.royaltiesCalc();
       await result.save();
       // reload it from disk and see if all has gone well
@@ -37,6 +39,7 @@ describe('job.distribution', async() => {
       assert.isDefined(distStored.lines[0].royalties);
       assert.equal(distStored.lines[0].royalties.length, 1, 'only the artist');
       assert.equal(distStored.lines[0].royalties[0].amount, 130)
+      assert.isDefined(dist.lines[0].agent)
     });
 
     it('distribution.royaltiesCalc - one line, one collective, 2 contact', async() => {
@@ -83,7 +86,7 @@ describe('job.distribution', async() => {
       assert.isTrue(distStored.hasRoyaltyErrors);
       let a = distStored.royaltyErrors;
       assert.equal(a.length, 1)
-      assert.equal(a[0].message, 'the artist percentage is more the 100%')
+      assert.equal(a[0].message, 'the max royalties must be less or equal 100')
     });
 
     it('error - contacts more the 100%', async () => {
@@ -99,9 +102,28 @@ describe('job.distribution', async() => {
       assert.equal(a[0].message, 'total of artist percentage should be 100%')
 
     });
-
   });
 
+  // describe('populate', async() =>  {
+  //   it('lines.artist', async() => {
+  //     let data = DataDistribution.DIST_DATA_INDEX['royalties-multiline'];
+  //     let qry = [
+  //       {$match: {$expr: {$eq: ["$_id", {"$toObjectId": data.id}]}}},
+  //       {$lookup: {
+  //         from: "arts",
+  //         localField: "lines.art",
+  //         foreignField: "_id",
+  //         as: "artworks"
+  //       }}
+  //     ];
+  //     let dist = await Distribution.aggregate(qry);
+  //     assert.equal(dist.length, 1, 'found it');
+  //     // it should be calculated
+  //
+  //
+  //
+  //   })
+  // })
 
   describe('selection', async() => {
     let cnt = 0;
@@ -127,10 +149,11 @@ describe('job.distribution', async() => {
       let recs = await Distribution.findRoyalties()
       let cnt = recs.length;
 
-      let rec = await Distribution.findById(DataDistribution.DistributionIds[0].id);
-      assert.isDefined(rec);
-      rec.isLocked = true;
-      await rec.save();
+      let dist = await Distribution.findById(DataDistribution.DistributionIds[0].id);
+      assert.isDefined(dist);
+      await dist.lockRoyalties(session);
+      // same but dirty: rec.isLocked = true;
+      // await rec.save();
 
       recs = await Distribution.findRoyalties({shouldProcess: true})
       assert.isTrue(recs.length < cnt, 'should be removed');
@@ -139,8 +162,9 @@ describe('job.distribution', async() => {
       assert.equal(recs.length, 1);
 
       // clean it again
-      rec.isLocked = undefined;
-      await rec.save();
+      await dist.unlockRoyalties(session);
+      // --> same but dirty rec.isLocked = undefined;
+      // await rec.save();
     })
   });
 

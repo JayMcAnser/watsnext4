@@ -60,7 +60,7 @@ describe('controller.royalties', async() => {
         })
     });
 
-    it('range', async () => {
+    it('query', async () => {
       return chai.request(server)
         .get('/royalty/list')
         .set('authorization', `bearer ${TOKEN}`)
@@ -68,6 +68,83 @@ describe('controller.royalties', async() => {
         .then((result) => {
           assert.equal(result.status, 200);
           assert.equal(result.body.data.length, 4);
+        })
+    })
+  })
+
+  describe('sorting', async() => {
+    it ('run limited - ok', async() => {
+      let QUERY = {start: Moment().subtract(21, 'day').toISOString(), end: new Moment().subtract('19', 'days').toISOString(),
+        sort: 'event'
+      };
+      let order = [];
+      return chai.request(server)
+        .get('/royalty/recalc')
+        .set('authorization', `bearer ${TOKEN}`)
+        .query(QUERY)
+        .then((result) => {
+          assert.equal(result.status, 200);
+          assert.equal(result.body.data.count, 4);
+          assert.isString(result.body.data.recIds[0].id)
+          assert.equal(result.body.data.recIds[0].status, 'ok')
+          order = result.body.data.recIds;
+          QUERY.sort = 'event.rev'; // reverse the order
+          return chai.request(server)
+            .get('/royalty/recalc')
+            .set('authorization', `bearer ${TOKEN}`)
+            .query(QUERY)
+            .then((result) => {
+              assert.equal(result.status, 200);
+              assert.equal(result.body.data.count, 4);
+              assert.equal(result.body.data.recIds[0].id, order[3].id, 'the first will be the last')
+            })
+        })
+    })
+  })
+
+  describe('recalc', async() => {
+    it ('run limited - ok', async() => {
+      let QUERY = {start: Moment().subtract(21, 'day').toISOString(), end: new Moment().subtract('19', 'days').toISOString()};
+      return chai.request(server)
+        .get('/royalty/recalc')
+        .set('authorization', `bearer ${TOKEN}`)
+        .query(QUERY)
+        .then((result) => {
+          assert.equal(result.status, 200);
+          assert.equal(result.body.data.count, 4);
+          assert.isString(result.body.data.recIds[0].id)
+          assert.equal(result.body.data.recIds[0].status, 'ok')
+        })
+    })
+
+    it ('run limited - calc error', async() => {
+      let QUERY = {start: Moment().subtract(31, 'day').toISOString(), end: new Moment().subtract('29', 'days').toISOString()};
+      return chai.request(server)
+        .get('/royalty/recalc')
+        .set('authorization', `bearer ${TOKEN}`)
+        .query(QUERY)
+        .then((result) => {
+          assert.equal(result.status, 200);
+          assert.equal(result.body.data.count, 2);
+          assert.isString(result.body.data.recIds[0].id)
+          assert.equal(result.body.data.recIds[0].status, 'error')
+          assert.equal(result.body.data.recIds[0].errors[0].message, 'the artist percentage is more the 100%')
+        })
+    });
+  })
+
+  describe('artists', async() => {
+    it ('list', async() => {
+      let QUERY = {start: Moment().subtract(21, 'day').toISOString(), end: new Moment().subtract('19', 'days').toISOString()};
+      return chai.request(server)
+        .get('/royalty/artists')
+        .set('authorization', `bearer ${TOKEN}`)
+        .query(QUERY)
+        .then((result) => {
+          assert.equal(result.status, 200);
+          // assert.equal(result.body.data.count, 4);
+          // assert.isString(result.body.data.recIds[0].id)
+          // assert.equal(result.body.data.recIds[0].status, 'ok')
         })
     })
   })

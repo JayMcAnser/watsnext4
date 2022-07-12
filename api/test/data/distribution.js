@@ -32,12 +32,13 @@ let ArtistIds = [
   {artistId: 997004, type: 'artist', percentage: 65,      contacts: [{addr: 9997004, percentage: 100}]},
 
   // error checking
-  {artistId: 998001, type: 'artist',       contacts: [{addr: 9997001, percentage: 110}]},
+  {artistId: 998001, type: 'artist', contacts: [{addr: 9997001}]},                  // ok artist
+  {artistId: 998002, type: 'artist', contacts: [{addr: 9997001, percentage: 110}]}, // to much for the contact
 ];
 
 
 let ArtIds = [
-  {artId: 9998001, royaltiesPercentage: 100,  agents:[{artist: 999001, percentage: 65}] },
+  {artId: 9998001, royaltiesPercentage: 100,  agents:[{artist: 999001}] },
   {artId: 9998002, royaltiesPercentage: 0,    agents:[{artist: 999002}] },
   {artId: 9998003, royaltiesPercentage: 0,    agents:[{artist: 999003}] },
   {artId: 9998004, royaltiesPercentage: 0,    agents:[{artist: 999003}] },
@@ -46,14 +47,15 @@ let ArtIds = [
   {artId: 9997001, royaltiesPercentage: 100,  agents:[{artist: 997001}] },
   {artId: 9997002, royaltiesPercentage: 0,    agents:[{artist: 997002}] },
   {artId: 9997003, royaltiesPercentage: 0,    agents:[{artist: 997003}] },
-  {artId: 9997004, royaltiesPercentage: 0,    agents:[{artist: 997003, percentage: 100}] },
+  {artId: 9997004, royaltiesPercentage: 0,    agents:[{artist: 997003}] },
 
   // error - royalties
-  {artId: 9996001, agents:[{artist: 997001, percentage: 120}] },
-  {artId: 9996002, agents:[{artist: 998001}] },
+  {artId: 9996001, agents:[{artist: 998001}], royaltiesPercentage: 110,  }, // to much for the art
+  {artId: 9996002, agents:[{artist: 998002}]},                              // to much for the contact
+
 ];
 let CarrierIds = [
-  {carrierId: 99997001, art: [{art: 9998001}]}
+  {carrierId: 99997001, art: [{art: 9996001}]}
 ]
 
 let DistributionIds = [
@@ -80,13 +82,14 @@ let DistributionIds = [
     ],
   },
   // error royalties
-  {distributionId: 99995001, addrInvoice: 9999002, rentalDate: -1, lines: [
+  // artwork has to much royalties
+  {distributionId: 99995001, addrInvoice: 9999001, rentalDate: -30, lines: [
       {order: 'a-0', price: 1000, art: 9996001 }]
   },
-  // error royalties
-  {distributionId: 99995002, addrInvoice: 9999002, rentalDate: -1, lines: [
+  {distributionId: 99995002, addrInvoice: 9999001, rentalDate: -30, lines: [
       {order: 'a-0', price: 1000, art: 9996002 }]
   },
+
 
   // selecting
   {distributionId: 99986003, addrInvoice: 9999002, rentalDate: -20, lines: [
@@ -145,7 +148,8 @@ const addDistribution = async function(session) {
       // let cIndex = ArtIds[index].agents[agIndex].index;
       let artist = ArtistIds.find(ar => ar.artistId === ArtIds[index].agents[agIndex].artist)
       // art.agentAdd({agent: artist.id});
-      art.agents.push({agent: artist.id, percentage:  ArtIds[index].agents[agIndex].percentage})
+      // art.agents.push({agent: artist.id, percentage:  ArtIds[index].agents[agIndex].percentage})
+      await art.agentAdd({agent: artist.id, percentage:  ArtIds[index].agents[agIndex].percentage})
     }
     await art.save();
     ArtIds[index].id = art.id;

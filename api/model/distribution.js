@@ -53,6 +53,11 @@ const LineSchema = {
     type: Schema.ObjectId,
     ref: 'Carrier'
   },
+  // agent will be filled in during recalculation
+  agent: {
+    type: Schema.ObjectId,
+    ref: 'Agent'
+  },
   // royalties can be to multiple person.
   //isManualRoyalties: Boolean, // if true the calculation of the royalties can not be done
   royalties: [RoyaltieSchema],
@@ -363,43 +368,49 @@ DistributionSchema.methods.royaltiesCalc = async function() {
 //          royalty.artPercentage = artPercentage
           royalty.price = line.price;
           royalty.art = art._id;
-          for (let indexAgent = 0; indexAgent < art.agents.length; indexAgent++) {
-            let agent = art.agents[indexAgent].agent;
-            if (agent) {
-              let valid = agent.royaltiesValidate();
-              if (valid.length > 0) {
-                line.royaltiesErrors.push({type: 'error', message: valid.join('\n'), data: valid, index: indexAgent})
-                continue; // don't do anything else
-              }
-              // the percentage is defined in by the agent, but can be overruled by the artwork
-              // let percAgent = art.agents[indexAgent].percentage === undefined ? 100 : agent.agentPercentage; // art.agents[indexAgent].percentage;
-              let percAgent = agent.percentage === undefined ? 100 : agent.percentage;
-              if (percAgent > 0) {
-                royalty.agentPercentage = percAgent;
-                agentPercentage += percAgent;
+          // for (let indexAgent = 0; indexAgent < art.agents.length; indexAgent++) {
+          // royalties are ONLY payed to the creator
+          let agent = art.creator; // agents[indexAgent].agent;
+          if (agent) {
+            if (agent.agentId === -1) {
+              line.royaltiesErrors.push({type: 'error', message: 'no primary artist'})
+              continue;
+            }
+            let valid = agent.royaltiesValidate();
+            if (valid.length > 0) {
+              line.royaltiesErrors.push({type: 'error', message: valid.join('\n'), data: valid})
+              continue; // don't do anything else
+            }
+            // the percentage is defined in by the agent, but can be overruled by the artwork
+            // let percAgent = art.agents[indexAgent].percentage === undefined ? 100 : agent.agentPercentage; // art.agents[indexAgent].percentage;
+            let percAgent = agent.percentage === undefined ? 100 : agent.percentage;
+            if (percAgent > 0) {
+              royalty.agentPercentage = percAgent;
+              agentPercentage += percAgent;
 
-                if (agent.contacts.length > 0) {
-                  royalty.agent = agent._id;
-                  for (let indexContact = 0; indexContact < agent.contacts.length; indexContact++) {
-                    let contact = agent.contacts[indexContact].contact;
-                    let percContact = agent.contacts[indexContact].percentage === undefined ? 100 : agent.contacts[indexContact].percentage;
+              if (agent.contacts.length > 0) {
+                royalty.agent = agent._id;
+                for (let indexContact = 0; indexContact < agent.contacts.length; indexContact++) {
+                  let contact = agent.contacts[indexContact].contact;
+                  let percContact = agent.contacts[indexContact].percentage === undefined ? 100 : agent.contacts[indexContact].percentage;
 
-                    if (contact) {
-                      royalty.contactPercentage = percContact
-                      contactPercentage += percContact
-                      royalty.contact = contact._id;
-                      // now finaly store the royalties record
-                      line.royalties.push(royalty);
-                    } else {
-                      line.royaltiesErrors.push({type: 'error', message: 'contact not found', index: indexContact})
-                    }
+                  if (contact) {
+                    royalty.contactPercentage = percContact
+                    contactPercentage += percContact
+                    royalty.contact = contact._id;
+                    // now finaly store the royalties record
+                    line.royalties.push(royalty);
+                    line.agent = agent;  // remember this for the grouping
+                  } else {
+                    line.royaltiesErrors.push({type: 'error', message: 'contact not found', index: indexContact})
                   }
                 }
               }
-            } else {
-              line.royaltiesErrors.push({type: 'error', message: 'artist not found', index: indexAgent})
             }
+          } else {
+            line.royaltiesErrors.push({type: 'error', message: 'primary artist not found', index: indexAgent})
           }
+          //}
         } else {
           line.royaltiesErrors.push({type: 'error', message: 'art not found', index: indexLine})
         }
