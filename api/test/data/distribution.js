@@ -41,7 +41,7 @@ let ArtIds = [
   {artId: 9998001, royaltiesPercentage: 100,  agents:[{artist: 999001}] },
   {artId: 9998002, royaltiesPercentage: 0,    agents:[{artist: 999002}] },
   {artId: 9998003, royaltiesPercentage: 0,    agents:[{artist: 999003}] },
-  {artId: 9998004, royaltiesPercentage: 0,    agents:[{artist: 999003}] },
+  {artId: 9998004, royaltiesPercentage: 0,    agents:[{artist: 999004}] },
 
   // selecting
   {artId: 9997001, royaltiesPercentage: 100,  agents:[{artist: 997001}] },

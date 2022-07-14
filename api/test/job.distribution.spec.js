@@ -21,7 +21,7 @@ describe('job.distribution', async() => {
     // add the test data
     session = await Init.Session;
     await DataDistribution.removeDistribution();
-    await DataDistribution.addDistribution(session)
+    await DataDistribution.addDistribution(session);
   })
 
   describe('calculation', async() => {
@@ -36,27 +36,10 @@ describe('job.distribution', async() => {
       let distStored = await Distribution.findById(data.id);
       assert.isFalse(distStored.hasRoyaltyErrors);
       assert.equal(distStored.lines.length, 1);
-      assert.isDefined(distStored.lines[0].royalties);
-      assert.equal(distStored.lines[0].royalties.length, 1, 'only the artist');
-      assert.equal(distStored.lines[0].royalties[0].amount, 130)
+      assert.isDefined(distStored.lines[0].royaltyAmount);
+      assert.equal(distStored.lines[0].royaltyAmount, 130)
       assert.isDefined(dist.lines[0].agent)
     });
-
-    it('distribution.royaltiesCalc - one line, one collective, 2 contact', async() => {
-      let data = DataDistribution.DIST_DATA_INDEX['royalties-collective'];
-      let dist = await Distribution.findById(data.id);
-      assert.equal(dist.locationId, data.distributionId);
-      let result = await dist.royaltiesCalc();
-      await result.save();
-      // reload it from disk and see if all has gone well
-      let distStored = await Distribution.findById(data.id);
-      assert.isFalse(distStored.hasRoyaltyErrors);
-      assert.equal(distStored.lines.length, 1);
-      assert.isDefined(distStored.lines[0].royalties);
-      assert.equal(distStored.lines[0].royalties.length, 2)
-      assert.equal(distStored.lines[0].royalties[0].amount, 72);
-      assert.equal(distStored.lines[0].royalties[1].amount, 48);
-    })
 
     it('distribution.royaltiesCalc - two lines, two artist, 2 contact', async() => {
       let data = DataDistribution.DIST_DATA_INDEX[ 'royalties-multiline'];
@@ -68,12 +51,8 @@ describe('job.distribution', async() => {
       let distStored = await Distribution.findById(data.id);
       assert.isFalse(distStored.hasRoyaltyErrors);
       assert.equal(distStored.lines.length, 2);
-      assert.isDefined(distStored.lines[0].royalties);
-      assert.equal(distStored.lines[0].royalties.length, 1)
-      assert.equal(distStored.lines[0].royalties[0].amount, 130);
-      assert.isDefined(distStored.lines[1].royalties);
-      assert.equal(distStored.lines[1].royalties.length, 1)
-      assert.equal(distStored.lines[1].royalties[0].amount, 260);
+      assert.equal(distStored.lines[0].royaltyAmount, 130);
+      assert.equal(distStored.lines[1].royaltyAmount, 260);
     });
 
     it('error - artist more the 100%', async () => {
@@ -104,26 +83,83 @@ describe('job.distribution', async() => {
     });
   });
 
-  // describe('populate', async() =>  {
-  //   it('lines.artist', async() => {
-  //     let data = DataDistribution.DIST_DATA_INDEX['royalties-multiline'];
-  //     let qry = [
-  //       {$match: {$expr: {$eq: ["$_id", {"$toObjectId": data.id}]}}},
-  //       {$lookup: {
-  //         from: "arts",
-  //         localField: "lines.art",
-  //         foreignField: "_id",
-  //         as: "artworks"
-  //       }}
-  //     ];
-  //     let dist = await Distribution.aggregate(qry);
-  //     assert.equal(dist.length, 1, 'found it');
-  //     // it should be calculated
-  //
-  //
-  //
-  //   })
-  // })
+  describe('calculate', async() => {
+    // it('line royalties', async() => {
+    //   // distribution rec  should be calculate in advance
+    //   let data = DataDistribution.DIST_DATA_INDEX['royalties-multiline'];
+    //   let qry = [
+    //     {$match: {$expr: {$eq: ["$_id", {"$toObjectId": data.id}]}}},
+    //     {$set: {
+    //        "lines.royaltyAmount": {$multiply:  ["$lines.price", "0.20"]}
+    //     }}
+    //     ]
+    //   let dist = await Distribution.aggregate(qry);
+    //   assert.equal(dist.length, 2, 'found both lines');
+    // })
+  })
+
+  describe('populate', async() =>  {
+    it('lines.artist', async() => {
+      let data = DataDistribution.DIST_DATA_INDEX['royalties-multiline'];
+      let qry = [
+        {$match: {$expr: {$eq: ["$_id", {"$toObjectId": data.id}]}}},
+        {$unwind: '$lines'},
+        {$addFields: {
+            'agent': '$lines.agent',
+            'art': '$lines.art',
+            'price': '$lines.price',
+            'royaltyAmount': '$lines.royaltyAmount',
+            'royaltyPercentage': '$lines.royaltyPercentage',
+            'royaltyErrors': '$lines.royaltiesErrors'
+          }
+        },
+        {$unset: 'lines'},
+        {$lookup: {
+          from: "agents",
+          localField: "agent",
+          foreignField: "_id",
+          as: "agent"
+        }},
+        {$unwind: '$agent'},  // add the agent to every line
+
+        {$lookup: {
+            from: "arts",
+            localField: "art",
+            foreignField: "_id",
+            as: "art"
+          }},
+        {$unwind: '$art'}
+      ];
+      let dist = await Distribution.aggregate(qry);
+      assert.equal(dist.length, 2, 'found both lines');
+      assert.equal(dist[0].agent.name, 'artist.999003')
+      assert.equal(dist[1].agent.name, 'artist.999004')
+      // it should be calculated
+    });
+
+    it('grouping', async() => {
+      let data = DataDistribution.DIST_DATA_INDEX['royalties-multiline'];
+      let qry = [
+        {$match: {$expr: {$eq: ["$_id", {"$toObjectId": data.id}]}}},
+        {$lookup: {
+            from: "agents",
+            localField: "lines.agent",
+            foreignField: "_id",
+            as: "agent"
+          }},
+        {$unwind: '$agent'},  // add the agent to every line
+        {$group: {
+            _id: '$agent.name',
+            output: {
+              agent: '$agent.name'
+            }
+          }
+        }
+      ];
+      let dist = await Distribution.aggregate(qry);
+      assert.equal(dist.length, 2, 'found both lines');
+    })
+  })
 
   describe('selection', async() => {
     let cnt = 0;

@@ -58,6 +58,14 @@ class QueryRoyalty extends QueryBuilder {
 
     return Distribution.findRoyaltiesMatch(config);
   }
+
+  /**
+   * raw selects the distribution contracts in a period
+   *
+   * @param model
+   * @param req
+   * @return {Promise<Aggregate<Array<any>>>}
+   */
   async data(model, req) {
     // the page, limit, etc part
     let a = this.aggregate(req.query);
@@ -66,14 +74,91 @@ class QueryRoyalty extends QueryBuilder {
     return Distribution.aggregate(a);
   }
 
-  async artists(model, req) {
+  /**
+   * include the artist info into a distribution aggregate
+   * @private
+   */
+  _royaltyLines() {
+    return [
+        {$unwind: '$lines'},
+        {$addFields: {
+            'agent': '$lines.agent',
+            'art': '$lines.art',
+            'price': '$lines.price',
+            'royaltyAmount': '$lines.royaltyAmount',
+            'royaltyPercentage': '$lines.royaltyPercentage',
+            'royaltyErrors': '$lines.royaltiesErrors'
+          }
+        },
+        {$unset: 'lines'},
+        {$lookup: {
+            from: "agents",
+            localField: "agent",
+            foreignField: "_id",
+            as: "agent"
+          }},
+        {$unwind: '$agent'},  // add the agent to every line
+
+        {$lookup: {
+            from: "arts",
+            localField: "art",
+            foreignField: "_id",
+            as: "art"
+          }},
+        {$unwind: '$art'}    ]
+  }
+
+  /**
+   * list the lines that have royalties in the period given
+   *
+   * @param model
+   * @param req
+   * @return {Promise<Aggregate<Array<any>>>}
+   */
+  async royaltyLines(model, req) {
     // the page, limit, etc part
     let a = this.aggregate(req.query);
     // the filter definition
     a.push(this._partialMatch(req));
     // do the grouping on artist
-
+    a = a.concat(this._royaltyLines());
+    return Distribution.aggregate(a);
   }
+
+  _groupArtist() {
+    return [
+      {
+        $group: {
+          _id: '$agent._id',
+          // _id: '$agent.name',
+          lineCount: {'$sum': 1 },
+          total: {$sum:1 }
+        }
+      }
+    ]
+  }
+
+  /**
+   * list the lines that have royalties in the period given
+   *
+   * @param model
+   * @param req
+   * @return {Promise<Aggregate<Array<any>>>}
+   */
+  async artists(model, req, options = {}) {
+    // the page, limit, etc part
+    let a = this.aggregate(req.query);
+    // the filter definition
+    a.push(this._partialMatch(req));
+    // do the grouping on artist
+    a = a.concat(this._royaltyLines(), this._groupArtist());
+    if (!a.find((step) => step.hasOwnProperty('$sort')) && options.sort) {
+      a = a.concat(options.sort)
+    }
+    return Distribution.aggregate(a);
+  }
+
+
 }
 
 module.exports = QueryRoyalty;
