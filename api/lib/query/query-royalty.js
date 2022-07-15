@@ -108,6 +108,7 @@ class QueryRoyalty extends QueryBuilder {
         {$unwind: '$art'}    ]
   }
 
+
   /**
    * list the lines that have royalties in the period given
    *
@@ -132,7 +133,7 @@ class QueryRoyalty extends QueryBuilder {
           _id: '$agent._id',
           // _id: '$agent.name',
           lineCount: {'$sum': 1 },
-          total: {$sum:1 }
+          totalAmount: {"$sum": '$royaltyAmount' }
         }
       }
     ]
@@ -158,6 +159,36 @@ class QueryRoyalty extends QueryBuilder {
     return Distribution.aggregate(a);
   }
 
+
+  _royaltyErrors() {
+    return [
+      {$match:
+          {$expr:
+              {$eq: ['$hasRoyaltyErrors', true]}
+          }
+      }
+    ]
+  }
+
+  /**
+   * list the royalty errors in the range
+   *
+   * @param model
+   * @param req the request
+   * @param options Object
+   *     - sort Object a list of fields to sort on, default on locationId
+   *
+   * @return {Promise<Aggregate<Array<any>>>}
+   */
+  async royaltyErrors(model, req, options = {}) {
+    // the page, limit, etc part
+    let a = this.aggregate(req.query);
+    // the filter definition
+    a.push(this._partialMatch(req));
+    // list the errors with a fixed sort
+    a = a.concat(this._royaltyErrors(),[{$sort: options.hasOwnProperty('sort') ? options.sort : {'locationId': 1}}]);
+    return Distribution.aggregate(a);
+  }
 
 }
 

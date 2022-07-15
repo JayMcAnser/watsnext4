@@ -128,9 +128,47 @@ describe('controller.royalties', async() => {
           assert.equal(result.body.data.count, 2);
           assert.isString(result.body.data.recIds[0].id)
           assert.equal(result.body.data.recIds[0].status, 'error')
-          assert.equal(result.body.data.recIds[0].errors[0].message, 'the artist percentage is more the 100%')
+          assert.equal(result.body.data.recIds[0].errors[0].message, 'the max royalties must be less or equal 100')
         })
     });
+  })
+
+  describe('errors', async() => {
+    it ('list - found', async() => {
+      let QUERY = {start: Moment().subtract(31, 'day').toISOString(), end: new Moment().subtract('29', 'days').toISOString()};
+      return chai.request(server)
+        .get('/royalty/errors')
+        .set('authorization', `bearer ${TOKEN}`)
+        .query(QUERY)
+        .then((result) => {
+          assert.equal(result.status, 200);
+          assert.equal(result.body.data.length, 2);
+          assert.equal(result.body.data[0].locationId, '99995001')
+          assert.equal(result.body.data[0].event, 'event.99995001');
+          assert.equal(result.body.data[0].lines[0].royaltyErrors[0].message, 'the max royalties must be less or equal 100');
+        })
+    })
+
+    it ('list - none found', async() => {
+      let QUERY = {start: Moment().subtract(21, 'day').toISOString(), end: new Moment().subtract('19', 'days').toISOString()};
+      return chai.request(server)
+        .get('/royalty/errors')
+        .set('authorization', `bearer ${TOKEN}`)
+        .query(QUERY)
+        .then((result) => {
+          assert.equal(result.status, 200);
+          assert.equal(result.body.data.length, 0);
+        })
+    })
+    it ('error - no token', async() => {
+      let QUERY = {start: Moment().subtract(31, 'day').toISOString(), end: new Moment().subtract('29', 'days').toISOString()};
+      return chai.request(server)
+        .get('/royalty/errors')
+        .query(QUERY)
+        .then((result) => {
+          assert.equal(result.status, 403);
+        })
+    })
   })
 
   describe('artists', async() => {

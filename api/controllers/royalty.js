@@ -75,4 +75,17 @@ module.exports = {
     }
   },
 
+  errors: async function(req, res) {
+    if (req.session.canRead('royalties')) {
+      Logging.log('info', 'error', 'ctrl.royalties.errors')
+      let result = [];
+      let qry = new QueryRoyalties(res.query);
+      let data = await qry.royaltyErrors(RoyaltyModel, req)
+      return ApiReturn.result(req, res, data, 200);
+    } else {
+      Logging.log('warn', 'access denied: royalty', 'ctrl.royalty.artists')
+      ApiReturn.result(req, res, 'access denied', 403)
+    }
+  },
+
 }

@@ -63,7 +63,7 @@ const LineSchema = {
   royaltyAmount: {type: Number},
   royaltyErrors:  [
     ModelHelper.ErrorMessageSchema
-  ],
+  ]
 };
 
 const LockLayout = {
@@ -79,6 +79,7 @@ const DistributionExtendLayout = {
   locationId: { type: String}, // the locationId of the DistributionLayout
   exactInvoice: {type: String},
   noRoyalty: {type: Boolean},  // if set to true this contract does not include royalties
+  hasRoyaltyErrors: {type: Boolean, default: false},
 
   eventEndDate: {type: Date},   // should not have the time part for quering
 
@@ -154,20 +155,20 @@ DistributionSchema.virtual('totalCosts')
     return result;
   });
 
-/**
- * check if there is an error in the royaties
- */
-DistributionSchema.virtual('hasRoyaltyErrors')
-  .get( function() {
-    if (this.lines && this.lines.length) {
-      for (let l = 0; l < this.lines.length; l++) {
-        if (this.lines[l].royaltyErrors.length) {
-          return true;
-        }
-      }
-    }
-    return false;
-  });
+// /**
+//  * check if there is an error in the royaties
+//  */
+// DistributionSchema.virtual('hasRoyaltyErrors')
+//   .get( function() {
+//     if (this.lines && this.lines.length) {
+//       for (let l = 0; l < this.lines.length; l++) {
+//         if (this.lines[l].royaltyErrors.length) {
+//           return true;
+//         }
+//       }
+//     }
+//     return false;
+//   });
 DistributionSchema.virtual('royaltyErrors')
   .get( function() {
     let result = [];
@@ -219,7 +220,6 @@ DistributionSchema.pre('save', async function() {
       }
     }
   }
- // next();
 })
 
 
@@ -406,6 +406,7 @@ DistributionSchema.methods.royaltiesCalc = async function() {
       }
     }
   }
+  this.hasRoyaltyErrors = this.lines.findIndex( (l) => l.royaltyErrors.length > 0) >= 0
   return this;
 }
 

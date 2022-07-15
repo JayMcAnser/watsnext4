@@ -3,11 +3,10 @@
  *
  * @jay: 2022-07-14
  */
-
+const Init = require("./init-test");
 const chai = require('chai');
 const assert = chai.assert;
 const QueryRoyalty = require('../lib/query/query-royalty');
-const Init = require("./init-test");
 const DataDistribution = require("./data/distribution");
 const Moment = require("moment");
 const DistributionModel = require('../model/distribution');
@@ -79,17 +78,47 @@ describe('query-royalty', () => {
       assert.isDefined(r.royaltyAmount);
     })
   });
-  it('query - artist in range', async() => {
-    let req = {query: {
-        start: Moment().subtract(21, 'day').format('YYYY-MM-DD'),
-        end: Moment().subtract('19', 'days').format('YYYY-MM-DD')
-      }}
-    let qry = new QueryRoyalties(req);
-    let data = await qry.artists(RoyaltyModel, req, {sort: {$sort: {'_id': 1}}})
-    assert.equal(data.length, 3);
-    let r = data[0];
-    assert.isDefined(r._id);
-    assert.equal(r.lineCount, 2)
+
+  describe('artist', async() => {
+    it('query - artist in range', async () => {
+      let req = {
+        query: {
+          start: Moment().subtract(21, 'day').format('YYYY-MM-DD'),
+          end: Moment().subtract('19', 'days').format('YYYY-MM-DD')
+        }
+      }
+      let qry = new QueryRoyalties(req);
+      let data = await qry.artists(RoyaltyModel, req, {sort: {$sort: {'_id': 1}}})
+      assert.equal(data.length, 3);
+      let r = data[0];
+      assert.isDefined(r._id);
+      assert.equal(r.lineCount, 2)
+    })
+  })
+
+  describe('errors', async() => {
+    before(async() => {
+      let recs = await Distribution
+        .findRoyalties({startDate: Moment().subtract(31, 'day'), endDate: new Moment().subtract('29', 'days'), shouldProcess: true })
+      for (let index = 0; index < recs.length; index++) {
+        let roy = await Distribution.findById(recs[index]._id);
+        await roy.royaltiesCalc();
+        await roy.save();
+      };
+    })
+
+    it('list of error royalties', async() => {
+      let req = {
+        query: {
+          start: Moment().subtract(31, 'day').format('YYYY-MM-DD'),
+          end: Moment().subtract('29', 'days').format('YYYY-MM-DD')
+        }
+      }
+      let qry = new QueryRoyalties(req);
+      let data = await qry.royaltyErrors(RoyaltyModel, req);
+      assert.equal(data.length, 2);
+      assert.equal(data[0].event, 'event.99995001')
+    })
   })
 
 })

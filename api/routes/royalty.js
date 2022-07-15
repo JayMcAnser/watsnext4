@@ -11,5 +11,5 @@ router.get('/', royaltyController.list);
 router.get('/list', royaltyController.list);
 router.get('/recalc', royaltyController.recalc);
 router.get('/artists', royaltyController.artists);
-
+router.get('/errors', royaltyController.errors);
 module.exports = router;
