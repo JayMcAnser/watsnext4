@@ -81,16 +81,16 @@ describe('model.distribution', () => {
 
       // read direct
       distr = await Distribution.findOne({locationId: 1});
-      assert.equal(distr.line.length, 1);
-      assert.equal(distr.line[0].art.toString(), art.id.toString());
+      assert.equal(distr.lines.length, 1);
+      assert.equal(distr.lines[0].art.toString(), art.id.toString());
 
       // include the artwork
       distr = await Distribution.findOne({locationId: 1})
-        .populate('line.art');
-      assert.equal(distr.line.length, 1);
-      assert.equal(distr.line[0].art.artId, '200');
-      assert.equal(distr.line.length, 1);
-      assert.equal(distr.line[0].art.artId, '200', 'native field');
+        .populate('lines.art');
+      assert.equal(distr.lines.length, 1);
+      assert.equal(distr.lines[0].art.artId, '200');
+      assert.equal(distr.lines.length, 1);
+      assert.equal(distr.lines[0].art.artId, '200', 'native field');
     });
 
     it('line - update', async() => {
@@ -98,13 +98,13 @@ describe('model.distribution', () => {
       distr.lineUpdate(0, {price: '100'});
       await distr.save();
       distr = await Distribution.findOne({locationId: 1});
-      assert.equal(distr.line[0].price, '100');
+      assert.equal(distr.lines[0].price, '100');
 
       // remove property
       distr.lineUpdate(0, {price: undefined});
       await distr.save();
       distr = await Distribution.findOne({locationId: 1});
-      assert.isUndefined(distr.line[0].price);
+      assert.isUndefined(distr.lines[0].price);
 
       assert.throws( () => { distr.lineUpdate(99, {price: undefined}); }, 'not found')
     });
@@ -147,13 +147,13 @@ describe('model.distribution', () => {
     it('add one line', async () => {
       distr.lineAdd({art: art1, price: 100});
       await distr.save();
-      assert.equal(distr.line.length, 1);
-      assert.equal(distr.line[0].price, 100);
+      assert.equal(distr.lines.length, 1);
+      assert.equal(distr.lines[0].price, 100);
       assert.equal(distr.subTotalCosts, 100);
 
       distr.lineAdd({art: art2, price: 200});
       await distr.save();
-      assert.equal(distr.line.length, 2);
+      assert.equal(distr.lines.length, 2);
       assert.equal(distr.subTotalCosts, 300);
 
       distr.productionCosts = 400;

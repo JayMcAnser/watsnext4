@@ -59,7 +59,6 @@ const LineSchema = {
     ref: 'Agent'
   },
   royaltyPercentage: {type: Number},
-//  royalty: RoyaltieSchema,
   royaltyAmount: {type: Number},
   royaltyErrors:  [
     ModelHelper.ErrorMessageSchema
@@ -130,10 +129,10 @@ DistributionSchema.plugin(UndoHelper.plugin);
 DistributionSchema.virtual('subTotalCosts')
   .get( function() {
     let result = 0;
-    if (this.line && this.line.length) {
-      for (let l = 0; l < this.line.length; l++) {
-        if (this.line[l].price) {
-          result += this.line[l].price
+    if (this.lines && this.lines.length) {
+      for (let l = 0; l < this.lines.length; l++) {
+        if (this.lines[l].price) {
+          result += this.lines[l].price
         }
       }
     }
@@ -253,21 +252,21 @@ DistributionSchema.methods.lineAdd = function(itemData) {
     itm = {};  // must reset because type is of the relation
     itm[model.toLowerCase()] = itemData._id;
   }
-  this.line.push(itm);
+  this.lines.push(itm);
 };
 
 DistributionSchema.methods.lineUpdate = function(index, itemData) {
   let ind = index;
   if (typeof index !== 'number') {
-    for (ind = 0; ind < this.line.length; ind++) {
-      if (index.toString() === this.line[ind].toString()) {
+    for (ind = 0; ind < this.lines.length; ind++) {
+      if (index.toString() === this.lines[ind].toString()) {
         break;
       }
     }
   }
-  if (ind < this.line.length) {
-    Object.assign(this.line[ind], itemData);
-    this.markModified('line');
+  if (ind < this.lines.length) {
+    Object.assign(this.lines[ind], itemData);
+    this.markModified('lines');
   } else {
     throw new ErrorTypes.ErrorNotFound('line not found');
   }
@@ -276,22 +275,22 @@ DistributionSchema.methods.lineUpdate = function(index, itemData) {
 DistributionSchema.methods.lineRemove = function(index) {
   let ind = index;
   if (typeof index !== 'number') {
-    for (ind = 0; ind < this.line.length; ind++) {
-      if (index.toString() === this.line[ind].toString()) {
+    for (ind = 0; ind < this.lines.length; ind++) {
+      if (index.toString() === this.lines[ind].toString()) {
         break;
       }
     }
   }
-  if (ind < this.line.length) {
-    this.line.splice(ind, 1);
-    this.markModified('line');
+  if (ind < this.lines.length) {
+    this.lines.splice(ind, 1);
+    this.markModified('lines');
   } else {
     throw new ErrorTypes.ErrorNotFound('line not found');
   }
 };
 
 DistributionSchema.methods.lineCount = function() {
-  return this.line.length;
+  return this.lines.length;
 };
 
 /**

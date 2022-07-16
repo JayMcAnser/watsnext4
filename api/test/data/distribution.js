@@ -64,7 +64,7 @@ let DistributionIds = [
       {order: 'a-0', price: 1000, art: 9998001 }]
   },
   {distributionId: 99996002, addrInvoice: 9999002, rentalDate: -1, lines: [
-      {order: 'a-0', price: 1000, carrierIndex:0 }]
+      {order: 'a-0', price: 1000, carrier: 99997001 }]
   },
   {distributionId: 99996003, addrInvoice: 9999002, rentalDate: -1, lines: [
       {order: 'a-0', price: 200, art: 9998003 }]
@@ -110,6 +110,8 @@ let DistributionIds = [
 ]
 
 const DIST_DATA_INDEX = {
+  'royalties-data-art': DistributionIds.find(x => x.distributionId === 99996001),
+  'royalties-data-carrier': DistributionIds.find(x => x.distributionId === 99996002),
   'royalties-artist': DistributionIds.find( x => x.distributionId === 99996003),
   'royalties-collective': DistributionIds.find( x => x.distributionId === 99996005),
   'royalties-multiline': DistributionIds.find( x => x.distributionId === 99996006),
@@ -173,13 +175,17 @@ const addDistribution = async function(session) {
     let distr = await Distribution.create(session, {locationId: DistributionIds[index].distributionId, event: `event.${DistributionIds[index].distributionId}`, invoice: invAddr.id, eventStartDate: Moment().add(DistributionIds[index].rentalDate, 'days' )});
     for (let lineIndex = 0; lineIndex < DistributionIds[index].lines.length; lineIndex++) {
       let line = DistributionIds[index].lines[lineIndex]
-      if (line.artIndex !== undefined) {
-        distr.lines.push({order: line.order, art: ArtIds[line.artIndex].id, price: line.price})
-      } else if ( line.art !== undefined) {
+      // if (line.artIndex !== undefined) {
+      //   distr.lines.push({order: line.order, art: ArtIds[line.artIndex].id, price: line.price})
+      // } else
+      if ( line.art !== undefined) {
         let i = ArtIds.findIndex( x => x.artId === line.art)
         distr.lines.push({order: line.order, art: ArtIds[i].id, price: line.price})
+      } else if (line.carrier !== undefined) {
+        let i = CarrierIds.findIndex( x => x.carrierId === line.carrier)
+        distr.lines.push({order: line.order, carrier: CarrierIds[i].id, price: line.price})
       } else {
-        distr.lines.push({order: line.order, carrier: CarrierIds[line.carrierIndex].id, price: line.price})
+        console.error('distribution.data: missing art and carrier')
       }
     }
     await distr.save();

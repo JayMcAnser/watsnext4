@@ -137,28 +137,28 @@ describe('job.distribution', async() => {
       // it should be calculated
     });
 
-    it('grouping', async() => {
-      let data = DataDistribution.DIST_DATA_INDEX['royalties-multiline'];
-      let qry = [
-        {$match: {$expr: {$eq: ["$_id", {"$toObjectId": data.id}]}}},
-        {$lookup: {
-            from: "agents",
-            localField: "lines.agent",
-            foreignField: "_id",
-            as: "agent"
-          }},
-        {$unwind: '$agent'},  // add the agent to every line
-        {$group: {
-            _id: '$agent.name',
-            output: {
-              agent: '$agent.name'
-            }
-          }
-        }
-      ];
-      let dist = await Distribution.aggregate(qry);
-      assert.equal(dist.length, 2, 'found both lines');
-    })
+    // it('grouping', async() => {
+    //   let data = DataDistribution.DIST_DATA_INDEX['royalties-multiline'];
+    //   let qry = [
+    //     {$match: {$expr: {$eq: ["$_id", {"$toObjectId": data.id}]}}},
+    //     {$lookup: {
+    //         from: "agents",
+    //         localField: "lines.agent",
+    //         foreignField: "_id",
+    //         as: "agent"
+    //       }},
+    //     {$unwind: '$agent'},  // add the agent to every line
+    //     {$group: {
+    //         _id: '$agent.name',
+    //         output: {
+    //           agent: '$agent.name'
+    //         }
+    //       }
+    //     }
+    //   ];
+    //   let dist = await Distribution.aggregate(qry);
+    //   assert.equal(dist.length, 2, 'found both lines');
+    // })
   })
 
   describe('selection', async() => {
@@ -257,8 +257,8 @@ describe('job.distribution', async() => {
 
   })
 
-  describe('grouping', async() => {
-    it('distribution.royaltiesCalc - one line, one artist, one contact', async () => {
-    });
-  });
+  // describe('grouping', async() => {
+  //   it('distribution.royaltiesCalc - one line, one artist, one contact', async () => {
+  //   });
+  // });
 })
