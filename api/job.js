@@ -32,10 +32,13 @@ const sayImport = () => {
   say('  -d debug the process (default: 0)');
   say('  -e {name} the email address of the user to use (default: watsnext@li-ma.nl)')
   say('  -p {password} the password to use (default: 123456' );
-  say('  -c {number} the number of art works to import');
+  say('  -c {number} the number of records to import');
   say('  -o {filename} output the debug to this file')
   say('  -r --reset remove the existing records')
-  say('  --part {comma seperated list of objects} like art,carrier,contact')
+  say('  --parts {comma seperated list of objects}. Values: art,agent,carrier,distribution,contact');
+  say('');
+  say('  examples')
+  say('  node job import:watnext --parts contact -r -c 1000     => reimport all contacts')
 
   //say('  -p {names seperated by ,} the parts. Default all')
 }
@@ -144,7 +147,7 @@ switch (options.job) {
   }
   default:
     sayError(`unknown job: "${options.job}"`)
-    sayUsage()
+    sayImport()
     process.exit(1)
 }
 

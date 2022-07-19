@@ -75,19 +75,19 @@ const jobImportWatsNext = async (options= {}) => {
     }
     if (defaults.parts.indexOf('agent') >= 0) {
       await Agent.deleteMany({})
-      await LoggingServer.info(`removing agent`)
+      await LoggingServer.info(`removed all agent`)
     }
     if (defaults.parts.indexOf('carrier') >= 0) {
       await Carrier.deleteMany({})
-      await LoggingServer.info(`removing carrier`)
+      await LoggingServer.info(`removed all carrier`)
     }
     if (defaults.parts.indexOf('distribution') >= 0) {
       await Distribution.deleteMany({})
-      await LoggingServer.info(`removing distribution`)
+      await LoggingServer.info(`removed all distribution`)
     }
     if (defaults.parts.indexOf('contact') >= 0) {
       await Contact.deleteMany({})
-      await LoggingServer.info(`removing contacts`)
+      await LoggingServer.info(`removed all contacts`)
     }
   }
 

@@ -196,6 +196,30 @@ ContactSchema.methods.extraDelete = function(id) {
 //   }
 // }
 
+ContactSchema.pre('save', async function() {
+  // check that we don't have multiple isDefault active
+  while (this.locations.filter(e => e.isDefault).length > 1) {
+    this.locations[this.locations.findIndex( x => x.isDefault)].isDefault = false;
+  };
+  while (this.locations.length > 0 && this.locations.filter(e => e.isDefault).length === 0 ) {
+    this.locations[0].isDefault = true;
+  }
+  while (this.emails.filter(e => e.isDefault).length > 1) {
+    this.emails[this.emails.findIndex( x => x.isDefault)].isDefault = false;
+  }
+  while (this.emails.length > 0 && this.emails.filter(e => e.isDefault).length === 0 ) {
+    this.emails[0].isDefault = true;
+  }
+
+  while (this.telephones.filter(e => e.isDefault).length > 1) {
+    this.telephones[this.telephones.findIndex( x => x.isDefault)].isDefault = false;
+  }
+  while (this.telephones.length > 0 && this.telephones.filter(e => e.isDefault).length === 0 ) {
+    this.telephones[0].isDefault = true;
+  }
+
+});
+
 ContactSchema.methods.codeAdd = function(code) {
   ModelHelper.addObjectId(this.codes, code)
 }

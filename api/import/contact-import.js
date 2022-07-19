@@ -66,7 +66,8 @@ const AddressFieldMap = {
   city: 'city',
   zipcode: 'zipcode',
   state: 'state',
-  country: 'country'
+  country: 'country',
+  isDefault: 'is_default',
 };
 
 
@@ -188,6 +189,9 @@ class ContactImport {
       qry = []
     }
     for (let addrIndex = 0; addrIndex < qry.length; addrIndex++) {
+      if (record.address_ID === 129) {
+        console.log('found');
+      }
       let rec = qry[addrIndex];
       let addRec = {};
       switch (rec.code_ID) {
@@ -204,18 +208,36 @@ class ContactImport {
               addRec[fieldName] = a;
             }
           }
+          // find out if its the post, home or all
+          let sqlF2C = `SELECT * FROM field2code WHERE field_ID = ${rec.field_ID}`;
+          let qryF2C = await con.query(sqlF2C);
+          if (qryF2C.length === 0) {
+            addRec.usage = 'all'
+          } else if (qryF2C.length === 1) {
+            if (qryF2C[0].code_ID === 218) {
+              addRec.usage = 'home'
+            } else if (qryF2C[0].code_ID === 219) {
+              addRec.usage = 'post'
+            } else {
+              addRec.usage = 'all';  // we don't know what THAT means
+            }
+          } else {
+            addRec.usage = 'all';
+          }
           contact.locationAdd(addRec);
           break;
         case 152: // tel
           addRec.usage = 'telephone';
           addRec.number = this.cleanTelephone(rec.text)
+          addRec.isDefault = rec.is_default
           if (addRec.number) {
             contact.telephoneAdd(addRec);
           }
           break;
         case 153: // fax
           addRec.usage = 'fax';
-          addRec.number = this.cleanTelephone(rec.text)
+          addRec.number = this.cleanTelephone(rec.text);
+          addRec.isDefault = rec.is_default
           if (addRec.number) {
             contact.telephoneAdd(addRec);
           }
@@ -226,6 +248,7 @@ class ContactImport {
             addRec.name = this.clean(rec.extra_text)
           }
           addRec.address = this.clean(rec.text);
+          addRec.isDefault = rec.is_default
           if (addRec.address) {
             contact.emailAdd(addRec);
           }
@@ -233,6 +256,7 @@ class ContactImport {
         case 155: // url
           addRec.usage = 'url'
           addRec.text = this.cleanUrl(rec.text);
+          addRec.isDefault = rec.is_default
           if (addRec.text) {
             contact.extraAdd(addRec);
           }
@@ -240,6 +264,7 @@ class ContactImport {
         case 160: // vat
           addRec.usage = 'vat'
           addRec.text = this.clean(rec.text);
+          addRec.isDefault = rec.is_default
           if (addRec.text) {
             contact.extraAdd(addRec);
           }
@@ -248,6 +273,7 @@ class ContactImport {
         case 161: // vat
           addRec.usage = 'customer number'
           addRec.url = this.clean(rec.text);
+          addRec.isDefault = rec.is_default
           if (addRec.url) {
             contact.extraAdd(addRec);
           }
@@ -284,7 +310,7 @@ class ContactImport {
         qry = await con.query(sql);
         if (qry.length > 0) {
           for (let l = 0; l < qry.length; l++) {
-            await this._convertRecord(con, qry[l]);
+            await this._convertRecord(con, qry[l], {loadSql: true});
             ImportHelper.step(counter.count++);
             if (start >= this._limit) { break}
             start++;

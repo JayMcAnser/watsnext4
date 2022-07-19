@@ -106,3 +106,12 @@ node job generate:wikipedia
 ```
 The generated HTML fragments are stored in the mySQL database for use in mediakunst.net. This process should run **after**
 the mediakunst import has been done, because it extends the existin data with the biography information.
+
+
+### import watsnext
+command:
+```shell
+node job import:watsnext
+```
+
+
