@@ -83,8 +83,21 @@ class LoggingServer {
   }
 }
 
+class ErrorInfo extends Error {
+  constructor(message, options) {
+    super(message, options);
+    if (Object.keys(options)) {
+      for(let key in options) {
+        this[key] = options[key]
+      }
+    }
+  }
+}
+
 const loggingServer = new LoggingServer({});
 module.exports = {
   loggingServer,
-  LoggingServer
+  LoggingServer,
+  ErrorInfo
+
 };

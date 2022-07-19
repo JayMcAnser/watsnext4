@@ -9,16 +9,22 @@ const Distribution = require('../../model/distribution');
 const Moment = require('moment');
 
 let AddressIds = [
-  {addrId: 9999001, name: 'artist-1'},
+  {addrId: 9999001, name: 'artist-1', locations: []},
   {addrId: 9999002, name: 'contract-1'},
   {addrId: 9999003, name: 'location-1'},
   {addrId: 9999004, name: 'artist-2'},
 
+
+  {addrId: 9997001, name: 'artist-1', locations: []},
+  {addrId: 9997002, name: 'contract-1', locations: []},
+  {addrId: 9997003, name: 'location-1', locations: []},
+  {addrId: 9997004, name: 'artist-2', locations: [{street: 'testStreet', number: '123', zipcode: '1000AA', city: 'Amsterdam'}]},
+
   // selecting
-  {addrId: 9997001, name: 'artist-1'},
-  {addrId: 9997002, name: 'contract-1'},
-  {addrId: 9997003, name: 'location-1'},
-  {addrId: 9997004, name: 'artist-2'}
+  {addrId: 9987001, name: 'select-artist-1', locations: [{street: 'testStreet', number: '1', zipcode: '1001AA', city: 'Amsterdam'}]},
+  {addrId: 9987002, name: 'select-artist-2', locations: [{street: 'testStreet', number: '2', zipcode: '1001AA', city: 'Amsterdam'}]},
+  {addrId: 9987003, name: 'select-artist-3', locations: [{street: 'testStreet', number: '3', zipcode: '1001AA', city: 'Amsterdam'}]}
+
 ];
 let ArtistIds = [
   {artistId: 999001, type: 'artist', contacts: [{addr: 9999001, percentage: 100}]},
@@ -30,6 +36,12 @@ let ArtistIds = [
   {artistId: 997002, type: 'collective',  contacts: [{addr: 9997001, percentage: 60}, {addr: 9999003, percentage: 40}]},
   {artistId: 997003, type: 'artist', percentage: 65,      contacts: [{addr: 9997003, percentage: 100}]},
   {artistId: 997004, type: 'artist', percentage: 65,      contacts: [{addr: 9997004, percentage: 100}]},
+
+  // selecting
+  {artistId: 9697002, type: 'artist', percentage: 65,      contacts: [{addr: 9987001, percentage: 100}]},
+  {artistId: 9697003, type: 'artist', percentage: 65,      contacts: [{addr: 9987002, percentage: 100}]},
+  {artistId: 9697004, type: 'artist', percentage: 65,      contacts: [{addr: 9987002, percentage: 100}]},
+  {artistId: 9697005, type: 'artist', percentage: 65,      contacts: [{addr: 9987003, percentage: 100}]},
 
   // error checking
   {artistId: 998001, type: 'artist', contacts: [{addr: 9997001}]},                  // ok artist
@@ -44,10 +56,10 @@ let ArtIds = [
   {artId: 9998004, royaltiesPercentage: 0,    agents:[{artist: 999004}] },
 
   // selecting
-  {artId: 9997001, royaltiesPercentage: 100,  agents:[{artist: 997001}] },
-  {artId: 9997002, royaltiesPercentage: 0,    agents:[{artist: 997002}] },
-  {artId: 9997003, royaltiesPercentage: 0,    agents:[{artist: 997003}] },
-  {artId: 9997004, royaltiesPercentage: 0,    agents:[{artist: 997003}] },
+  // {artId: 9997001, royaltiesPercentage: 100,  agents:[{artist: 997001}] },
+  {artId: 9997002, royaltiesPercentage: 0,    agents:[{artist: 9697002}] },
+  {artId: 9997003, royaltiesPercentage: 0,    agents:[{artist: 9697003}] },
+  {artId: 9997004, royaltiesPercentage: 0,    agents:[{artist: 9697003}] },  // same artist two work
 
   // error - royalties
   {artId: 9996001, agents:[{artist: 998001}], royaltiesPercentage: 110,  }, // to much for the art
@@ -93,18 +105,18 @@ let DistributionIds = [
 
   // selecting
   {distributionId: 99986003, addrInvoice: 9999002, rentalDate: -20, lines: [
-      {order: 'a-0', price: 200, art: 9998003 }]
+      {order: 'a-0', price: 200, art: 9997002 }]                      // artistId: 9697002, contactId: 9987001
   },
   {distributionId: 99986004, addrInvoice: 9999002, rentalDate: -20, lines: [
-      {order: 'a-0', price: 1000, art: 9998002 },
-      {order: 'a-0', price: 1000, art: 9998003 }]
+      {order: 'a-0', price: 1000, art: 9997002 },                     // artistId: 9697002, contactId: 9987001
+      {order: 'a-0', price: 1000, art: 9997003 }]                     // artistId: 9697003, contactId: 9987002
   },
   {distributionId: 99986005, addrInvoice: 9999002, rentalDate: -20, lines: [
-      {order: 'a-0', price: 200, art: 9998002 }]
+      {order: 'a-0', price: 200, art: 9997002 }]                      // artistId: 9697002, contactId: 9987001
   },
-  {distributionId: 99986006, addrInvoice: 9999002, rentalDate: -20, lines: [
-      {order: 'a-0', price: 200, art: 9998003 },
-      {order: 'a-1', price: 400, art: 9998004 }
+  {distributionId: 99986006, addrInvoice: 9999002, rentalDate: -20, lines: [ // same artist 2 works
+      {order: 'a-0', price: 200, art: 9997003 },                     // artistId: 9697003, contactId: 9987002
+      {order: 'a-1', price: 400, art: 9997004 }                      // artistId: 9697003, contactId: 9987002
     ],
   },
 ]
@@ -117,6 +129,26 @@ const DIST_DATA_INDEX = {
   'royalties-multiline': DistributionIds.find( x => x.distributionId === 99996006),
   'royalties-error-agent-max': DistributionIds.find( x => x.distributionId === 99995001),
   'royalties-error-contact-max': DistributionIds.find( x => x.distributionId === 99995002),
+  'royalties-artist-count': 2,                                // the number of artists in range
+}
+
+const selectArtist = function(agentId) {
+  const ARTIST_SELECT = {
+    '9697002': {
+      eventCount: 3,
+      lineCount: 3,
+      contactCount: 1
+    },
+    '9697003': {
+      eventCount: 2,
+      lineCount: 3,
+      contactCount: 1
+    }
+  }
+  if (ARTIST_SELECT.hasOwnProperty(agentId)) {
+    return ARTIST_SELECT[agentId]
+  }
+  return {}
 }
 
 const addDistribution = async function(session) {
@@ -124,10 +156,18 @@ const addDistribution = async function(session) {
     return 'missing session';
   }
   for (let index = 0; index < AddressIds.length; index++) {
+    let addrInfo = AddressIds[index][index];
     let contact = await Contact.create(session, {
-      contactId: AddressIds[index].addrId,
-      name: AddressIds[index].name
+      contactId: addrInfo.addrId,
+      name: addrInfo.name,
+      locations: []
     });
+    if (addrInfo.locations) {
+      for (let locIndex = 0; locInfo < addrInfo.locations.length; locIndex++) {
+        let loc = addrInfo[locIndex];
+        contact.locations.push(loc);
+      }
+    }
     await contact.save()
     AddressIds[index].id = contact._id
   }
@@ -222,5 +262,6 @@ module.exports = {
   ArtIds,
   CarrierIds,
   DistributionIds,
-  DIST_DATA_INDEX
+  DIST_DATA_INDEX,
+  selectArtist
 }
