@@ -8,7 +8,8 @@ const Logging = require('../vendors/lib/logging')
 
 module.exports = {
   /**
-   * query the interface
+   *list the number of distribution within the period
+   *
    * @param req
    * @param res
    * @return {Promise<void>}
@@ -37,6 +38,16 @@ module.exports = {
     }
   },
 
+  /**
+   * recalc all contacts within the period
+   *
+   * @param req
+   * @param res
+   * @return {
+   *   count: number of contacts
+   *   recIds: array of contracts
+   * }
+   */
   recalc: async function(req, res) {
     if (req.session.canWrite('royalties')) {
       Logging.log('info', 'query royalties', 'ctrl.royalties.recalc')

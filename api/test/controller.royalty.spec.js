@@ -67,7 +67,7 @@ describe('controller.royalties', async() => {
         .query(QUERY)
         .then((result) => {
           assert.equal(result.status, 200);
-          assert.equal(result.body.data.length, 4);
+          assert.equal(result.body.data.length, DataDistribution.DIST_DATA_INDEX['royalties-contract-count']);
         })
     })
   })
@@ -84,7 +84,7 @@ describe('controller.royalties', async() => {
         .query(QUERY)
         .then((result) => {
           assert.equal(result.status, 200);
-          assert.equal(result.body.data.count, 4);
+          assert.equal(result.body.data.count, DataDistribution.DIST_DATA_INDEX['royalties-contract-count']);
           assert.isString(result.body.data.recIds[0].id)
           assert.equal(result.body.data.recIds[0].status, 'ok')
           order = result.body.data.recIds;
@@ -95,8 +95,8 @@ describe('controller.royalties', async() => {
             .query(QUERY)
             .then((result) => {
               assert.equal(result.status, 200);
-              assert.equal(result.body.data.count, 4);
-              assert.equal(result.body.data.recIds[0].id, order[3].id, 'the first will be the last')
+              assert.equal(result.body.data.count, DataDistribution.DIST_DATA_INDEX['royalties-contract-count']);
+              assert.equal(result.body.data.recIds[0].id, order[DataDistribution.DIST_DATA_INDEX['royalties-contract-count'] - 1].id, 'the first will be the last')
             })
         })
     })
@@ -111,7 +111,7 @@ describe('controller.royalties', async() => {
         .query(QUERY)
         .then((result) => {
           assert.equal(result.status, 200);
-          assert.equal(result.body.data.count, 4);
+          assert.equal(result.body.data.count, DataDistribution.DIST_DATA_INDEX['royalties-contract-count']);
           assert.isString(result.body.data.recIds[0].id)
           assert.equal(result.body.data.recIds[0].status, 'ok')
         })

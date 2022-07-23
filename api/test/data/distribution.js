@@ -136,6 +136,7 @@ const DIST_DATA_INDEX = {
   'royalties-multiline': DistributionIds.find( x => x.distributionId === 99996006),
   'royalties-error-agent-max': DistributionIds.find( x => x.distributionId === 99995001),
   'royalties-error-contact-max': DistributionIds.find( x => x.distributionId === 99995002),
+  'royalties-contract-count': 5,
   'royalties-contact-count': 5,
   'royalties-line-count': 7,
   'royalties-artist-count': 4,                                // the number of artists in range
