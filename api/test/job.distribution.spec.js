@@ -210,7 +210,7 @@ describe('job.distribution', async() => {
     it('unprocessed', async() => {
       recs = await Distribution
         .findRoyalties({startDate: Moment().subtract(21, 'day'), endDate: new Moment().subtract('19', 'days'), shouldProcess: true })
-      assert.equal(recs.length, 4);
+      assert.equal(recs.length, 5);
     })
 
     it('recalc - no error', async() => {

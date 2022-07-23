@@ -31,6 +31,7 @@ describe('query-mediakunst-art', () => {
       assert.isDefined(def[0].$match)
       assert.isTrue(def[0].$match.isMediakunst)
 
+      def.push({$sort: {artId: 1}});
       let rec = await ArtModel.aggregate(def);
       assert.equal(rec.length, 6);
       assert.isDefined(rec[0].artId)
