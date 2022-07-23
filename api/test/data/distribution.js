@@ -139,7 +139,7 @@ const DIST_DATA_INDEX = {
   'royalties-contract-count': 5,
   'royalties-contact-count': 5,
   'royalties-line-count': 7,
-  'royalties-artist-count': 4,                                // the number of artists in range
+  'royalties-artist-count': 3,                                // the number of artists in range
 }
 
 const selectArtist = function(agentId) {
