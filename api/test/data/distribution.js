@@ -18,12 +18,13 @@ let AddressIds = [
   {addrId: 9997001, name: 'artist-1', locations: []},
   {addrId: 9997002, name: 'contract-1', locations: []},
   {addrId: 9997003, name: 'location-1', locations: []},
-  {addrId: 9997004, name: 'artist-2', locations: [{street: 'testStreet', number: '123', zipcode: '1000AA', city: 'Amsterdam'}]},
+  {addrId: 9997004, name: 'artist-2', locations: [{street: 'testStreet', number: '123', zipcode: '1000AA', city: 'Amsterdam', isDefault: true, usage: 'all'}]},
 
   // selecting
-  {addrId: 9987001, name: 'select-artist-1', locations: [{street: 'testStreet', number: '1', zipcode: '1001AA', city: 'Amsterdam'}]},
-  {addrId: 9987002, name: 'select-artist-2', locations: [{street: 'testStreet', number: '2', zipcode: '1001AA', city: 'Amsterdam'}]},
-  {addrId: 9987003, name: 'select-artist-3', locations: [{street: 'testStreet', number: '3', zipcode: '1001AA', city: 'Amsterdam'}]}
+  {addrId: 9987001, name: 'select-artist-1', locations: [{street: 'testStreet', number: '1', zipcode: '1001AA', city: 'Amsterdam', isDefault: true, usage: 'all'}]},
+  {addrId: 9987002, name: 'select-artist-2', locations: [{street: 'testStreet', number: '2', zipcode: '1001AA', city: 'Amsterdam', isDefault: true, usage: 'post'}]},
+  {addrId: 9987003, name: 'select-artist-3', locations: [{street: 'testStreet', number: '3', zipcode: '1001AA', city: 'Amsterdam', isDefault: false, usage: 'home'}, {street: 'testStreet', number: '3', zipcode: '1001AA', city: 'Amsterdam', isDefault: true, usage: 'post'}]},
+  {addrId: 9987004, name: 'select-artist-3', locations: [{street: 'testStreet', number: '4', zipcode: '1001AA', city: 'Amsterdam', isDefault: true, usage: 'home'}]},
 
 ];
 let ArtistIds = [
@@ -40,8 +41,8 @@ let ArtistIds = [
   // selecting
   {artistId: 9697002, type: 'artist', percentage: 65,      contacts: [{addr: 9987001, percentage: 100}]},
   {artistId: 9697003, type: 'artist', percentage: 65,      contacts: [{addr: 9987002, percentage: 100}]},
-  {artistId: 9697004, type: 'artist', percentage: 65,      contacts: [{addr: 9987002, percentage: 100}]},
-  {artistId: 9697005, type: 'artist', percentage: 65,      contacts: [{addr: 9987003, percentage: 100}]},
+  {artistId: 9697004, type: 'artist', percentage: 65,      contacts: [{addr: 9987003, percentage: 70}, {addr: 9987004, percentage: 30}]},
+ //  {artistId: 9697005, type: 'artist', percentage: 65,      contacts: [{addr: 9987003, percentage: 100}]},
 
   // error checking
   {artistId: 998001, type: 'artist', contacts: [{addr: 9997001}]},                  // ok artist
@@ -60,6 +61,8 @@ let ArtIds = [
   {artId: 9997002, royaltiesPercentage: 0,    agents:[{artist: 9697002}] },
   {artId: 9997003, royaltiesPercentage: 0,    agents:[{artist: 9697003}] },
   {artId: 9997004, royaltiesPercentage: 0,    agents:[{artist: 9697003}] },  // same artist two work
+  {artId: 9997005, royaltiesPercentage: 0,    agents:[{artist: 9697004}] },
+
 
   // error - royalties
   {artId: 9996001, agents:[{artist: 998001}], royaltiesPercentage: 110,  }, // to much for the art
@@ -119,6 +122,10 @@ let DistributionIds = [
       {order: 'a-1', price: 400, art: 9997004 }                      // artistId: 9697003, contactId: 9987002
     ],
   },
+  {distributionId: 99986007, addrInvoice: 9999002, rentalDate: -20, lines: [ // same artist 2 works
+      {order: 'a-0', price: 200, art: 9997005 },                     // artistId: 9697004, contactId: 9987003, 9987004
+    ],
+  },
 ]
 
 const DIST_DATA_INDEX = {
@@ -129,7 +136,9 @@ const DIST_DATA_INDEX = {
   'royalties-multiline': DistributionIds.find( x => x.distributionId === 99996006),
   'royalties-error-agent-max': DistributionIds.find( x => x.distributionId === 99995001),
   'royalties-error-contact-max': DistributionIds.find( x => x.distributionId === 99995002),
-  'royalties-artist-count': 2,                                // the number of artists in range
+  'royalties-contact-count': 5,
+  'royalties-line-count': 7,
+  'royalties-artist-count': 4,                                // the number of artists in range
 }
 
 const selectArtist = function(agentId) {
@@ -143,6 +152,16 @@ const selectArtist = function(agentId) {
       eventCount: 2,
       lineCount: 3,
       contactCount: 1
+    },
+    '9697004': {
+      eventCount: 1,
+      lineCount: 1,
+      contactCount: 1
+    },
+    '9697005': {
+      eventCount: 1,
+      lineCount: 1,
+      contactCount: 2
     }
   }
   if (ARTIST_SELECT.hasOwnProperty(agentId)) {
@@ -156,15 +175,16 @@ const addDistribution = async function(session) {
     return 'missing session';
   }
   for (let index = 0; index < AddressIds.length; index++) {
-    let addrInfo = AddressIds[index][index];
+    let addrInfo = AddressIds[index];
     let contact = await Contact.create(session, {
       contactId: addrInfo.addrId,
       name: addrInfo.name,
       locations: []
     });
     if (addrInfo.locations) {
-      for (let locIndex = 0; locInfo < addrInfo.locations.length; locIndex++) {
-        let loc = addrInfo[locIndex];
+      for (let locIndex = 0; locIndex < addrInfo.locations.length; locIndex++) {
+        let loc = addrInfo.locations[locIndex];
+        // contact.locationAdd(loc);
         contact.locations.push(loc);
       }
     }

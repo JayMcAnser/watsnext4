@@ -189,9 +189,6 @@ class ContactImport {
       qry = []
     }
     for (let addrIndex = 0; addrIndex < qry.length; addrIndex++) {
-      if (record.address_ID === 129) {
-        console.log('found');
-      }
       let rec = qry[addrIndex];
       let addRec = {};
       switch (rec.code_ID) {
@@ -209,20 +206,26 @@ class ContactImport {
             }
           }
           // find out if its the post, home or all
-          let sqlF2C = `SELECT * FROM field2code WHERE field_ID = ${rec.field_ID}`;
-          let qryF2C = await con.query(sqlF2C);
-          if (qryF2C.length === 0) {
-            addRec.usage = 'all'
-          } else if (qryF2C.length === 1) {
-            if (qryF2C[0].code_ID === 218) {
-              addRec.usage = 'home'
-            } else if (qryF2C[0].code_ID === 219) {
-              addRec.usage = 'post'
+          if (rec.field_ID) {
+            let sqlF2C = `SELECT *
+                          FROM field2code
+                          WHERE field_ID = ${rec.field_ID}`;
+            let qryF2C = await con.query(sqlF2C);
+            if (qryF2C.length === 0) {
+              addRec.usage = 'all'
+            } else if (qryF2C.length === 1) {
+              if (qryF2C[0].code_ID === 218) {
+                addRec.usage = 'home'
+              } else if (qryF2C[0].code_ID === 219) {
+                addRec.usage = 'post'
+              } else {
+                addRec.usage = 'all';  // we don't know what THAT means
+              }
             } else {
-              addRec.usage = 'all';  // we don't know what THAT means
+              addRec.usage = 'all';
             }
           } else {
-            addRec.usage = 'all';
+            addRec.usage = 'all'
           }
           contact.locationAdd(addRec);
           break;

@@ -40,7 +40,7 @@ describe('query-royalty', () => {
       }}
       let qry = new QueryRoyalties(req);
       let data = await qry.data(RoyaltyModel, req)
-      assert.equal(data.length, 4);
+      assert.equal(data.length, DataDistribution.DIST_DATA_INDEX['royalties-contact-count']);
       let r = data[0];
       assert.isDefined(r._id);
       assert.isDefined(r.event);
@@ -56,7 +56,7 @@ describe('query-royalty', () => {
         }}
       let qry = new QueryRoyalties(req);
       let data = await qry.data(RoyaltyModel, req)
-      assert.equal(data.length, 4);
+      assert.equal(data.length, DataDistribution.DIST_DATA_INDEX['royalties-contact-count']);
       let r = data[0];
       assert.isDefined(r._id);
       assert.isDefined(r.event);
@@ -69,7 +69,7 @@ describe('query-royalty', () => {
         }}
       let qry = new QueryRoyalties(req);
       let data = await qry.royaltyLines(RoyaltyModel, req)
-      assert.equal(data.length, 6);
+      assert.equal(data.length, DataDistribution.DIST_DATA_INDEX['royalties-line-count']);
       let r = data[0];
       assert.isDefined(r._id);
       assert.isDefined(r.event);
