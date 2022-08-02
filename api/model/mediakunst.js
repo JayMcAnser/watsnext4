@@ -94,18 +94,20 @@ const importData = async function(progress = function() {}) {
                 result.added.agentCnt++;
               }
             } else {
+              // we have to import the artist !
+
               result.errors.agentCnt++
               Logging.log(`warn`, `missing agent ${art.creator} in artwork ${art._id} (${art.artId})`)
             }
             if (artists[art.creator.toString()]) {
               delete artists[art.creator.toString()];
             }
+            if (artWorks[art._id.toString()]) {  // remove it from our cached version
+              delete artWorks[art._id.toString()]
+            }
           } else {
             result.errors.artCnt++
             Logging.log('warn', `missing artworkd ${media.items[index].art} in bookmarklist`)
-          }
-          if (artWorks[art._id.toString()]) {  // remove it from our cached version
-            delete artWorks[art._id.toString()]
           }
         } catch(e) {
           console.log(e);

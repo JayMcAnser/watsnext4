@@ -33,7 +33,7 @@ describe('query-mediakunst-art', () => {
 
       def.push({$sort: {artId: 1}});
       let rec = await ArtModel.aggregate(def);
-      assert.equal(rec.length, 6);
+      assert.equal(rec.length, 5);
       assert.isDefined(rec[0].artId)
       assert.equal(rec[0].artId, '4')
     });
