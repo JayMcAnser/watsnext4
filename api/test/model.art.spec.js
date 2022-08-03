@@ -52,7 +52,7 @@ describe('model.art', () => {
   });
 
   it('create', async () => {
-    art = await Art.queryOne(session, {art: ART_ID_1});
+    art = await Art.queryOne(session, {artId: ART_ID_1});
     if (!art) {
       art = Art.create(session, {artId: ART_ID_1, title: ART_1});
       await art.save();

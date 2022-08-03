@@ -56,7 +56,7 @@ let DbMongo  = {
     }
     Logging.log('info', `connecting to ${connectionString}`, 'dbMongo');
     // https://mongoosejs.com/docs/deprecations.html
-    Mongoose.set('useCreateIndex', true);
+    // Mongoose.set('useCreateIndex', true);
     return Mongoose.connect(connectionString, {
       useNewUrlParser : true,
    //   reconnectTries: Number.MAX_VALUE,
