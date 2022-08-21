@@ -4,6 +4,8 @@ const AgentQuery = require('../lib/query/query-agent');
 const MediakunstArtQuery = require('../lib/query/query-mediakunst-art')
 const Const = require('../lib/const')
 const DbMongo = require('../lib/db-mongo');
+const Jwt = require("jsonwebtoken");
+const Config = require("config");
 
 
 module.exports = {
@@ -45,6 +47,41 @@ module.exports = {
       ApiReturn.error(req, res, e, 200, 'info.get')
     }
   },
+
+
+  /**
+   * generate a JWT that will expire within a second
+   * @param req
+   * @param res
+   * @return {Promise<void>}
+   */
+  expireJwt: async function (req, res) {
+    try {
+      let infoBlock = {
+        id: req.session.user.id,
+        username: req.session.user.username,
+        email: req.session.user.email,
+        rights: {},
+        refreshId: req.session.user.refreshId,
+      }
+      let time = '0.1s'
+      if (req.query && req.query.time) {
+        time = req.query.time
+      }
+      const token = Jwt.sign({id: infoBlock.id}, Config.get('Server.secretKey'), {expiresIn: time});
+      const refreshToken = Jwt.sign({id: infoBlock.id, refreshId: infoBlock.refreshId}, Config.get('Server.secretKey'), {expiresIn: time});
+
+
+      let data = {
+        token,
+        refreshToken
+      }
+      return ApiReturn.result(req, res, data, 200)
+    } catch (e) {
+      ApiReturn.error(req, res, e, 200)
+    }
+  },
+
   /**
    * retrieve the information about the models the user can see.
    * show the sorting, searching and display fields

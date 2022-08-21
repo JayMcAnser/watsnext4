@@ -122,4 +122,4 @@ module.exports.AuthPassword = PASSWORD;
 module.exports.init = init;
 module.exports.DbMongo = DbMongo;
 module.exports.DbMySQL = DbMySQL;
-module.exports.server = 'http://localhost:3050/api'
+module.exports.server = 'http://localhost:3055/api'

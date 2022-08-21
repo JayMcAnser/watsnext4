@@ -4,5 +4,8 @@
     "WatsNext": {
       "database": "watsnext_test"
     }
+  },
+  "Server" : {
+    "port" : 3055
   }
 }
