@@ -9,11 +9,12 @@ const chaiHttp = require('chai-http'); //types');
 chai.use(chaiHttp);
 const assert = chai.assert;
 const Setup = require('../lib/setup');
+const Config = require('config');
 
 
-const server = 'http://localhost:3050/api';
+const server = 'http://localhost:' + Config.get('Server.port') + '/api';
 const ROOT = '/auth';
-const Config = require('config')
+
 
 const AuthController = require('../vendors/controllers/auth')
 

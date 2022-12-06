@@ -1,6 +1,7 @@
 .DS_Store
 /api/node_modules
 /site/node_modules
+/site3/node_modules
 /site/dist
 /dist
 /api/logging
@@ -35,3 +36,4 @@ api/data/__mongo
 *.sw?
 *.map
 api.old
+

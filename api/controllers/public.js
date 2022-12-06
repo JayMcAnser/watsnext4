@@ -1,9 +1,9 @@
 /**
  * public, without security controller
  */
-
-const boardModel = require('../models/board');
-const imageModel = require('../models/image');
+//
+// const boardModel = require('../models/board');
+// const imageModel = require('../models/image');
 const Const = require('../vendors/lib/const');
 const Logging = require('../vendors/lib/logging')
 const ApiReturn = require('../vendors/lib/api-return');

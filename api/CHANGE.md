@@ -1,4 +1,7 @@
 
+## 2022-12-05 V4.2.1
+- chg: test/auth controller set port from config
+- fix: auth definitions
 
 ## 2022-07-06 V4.2.0
 - add: create distribution import structure basics
