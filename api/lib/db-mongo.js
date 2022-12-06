@@ -55,8 +55,10 @@ let DbMongo  = {
       Mongoose.set('debug', true)
     }
     Logging.log('info', `connecting to ${connectionString}`, 'dbMongo');
-    // https://mongoosejs.com/docs/deprecations.html
-    // Mongoose.set('useCreateIndex', true);
+
+    // because:  DeprecationWarning: Mongoose: the `strictQuery` option will be switched back to `false` by default in Mongoose 7.
+    Mongoose.set('strictQuery', false)
+    // end
     return Mongoose.connect(connectionString, {
       useNewUrlParser : true,
    //   reconnectTries: Number.MAX_VALUE,

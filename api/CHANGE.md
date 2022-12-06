@@ -1,4 +1,7 @@
 
+## 2022-12-06 V4.2.2
+- fix: DeprecationWarning: Mongoose: the `strictQuery`
+
 ## 2022-12-05 V4.2.1
 - chg: test/auth controller set port from config
 - fix: auth definitions

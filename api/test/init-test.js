@@ -25,6 +25,7 @@ const EMAIL = 'test@watsnext.nl';
 const PASSWORD = 'no-password'
 const User = require('../model/user-model');
 const Const = require('../lib/const');
+const Config = require('config');
 
 const createRes = function () {
   return Object.assign({} , {
@@ -122,4 +123,4 @@ module.exports.AuthPassword = PASSWORD;
 module.exports.init = init;
 module.exports.DbMongo = DbMongo;
 module.exports.DbMySQL = DbMySQL;
-module.exports.server = 'http://localhost:3055/api'
+module.exports.server = 'http://localhost:' + Config.get('Server.port') + '/api';
