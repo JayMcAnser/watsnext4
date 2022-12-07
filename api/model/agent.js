@@ -33,7 +33,11 @@ const AgentExtendLayout = {
   agentId: String,
   isMediakunst: Boolean,     // set to true if part of mediakunst
   mediakunstId: String,      // the direct link id
-  wikipedia: WikiScheme,    // info about the wikipedia retrieve system
+  wikipedia: WikiScheme,     // info about the wikipedia retrieve system
+  royaltiesPeriod: {
+    type: Number,
+    default: 0
+  },     // 0 = per Year, 1 = per quarter, 2 = per month
 //   wikipediaId: String,       // the qId of Wikipedia
 //   wikipediaLastChanged: Date,// last date something changed
 //   wikipediaSha: String,      // the check is something changed

@@ -40,21 +40,32 @@ class QueryRoyalty extends QueryBuilder {
    * build the selector from the request and returns the $match part
    *
    * @param req
+   *   - startDate = first date that should be included, format: YYYYMMDD
+   *   - endDate = last date that should be included, format: YYYYMMDD
+   *   - year = year to run on. Overrules startDate and endDate
+   *   - quarter = the quarter to use. overrules startDate and endDate with the year. If omitted it uses the entire year
+   *               (0 .. 3)
+   *   - process = isLocked state (true or false) if omitted anything goes   *
    * @return {*}
    * @private
    */
   _partialMatch(req) {
     let config = {};
     config.startDate = req.query.start;
-    if (config.startDate) {
-      config.startDate = Moment(config.startDate)
-    }
     config.endDate = req.query.end;
-    if (config.endDate) {
-      config.endDate = Moment(config.endDate)
-    }
     if (req.query.process) {
       config.shouldProcess = !!req.query.process
+    }
+    if (req.query.year) {
+      const year = req.query.year;
+      if (req.query.hasOwnProperty('quarter')) {
+        const quarter = req.query.quarter;
+        config.startDate = Moment.utc(year + '-01-01').add(quarter, 'Q').format('YYYYMMDD');
+        config.endDate = Moment.utc(year + '-01-01').add(quarter + 1, 'Q').subtract(1, 'd').format('YYYYMMDD');
+      } else {
+        config.startDate = year + '0101';
+        config.endDate =  Moment.utc(year + '-01-01').add(1, 'y').subtract(1, 'd').format('YYYYMMDD');
+      }
     }
 
     return Distribution.findRoyaltiesMatch(config);
@@ -294,6 +305,8 @@ class QueryRoyalty extends QueryBuilder {
     a = a.concat(this._filterArtistById(req.query.id))
     return Distribution.aggregate(a);
   }
+
+
 }
 
 module.exports = QueryRoyalty;

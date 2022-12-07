@@ -59,6 +59,10 @@ let DbMongo  = {
     // because:  DeprecationWarning: Mongoose: the `strictQuery` option will be switched back to `false` by default in Mongoose 7.
     Mongoose.set('strictQuery', false)
     // end
+
+    if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'develop') {
+      console.log(`node_env = ${ process.env.NODE_ENV} - connecting to mongoDB server ${ connectionString } `)
+    }
     return Mongoose.connect(connectionString, {
       useNewUrlParser : true,
    //   reconnectTries: Number.MAX_VALUE,

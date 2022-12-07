@@ -81,6 +81,7 @@ const DistributionExtendLayout = {
   hasRoyaltyErrors: {type: Boolean, default: false},
 
   eventEndDate: {type: Date},   // should not have the time part for quering
+  eventStartDateVal: {type: String}, // the eventStartDate with only the date part for comparing / range select / sorting
 
   isLocked: {type: Boolean, default: false},    // if true the royalties are never recalculated
   lockHistory: [LockLayout],     // history of locking and unlocking
@@ -187,11 +188,12 @@ DistributionSchema.virtual('royaltyErrors')
  */
 DistributionSchema.pre('save', async function() {
   if (this.eventStartDate) {
-    this.eventStartDate = Moment(this.eventStartDate).startOf('date');
+    this.eventStartDate = Moment.utc(this.eventStartDate).startOf('date');
   }
   if (this.eventEndDate) {
-    this.eventEndDate = Moment(this.eventEndDate).startOf('date');
+    this.eventEndDate = Moment.utc(this.eventEndDate).startOf('date');
   }
+  this.eventStartDateVal = Moment.utc(this.eventStartDate).startOf('date').format('YYYYMMDD');
 
 
   if (this.contact && ! this.invoice) {
@@ -445,14 +447,15 @@ DistributionSchema.static('findRoyaltiesMatch', function(options = {}) {
   if (options.startDate) {
     expr.$and.push(
       {
-        $gte: ['$eventStartDate', {"$dateFromString": {"dateString": Moment(options.startDate).startOf('day').toISOString()}}]
+        $gte: ['$eventStartDateVal', options.startDate]
       }
     )
   }
   if (options.endDate) {
+    //-- is eventStart date because it's the only date that counts
     expr.$and.push(
       {
-        $lte: ['$eventStartDate', {"$dateFromString": {"dateString": Moment(options.endDate).startOf('day').toISOString()}}]
+        $lte: ['$eventStartDateVal', options.endDate]
       }
     )
   }
@@ -466,6 +469,7 @@ DistributionSchema.static('findRoyaltiesMatch', function(options = {}) {
       expr.$and.push({$eq: ['$isLocked', true]})
     }
   }
+
   if (expr.$and.length === 0) {
     return {$match: {}}
   } else {

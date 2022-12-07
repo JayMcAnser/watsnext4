@@ -1,6 +1,7 @@
 
 ## 2022-12-06 V4.2.2
 - fix: DeprecationWarning: Mongoose: the `strictQuery`
+- fix: date selection in distribution ranges
 
 ## 2022-12-05 V4.2.1
 - chg: test/auth controller set port from config
