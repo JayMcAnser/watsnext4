@@ -22,17 +22,30 @@ describe('query-royalty', () => {
     session = await Init.Session;
     await DataDistribution.removeDistribution();
     await DataDistribution.addDistribution(session);
-    // must recalc the set
-    recs = await Distribution
-      .findRoyalties({startDate: Moment().subtract(121, 'day').format('YYYYMMDD'), endDate: new Moment().subtract('19', 'days').format('YYYYMMDD'), shouldProcess: true })
-    for (let index = 0; index < recs.length; index++) {
-      let roy = await Distribution.findById(recs[index]._id);
-      roy = await roy.royaltiesCalc();
-      await roy.save();
-    };
   })
 
-  describe('royaltiesPeriod', async() => {
+  // ----
+  // selecting date on date definitions
+  describe('distribution contracts on dates', async () => {
+    it('query - range', async () => {
+      let req = {query: {
+        start: Moment().subtract(21, 'day').format('YYYYMMDD'),
+        end: Moment().subtract('19', 'days').format('YYYYMMDD')
+      }}
+      let qry = new QueryRoyalties(req);
+      let data = await qry.data(RoyaltyModel, req)
+      assert.equal(data.length, DataDistribution.DIST_DATA_INDEX['royalties-contact-count']);
+      let r = data[0];
+      assert.isDefined(r._id);
+      assert.isDefined(r.event);
+      assert.isDefined(r.locationId);
+    })
+  })
+
+  // ----
+  // selection date ranges based on year and quarter
+  //
+  describe('distribution contracts on periods', async() => {
     it('check count per period quarter 1', async() => {
       let req = {
         query: {
@@ -65,25 +78,12 @@ describe('query-royalty', () => {
       let data = await qry.data(RoyaltyModel, req)
       assert.equal(data.length, DataDistribution.DIST_DATA_INDEX['royalties-period-all-count']);
     })
-
   })
 
-  describe('distribution contracts', async () => {
-    it('query - range', async () => {
-      let req = {query: {
-        start: Moment().subtract(21, 'day').format('YYYYMMDD'),
-        end: Moment().subtract('19', 'days').format('YYYYMMDD')
-      }}
-      let qry = new QueryRoyalties(req);
-      let data = await qry.data(RoyaltyModel, req)
-      assert.equal(data.length, DataDistribution.DIST_DATA_INDEX['royalties-contact-count']);
-      let r = data[0];
-      assert.isDefined(r._id);
-      assert.isDefined(r.event);
-      assert.isDefined(r.locationId);
-    })
-  })
 
+  // ----
+  // converting distribution contracts to artist lines
+  // ----
   describe('royalties', async() => {
     it('query - distribution in range', async () => {
       let req = {query: {
@@ -101,7 +101,8 @@ describe('query-royalty', () => {
     it('query - distribution lines in range', async () => {
       let req = {query: {
           start: Moment().subtract('21', 'day').format('YYYYMMDD'),
-          end: Moment().subtract('19', 'days').format('YYYYMMDD')
+          end: Moment().subtract('19', 'days').format('YYYYMMDD'),
+          recalc: 1 // force the recalculation for agent needed
         }}
       let qry = new QueryRoyalties(req);
       let data = await qry.royaltyLines(RoyaltyModel, req)
@@ -120,7 +121,8 @@ describe('query-royalty', () => {
       let req = {
         query: {
           start: Moment().subtract(21, 'day').format('YYYYMMDD'),
-          end: Moment().subtract('19', 'days').format('YYYYMMDD')
+          end: Moment().subtract('19', 'days').format('YYYYMMDD'),
+          recalc: true
         }
       }
       let qry = new QueryRoyalties(req);
@@ -134,21 +136,22 @@ describe('query-royalty', () => {
   })
 
   describe('errors', async() => {
-    before(async() => {
-      let recs = await Distribution
-        .findRoyalties({startDate: Moment().subtract(31, 'day'), endDate: new Moment().subtract('29', 'days'), shouldProcess: true })
-      for (let index = 0; index < recs.length; index++) {
-        let roy = await Distribution.findById(recs[index]._id);
-        await roy.royaltiesCalc();
-        await roy.save();
-      };
-    })
+    // before(async() => {
+    //   let recs = await Distribution
+    //     .findRoyalties({startDate: Moment().subtract(31, 'day'), endDate: new Moment().subtract('29', 'days'), shouldProcess: true })
+    //   for (let index = 0; index < recs.length; index++) {
+    //     let roy = await Distribution.findById(recs[index]._id);
+    //     await roy.royaltiesCalc();
+    //     await roy.save();
+    //   };
+    // })
 
     it('list of error royalties', async() => {
       let req = {
         query: {
           start: Moment().subtract(31, 'day').format('YYYYMMDD'),
-          end: Moment().subtract('29', 'days').format('YYYYMMDD')
+          end: Moment().subtract('29', 'days').format('YYYYMMDD'),
+          recalc: 1
         }
       }
       let qry = new QueryRoyalties(req);

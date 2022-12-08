@@ -122,10 +122,30 @@ class QueryRoyalty extends QueryBuilder {
 
 
   /**
+   * recalculate the selected record to set the agent information in the lines
+   *
+   * @param a Object the mongo select statement
+   * @return {Promise<void>}
+   * @private
+   */
+  async _recalcSelectedRecords(a) {
+    let recs = await Distribution.aggregate(a);
+    for (let index = 0; index < recs.length; index++) {
+      let roy = await Distribution.findById(recs[index]._id);
+      // there should be an easy way to call the calc function, but can not find it. So retrieve the record again
+      roy = await roy.royaltiesCalc();
+      await roy.save();
+    }
+  }
+
+  /**
    * list the lines that have royalties in the period given
    *
-   * @param model
-   * @param req
+   * @param model   *
+   * @param req  { query }
+   *    query: Object
+   *       - standard parameters (startDate, etc)
+   *       - recalc: Boolean if set the selected ranges is recalculated so agent and errors in the lines are set
    * @return {Promise<Aggregate<Array<any>>>}
    */
   async royaltyLines(model, req) {
@@ -133,6 +153,10 @@ class QueryRoyalty extends QueryBuilder {
     let a = this.aggregate(req.query);
     // the filter definition
     a.push(this._partialMatch(req));
+
+    if (req.query.hasOwnProperty('recalc') && req.query.recalc) {
+      await this._recalcSelectedRecords(a)
+    }
     // do the grouping on artist
     a = a.concat(this._royaltyLines());
     return Distribution.aggregate(a);
@@ -171,6 +195,9 @@ class QueryRoyalty extends QueryBuilder {
     let a = this.aggregate(req.query);
     // the filter definition
     a.push(this._partialMatch(req));
+    if (req.query.hasOwnProperty('recalc') && req.query.recalc) {
+      await this._recalcSelectedRecords(a)
+    }
     // do the grouping on artist
     a = a.concat(this._royaltyLines(), this._groupArtist());
     if (!a.find((step) => step.hasOwnProperty('$sort')) && options.sort) {
@@ -205,6 +232,9 @@ class QueryRoyalty extends QueryBuilder {
     let a = this.aggregate(req.query);
     // the filter definition
     a.push(this._partialMatch(req));
+    if (req.query.hasOwnProperty('recalc') && req.query.recalc) {
+      await this._recalcSelectedRecords(a)
+    }
     // list the errors with a fixed sort
     a = a.concat(this._royaltyErrors(),[{$sort: options.hasOwnProperty('sort') ? options.sort : {'locationId': 1}}]);
     return Distribution.aggregate(a);

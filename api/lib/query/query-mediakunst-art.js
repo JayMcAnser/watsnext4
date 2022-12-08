@@ -18,8 +18,9 @@ class QueryMediakunstArt extends QueryArt {
    * @param filter Object the $or statement
    * @return {*}
    */
-  postProcessFilter(filter) {
+  postProcessFilter(filter, query) {
   //   let partFilter = {isMediakunst: true}
+
     if (filter.length) {
       let index = filter.findIndex((x) => x.hasOwnProperty('$match'))
       if (index >= 0) {
@@ -35,7 +36,7 @@ class QueryMediakunstArt extends QueryArt {
     } else {
       filter.push({ $match : {isMediakunst: true}})
     }
-    return filter
+    return super.postProcessFilter(filter, query)
   }
 }
 

@@ -369,12 +369,28 @@ class QueryBuilder {
   }
 
   /**
-   * to overlad the $match filter for all requests
+   * to overload the $match filter for all requests
    *
-   * @param filter
-   * @return {*}
+   * @param filter the aggregate statement
+   * @param query the request body
+   * @return the aggregate statement
    */
-  postProcessFilter(filter) {
+  postProcessFilter(filter, query) {
+    if (query.limit) {
+      if (query.skip) {
+        filter.push({$skip: query.skip})
+      }
+      filter.push({$limit: query.limit})
+    } else if (query.hasOwnProperty('page')) {
+      let itemsPerPage = query.hasOwnProperty('limit') && Number.isInteger(Number.parseInt(query.limit)) ? req.query.limit : this.itemPerPage;
+      if (query.page) {
+        filter.push({$skip: itemsPerPage * query.page});
+      }
+      filter.push({$limit: Number.parseInt(itemsPerPage)});
+    }
+    if (this._views[query.view]) {  // only if we are requesting a view
+      filter.push({$project: this._views[query.view]})
+    }
     return filter
   }
 
@@ -393,22 +409,8 @@ class QueryBuilder {
       let sort = this._sortStatement(query.sort)
       result.push( {$sort: sort});
     }
-    if (query.limit) {
-      if (query.skip) {
-        result.push({$skip: query.skip})
-      }
-      result.push({$limit: query.limit})
-    } else if (query.hasOwnProperty('page')) {
-      let itemsPerPage = query.hasOwnProperty('limit') && Number.isInteger(Number.parseInt(query.limit)) ? req.query.limit : this.itemPerPage;
-      if (query.page) {
-        result.push({$skip: itemsPerPage * query.page});
-      }
-      result.push({$limit: Number.parseInt(itemsPerPage)});
-    }
-    if (this._views[query.view]) {  // only if we are requesting a view
-      result.push({$project: this._views[query.view]})
-    }
-    return this.postProcessFilter(result)
+
+    return this.postProcessFilter(result, query)
   }
 
   /**
