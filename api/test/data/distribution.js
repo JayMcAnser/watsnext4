@@ -24,14 +24,19 @@ let AddressIds = [
   {addrId: 9987001, name: 'select-artist-1', locations: [{street: 'testStreet', number: '1', zipcode: '1001AA', city: 'Amsterdam', isDefault: true, usage: 'all'}]},
   {addrId: 9987002, name: 'select-artist-2', locations: [{street: 'testStreet', number: '2', zipcode: '1001AA', city: 'Amsterdam', isDefault: true, usage: 'post'}]},
   {addrId: 9987003, name: 'select-artist-3', locations: [{street: 'testStreet', number: '3', zipcode: '1001AA', city: 'Amsterdam', isDefault: false, usage: 'home'}, {street: 'testStreet', number: '3', zipcode: '1001AA', city: 'Amsterdam', isDefault: true, usage: 'post'}]},
-  {addrId: 9987004, name: 'select-artist-3', locations: [{street: 'testStreet', number: '4', zipcode: '1001AA', city: 'Amsterdam', isDefault: true, usage: 'home'}]},
+  {addrId: 9987004, name: 'select-artist-4', locations: [{street: 'testStreet', number: '4', zipcode: '1001AA', city: 'Amsterdam', isDefault: true, usage: 'home'}]},
 
   // periods
   {addrId: 9986001, name: 'period-address-1', locations: [{street: 'testStreet', number: '1', zipcode: '1001AA', city: 'Amsterdam', isDefault: true, usage: 'all'}]}, // artist
   {addrId: 9986002, name: 'period-address-2', locations: [{street: 'testStreet', number: '1', zipcode: '1001AA', city: 'Amsterdam', isDefault: true, usage: 'all'}]}, // invoice
 
+  // -- 'one contact with multiple artists'
+  {addrId: 9985001, name: 'contact-multi-artist', locations: [{street: 'testStreet', number: '1', zipcode: '1001AA', city: 'Amsterdam', isDefault: true, usage: 'all'}]}, // artist
+
+
 ];
 let ArtistIds = [
+
   {artistId: 999001, type: 'artist', royaltiesPeriod: 0, contacts: [{addr: 9999001, percentage: 100}]},
   {artistId: 999002, type: 'collective', royaltiesPeriod: 0, contacts: [{addr: 9999001, percentage: 60}, {addr: 9999003, percentage: 40}]},
   {artistId: 999003, type: 'artist', royaltiesPeriod: 0, percentage: 65, contacts: [{addr: 9999003, percentage: 100}]},
@@ -45,16 +50,24 @@ let ArtistIds = [
   // selecting
   {artistId: 9697002, type: 'artist', percentage: 65, royaltiesPeriod: 0, contacts: [{addr: 9987001, percentage: 100}]},
   {artistId: 9697003, type: 'artist', percentage: 65, royaltiesPeriod: 0, contacts: [{addr: 9987002, percentage: 100}]},
-  {artistId: 9697004, type: 'artist', percentage: 65, royaltiesPeriod: 0, contacts: [{addr: 9987003, percentage: 70}, {addr: 9987004, percentage: 30}]},
- //  {artistId: 9697005, type: 'artist', percentage: 65,      contacts: [{addr: 9987003, percentage: 100}]},
+  // abramovic and ulay
+   {artistId: 9697004, type: 'artist', percentage: 65, royaltiesPeriod: 1, contacts: [{addr: 9987003, percentage: 70}, {addr: 9987004, percentage: 30}]},
+  // abramovic
+  {artistId: 9697005, type: 'artist', percentage: 65, royaltiesPeriod: 0, contacts: [{addr: 9987003, percentage: 100}]},
+
 
   // error checking
   {artistId: 998001, type: 'artist', royaltiesPeriod: 0, contacts: [{addr: 9997001}]},                  // ok artist
   {artistId: 998002, type: 'artist', royaltiesPeriod: 0, contacts: [{addr: 9997001, percentage: 110}]}, // to much for the contact
 
   // period testing
-  {artistId: 996001, type: 'artist - 1', royaltiesPeriod: 0, contacts: [{addr: 9986001}]},                  // artist per year
-  {artistId: 996002, type: 'artist - 2', royaltiesPeriod: 1, contacts: [{addr: 9986001}]},                  // artist per quarter
+  {artistId: 996001, type: 'artist - 1', royaltiesPeriod: 0, contacts: [{addr: 9986001, percentage: 100}]},               // artist per year
+  {artistId: 996002, type: 'artist - 2', royaltiesPeriod: 1, contacts: [{addr: 9986001, percentage: 100}]},                  // artist per quarter
+
+  // -- 'one contact with multiple artists'
+  {artistId: 994001, type: 'artist - year', royaltiesPeriod: 0, contacts: [{addr: 9985001, percentage: 100}]},                  // artist per year
+  {artistId: 994002, type: 'artist - quarter', royaltiesPeriod: 1, contacts: [{addr: 9985001, percentage: 100}]},                  // artist per quarter
+
 ];
 
 
@@ -69,7 +82,8 @@ let ArtIds = [
   {artId: 9997002, royaltiesPercentage: 0,    agents:[{artist: 9697002}] },
   {artId: 9997003, royaltiesPercentage: 0,    agents:[{artist: 9697003}] },
   {artId: 9997004, royaltiesPercentage: 0,    agents:[{artist: 9697003}] },  // same artist two work
-  {artId: 9997005, royaltiesPercentage: 0,    agents:[{artist: 9697004}] },
+  {artId: 9997005, royaltiesPercentage: 0,    agents:[{artist: 9697004}] },  // work of A & U
+  {artId: 9997006, royaltiesPercentage: 0,    agents:[{artist: 9697005}] },  // work of A
 
 
   // error - royalties
@@ -80,6 +94,12 @@ let ArtIds = [
   {artId: 9995001, royaltiesPercentage: 0,    agents:[{artist: 996001}] },
   {artId: 9995002, royaltiesPercentage: 0,    agents:[{artist: 996002}] },
   {artId: 9995003, royaltiesPercentage: 0,    agents:[{artist: 996002}] },
+
+  // -- 'one contact with multiple artists'
+  {artId: 9994001, royaltiesPercentage: 0,    agents:[{artist: 994001}] }, // contact 1, artist 1, year
+  {artId: 9994002, royaltiesPercentage: 0,    agents:[{artist: 994002}] },  // contact 1, artist 2, quarter
+  {artId: 9994003, royaltiesPercentage: 0,    agents:[{artist: 994002}] },  // contact 1, artist 2, quarter
+
 ];
 let CarrierIds = [
   {carrierId: 99997001, art: [{art: 9996001}]}
@@ -134,8 +154,12 @@ let DistributionIds = [
       {order: 'a-1', price: 400, art: 9997004 }                      // artistId: 9697003, contactId: 9987002
     ],
   },
-  {distributionId: 99986007, addrInvoice: 9999002, rentalDate: -20, lines: [ // same artist 2 works
+
+  // 2 lines, 2 artist, 3 contacts
+  {distributionId: 99986007, addrInvoice: 9999002, rentalDate: -19, lines: [ // same artist 2 works
       {order: 'a-0', price: 200, art: 9997005 },                     // artistId: 9697004, contactId: 9987003, 9987004
+      {order: 'a-1', price: 400, art: 9997004 },                     // artistId: 9697003, contactId: 9987002
+      {order: 'a-2', price: 400, art: 9997006 }                      // artistId: 9697003, contactId: 9987002
     ],
   },
 
@@ -152,6 +176,19 @@ let DistributionIds = [
       {order: 'a-0', price: 200, art: 9995003 },                     //
     ],
   },
+
+  // -- 'one contact with multiple artists'
+  {distributionId: 99946001, addrInvoice: 9986002, eventStartDate: '2011-04-01', lines: [ // artist - other quarter 2 per quarter
+      {order: 'a-0', price: 200, art: 9994001 },                     // contact 1, artist 1, year
+      {order: 'a-1', price: 200, art: 9994002 },                     // contact 1, artist 1, quarter
+    ],
+  },
+  {distributionId: 99946002, addrInvoice: 9986002, eventStartDate: '2011-04-01', lines: [ // artist - other quarter 2 per quarter
+      {order: 'b-0', price: 200, art: 9994001 },                     // contact 1, artist 1, year
+      {order: 'b-1', price: 200, art: 9994003 },                      // contact 1, artist 1, quarter
+    ],
+  },
+
 ]
 
 const DIST_DATA_INDEX = {
@@ -164,8 +201,8 @@ const DIST_DATA_INDEX = {
   'royalties-error-contact-max': DistributionIds.find( x => x.distributionId === 99995002),
   'royalties-contract-count': 5,
   'royalties-contact-count': 5,
-  'royalties-line-count': 7,
-  'royalties-artist-count': 3,                                // the number of artists in range
+  'royalties-line-count': 9,
+  'royalties-artist-count': 4,                                // the number of artists in range
   'royalties-period-year': 2010,     // all year selection
   'royalties-period-all-count': 3,    // all year selection, found records
   'royalties-period-0-count': 2,      // quarter 1

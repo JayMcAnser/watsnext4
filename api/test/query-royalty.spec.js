@@ -24,6 +24,107 @@ describe('query-royalty', () => {
     await DataDistribution.addDistribution(session);
   })
 
+  describe('distribution errors', async() => {
+    // validate the entire test dataset by recalculating it
+    it('list errors', async() => {
+      let qry = new QueryRoyalties();
+      let errors = await qry.distributionErrors({query:{}})
+
+      assert.equal(errors.length, 3, '2 are number of programmed errors for testing')
+    })
+
+  });
+
+  describe('royalties per contact in range', async() => {
+
+    it ('list the contacts - all', async() => {
+      let artistsReq = {
+        query: {
+          start: Moment().subtract(21, 'day').format('YYYYMMDD'),
+          end: Moment().subtract('19', 'days').format('YYYYMMDD'),
+          recalc: true
+        }
+      }
+
+      let qry = new QueryRoyalties(artistsReq);
+      let contacts = await qry.contactEvents(artistsReq);
+      assert.equal(contacts.length, 4)
+      assert.equal(contacts[0].contact.name, 'select-artist-1')
+      assert.equal(contacts[0].events.length, 3);
+      assert.equal(contacts[0].total, 910)
+
+      assert.equal(contacts[0].events[0].event, 'event.99986003');
+
+      // --- rest can be checked but it should be alright now
+    })
+
+    it ('list the contacts - only year', async() => {
+      let artistsReq = {
+        query: {
+          start: Moment().subtract(21, 'day').format('YYYYMMDD'),
+          end: Moment().subtract('19', 'days').format('YYYYMMDD'),
+          recalc: true,
+          royaltyType: 0
+        }
+      }
+
+      let qry = new QueryRoyalties(artistsReq);
+      let contacts = await qry.contactEvents(artistsReq);
+      assert.equal(contacts.length, 3)
+      assert.equal(contacts[0].contact.name, 'select-artist-1')
+      assert.equal(contacts[0].events.length, 3);
+      assert.equal(contacts[0].total, 910)
+    })
+
+    it ('list the contacts - only quarter', async() => {
+      let artistsReq = {
+        query: {
+          start: Moment().subtract(21, 'day').format('YYYYMMDD'),
+          end: Moment().subtract('19', 'days').format('YYYYMMDD'),
+          recalc: true,
+          royaltyType: 1
+        }
+      }
+
+      let qry = new QueryRoyalties(artistsReq);
+      let contacts = await qry.contactEvents(artistsReq);
+      assert.equal(contacts.length, 2)
+      assert.equal(contacts[0].contact.name, 'select-artist-3')
+      assert.equal(contacts[0].events.length, 1);
+      assert.equal(contacts[0].total, 130)
+    })
+
+    // problem: one contact gets the royalties of two artists.
+    // artist.1 has a quarterly contract, artist.2 has a year contract
+    // how does the system react?
+    it ('one contact with multiple artists - full', async() => {
+      let artistsReq = {
+        query: {
+          year: '2011',
+          recalc: true,
+        }
+      }
+      let qry = new QueryRoyalties(artistsReq);
+      let contacts = await qry.contactEvents(artistsReq);
+      assert.equal(contacts.length, 1)
+      assert.equal(contacts[0].events.length, 4, 'all available')
+    })
+    it ('one contact with multiple artists - full', async() => {
+      let artistsReq = {
+        query: {
+          year: '2011',
+          recalc: true,
+          royaltyType: 0
+        }
+      }
+      let qry = new QueryRoyalties(artistsReq);
+      let contacts = await qry.contactEvents(artistsReq);
+      assert.equal(contacts.length, 1)
+      assert.equal(contacts[0].events.length, 2, 'one artist has year contract')
+    })
+
+  })
+
   // ----
   // selecting date on date definitions
   describe('distribution contracts on dates', async () => {
@@ -135,17 +236,8 @@ describe('query-royalty', () => {
     })
   })
 
-  describe('errors', async() => {
-    // before(async() => {
-    //   let recs = await Distribution
-    //     .findRoyalties({startDate: Moment().subtract(31, 'day'), endDate: new Moment().subtract('29', 'days'), shouldProcess: true })
-    //   for (let index = 0; index < recs.length; index++) {
-    //     let roy = await Distribution.findById(recs[index]._id);
-    //     await roy.royaltiesCalc();
-    //     await roy.save();
-    //   };
-    // })
 
+  describe('errors', async() => {
     it('list of error royalties', async() => {
       let req = {
         query: {
@@ -191,7 +283,8 @@ describe('query-royalty', () => {
       assert.equal(events[1].lines.length, 1, 'only one of the works');
       assert.equal(events[1].event.lines.length, 2, 'also works from other artists')
     })
-
   })
+
+
 
 })

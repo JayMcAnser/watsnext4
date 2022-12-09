@@ -402,6 +402,7 @@ DistributionSchema.methods.royaltiesCalc = async function() {
           }
           //}
         } else {
+          console.warn('art not found')
           line.royaltyErrors.push({type: 'error', message: 'art not found', index: indexLine})
         }
       }

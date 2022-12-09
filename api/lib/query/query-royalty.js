@@ -35,6 +35,29 @@ class QueryRoyalty extends QueryBuilder {
     });
   }
 
+  /**
+   * runs the recalulate and returns an array of distribution with an error
+   *
+   * @param req
+   * @param options
+   * @return {Promise<array of distribution with an error>}
+   */
+  async distributionErrors(req) {
+    // the page, limit, etc part
+    let a = this.aggregate(req.query);
+    // the filter definition
+    a.push(this._partialMatch(req));
+
+    let recs = await Distribution.aggregate(a);
+    for (let index = 0; index < recs.length; index++) {
+      let roy = await Distribution.findById(recs[index]._id);
+      // there should be an easy way to call the calc function, but can not find it. So retrieve the record again
+      roy = await roy.royaltiesCalc();
+      await roy.save();
+    }
+    // -- list for errors
+    return await Distribution.find({"lines.royaltyErrors": {$exists: true, $not: {$size: 0}}})
+  }
 
   /**
    * build the selector from the request and returns the $match part
@@ -74,7 +97,7 @@ class QueryRoyalty extends QueryBuilder {
   /**
    * raw selects the distribution contracts in a period
    *
-   * @param model
+   * @param model Should be Distribution, but isn't used because it's always the same
    * @param req
    * @return {Promise<Aggregate<Array<any>>>}
    */
@@ -125,7 +148,7 @@ class QueryRoyalty extends QueryBuilder {
    * recalculate the selected record to set the agent information in the lines
    *
    * @param a Object the mongo select statement
-   * @return {Promise<void>}
+   * @return {Promise<list of distribution with errors>}
    * @private
    */
   async _recalcSelectedRecords(a) {
@@ -336,7 +359,127 @@ class QueryRoyalty extends QueryBuilder {
     return Distribution.aggregate(a);
   }
 
+  /**
+   * @param options
+   *     - royaltyType: false | 0 | 1 the type of schema. False means all
+   * @return {[{$unwind: string},{$addFields: {royaltyAmount: string, agent: string, art: string, price: string, royaltyPercentage: string, royaltyErrors: string}},{$unset: string},{$lookup: {localField: string, as: string, foreignField: string, from: string}},{$addFields: {agentInfo: {$arrayElemAt: (string|number)[]}}},null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]}
+   * @private
+   */
 
+  _convertDistr2AddressLines(options = {royaltyType: false}) {
+    let result = [
+      {$unwind: '$lines'},
+      {$addFields: {
+          'agent': '$lines.agent',
+          'art': '$lines.art',
+          'price': '$lines.price',
+          'royaltyAmount': '$lines.royaltyAmount',
+          'royaltyPercentage': '$lines.royaltyPercentage',
+          'royaltyErrors': '$lines.royaltiesErrors'
+        }
+      },
+
+      {$unset: 'lines'},
+      {$lookup: {
+          "from": "agents",
+          "localField": "agent",
+          "foreignField": "_id",
+          "as": "agentData"
+        }},
+      {$addFields: {"agentInfo": {$arrayElemAt: ["$agentData",0]}}},
+      {$unset: 'agentData'},
+
+      {$lookup: {
+          "from": "arts",
+          "localField": "art",
+          "foreignField": "_id",
+          "as": "artData"
+        }},
+      {$addFields: {"artInfo": {$arrayElemAt: ["$artData",0]}}},
+// add the period to the artwork for later selecting
+      {$addFields: {"artInfo.royaltiesPeriod": "$agentInfo.royaltiesPeriod"}},
+      {$unset: 'artData'},
+
+// -- load the contact
+
+      {$unwind: "$agentInfo.contacts"},
+      {$addFields: {
+          contact: "$agentInfo.contacts"
+        }},
+      {$lookup: {
+          "from": "contacts",
+          "localField": "contact.contact",
+          "foreignField": "_id",
+          "as": "contactData"
+        }},
+      {$addFields: {
+          "contactInfo": {$arrayElemAt: ["$contactData",0]}
+        }},
+// -- need artist info in the contact
+      {$unset: "contactData"},
+      {$addFields: {
+          "contactInfo.percentage": "$contact.percentage",
+          "contactInfo.royaltiesPeriod": "$agentInfo.royaltiesPeriod",
+        }},
+      {$unset: "contact"},
+// -- sort on event order
+      {$sort: {"eventStartDate": 1}}];
+
+// ----------------------------------------------------------------------------------
+// -- the filter for the matching
+      if (options.royaltyType !== false) {
+        result.push({$match: {"artInfo.royaltiesPeriod": options.royaltyType}})
+      }
+
+// ----------------------------------------------------------------------------------
+      result.push(
+// -- group on the contact
+      {$group: {
+          _id: "$contactInfo._id",
+          total: {$sum: '$royaltyAmount'},
+          events: {$push: "$$ROOT"},
+          contacts: {$push: "$contactInfo"},
+      }},
+// -- set the contact to the base level
+      {$addFields: {
+          contact: {$arrayElemAt: ["$contacts",0]}}
+      },
+      {$unset: 'contacts'},
+// -- sort it so it reproducable
+      {$sort: {'contact.name': 1}},
+    )
+    return result;
+  }
+
+  /**
+   *
+   * @param req Object the request object
+   *    query: {
+   *      [standart of date, etc]
+   *      [standard of limit, page, etc]
+   *      royaltyType: integer  (0 = year, 1 = quarter, missing = all)
+   *    }
+   * @param options
+   *    - returnData boolean default true
+   * @return {Promise<Aggregate<Array<any>>>}
+   */
+  async contactEvents(req, options = {}) {
+    let a = [];
+    // -- build the select statement for the distribution contracts that are there
+    a.push(this._partialMatch(req));
+    // -- check if we need to load the agents / artworks
+    if (req.query.hasOwnProperty('recalc') && req.query.recalc) {
+      let errors = await this._recalcSelectedRecords(a);
+    }
+
+    let royaltyType = req.query.hasOwnProperty('royaltyType') ? req.query.royaltyType % 2: false
+    a = a.concat(this._convertDistr2AddressLines({royaltyType}))
+
+    if (options.hasOwnProperty('returnData') && ! options.returnData ) {
+      return a;
+    }
+    return Distribution.aggregate(a);
+  }
 }
 
 module.exports = QueryRoyalty;
