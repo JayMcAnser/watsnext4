@@ -356,20 +356,20 @@ DistributionSchema.methods.royaltiesCalc = async function() {
           // the percentage is
           let valid = art.royaltiesValidate()
           if (valid.length > 0) {
-            line.royaltyErrors.push({type: 'error', message: valid.join('\n'), data: valid, index: indexLine})
+            line.royaltyErrors.push({type: 'error.art', message: valid.join('\n'), data: valid, index: indexLine})
             continue; // can not compute this line
           }
           let agent = art.creator; // agents[indexAgent].agent;
           if (!agent) {
-            line.royaltyErrors.push({type: 'error', message: 'primary artist not found', index: indexAgent})
+            line.royaltyErrors.push({type: 'error.agent', message: 'primary artist not found', index: indexAgent})
           } else {
             if (agent.agentId === -1) {
-              line.royaltyErrors.push({type: 'error', message: 'there is no primary artist'})
+              line.royaltyErrors.push({type: 'error.art', message: 'there is no primary artist'})
               continue;
             }
             let valid = agent.royaltiesValidate();
             if (valid.length > 0) {
-              line.royaltyErrors.push({type: 'error', message: valid.join('\n'), data: valid})
+              line.royaltyErrors.push({type: 'error.agent', message: valid.join('\n'), data: valid})
               continue; // don't do anything else
             }
             // the percentage is defined in by the agent, but can be overruled by the artwork
@@ -378,26 +378,6 @@ DistributionSchema.methods.royaltiesCalc = async function() {
               line.agent = agent;
               line.royaltyPercentage = percAgent;
               line.royaltyAmount = line.price * (percAgent / 100);
-
-              // -- should not include the contacts. That should be done on the report version
-              // if (agent.contacts.length > 0) {
-              //   royalty.agent = agent._id;
-              //   for (let indexContact = 0; indexContact < agent.contacts.length; indexContact++) {
-              //     let contact = agent.contacts[indexContact].contact;
-              //     let percContact = agent.contacts[indexContact].percentage === undefined ? 100 : agent.contacts[indexContact].percentage;
-              //
-              //     if (contact) {
-              //       royalty.contactPercentage = percContact
-              //       contactPercentage += percContact
-              //       royalty.contact = contact._id;
-              //       // now finaly store the royalties record
-              //       line.royalties.push(royalty);
-              //       line.agent = agent;  // remember this for the grouping
-              //     } else {
-              //       line.royaltiesErrors.push({type: 'error', message: 'contact not found', index: indexContact})
-              //     }
-              //   }
-              // }
             }
           }
           //}

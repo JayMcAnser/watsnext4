@@ -60,6 +60,18 @@ class QueryRoyalty extends QueryBuilder {
   }
 
   /**
+   * list all agents that have an error in the give period
+   *
+   * @param req
+   * @return {Promise<void>}
+   */
+  async agentErrors(req) {
+    let contactQry = await this.contactEvents(req, {returnData: false})
+    throw new Error('To be implemented');
+    return []
+  }
+
+  /**
    * build the selector from the request and returns the $match part
    *
    * @param req

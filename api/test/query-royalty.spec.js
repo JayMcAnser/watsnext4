@@ -125,6 +125,19 @@ describe('query-royalty', () => {
 
   })
 
+  describe('agent errors', async() => {
+    it('check runner', async() => {
+      let artistsReq = {
+        query: {
+          year: '2011',
+          recalc: true,
+        }
+      }
+      let qry = new QueryRoyalties();
+      let contacts = await qry.agentErrors(artistsReq);
+      assert.isTrue(contacts.length > 0)
+    })
+  })
   // ----
   // selecting date on date definitions
   describe('distribution contracts on dates', async () => {
