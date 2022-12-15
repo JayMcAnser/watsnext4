@@ -369,24 +369,22 @@ ArtSchema.methods.royaltiesValidate = function() {
   // validate the art
   if (this.royaltiesPercentage !== undefined) {
     if (this.royaltiesPercentage < 0) {
-      errors.push('the royalties must be larger or equal to 0')
+      errors.push('the royalties must be more or equal to 0')
     }
     if (this.royaltiesPercentage > 100) {
-      errors.push('the max royalties must be less or equal 100')
+      errors.push('the max royalties for an artwork must be less or equal 100')
     }
   }
 
   // validate the agent definition
-  let percentage = 0;
-  if (this.agents === undefined || this.agents.length === 0) {
-    errors.push('no artist found')
-  } else {
-    for (let agentIndex = 0; agentIndex < this.agents.length; agentIndex++) {
-      let perc = this.agents[agentIndex].percentage;
-      percentage += perc;
-    }
-    if (percentage > 100) {
-      errors.push('the artist percentage is more the 100%')
+  if (!this.creator) {
+    errors.push('the artwork has no primary artist (creator)')
+  }
+  // must find it again for the percentage
+  let agentIndex = this.agents.findIndex((a) => a.role === ROLE_CREATOR);
+  if (agentIndex >= 0) {
+    if (this.agents[agentIndex].percentage != 100) {
+      errors.push('the total of the artist percentage should be 100%')
     }
   }
   this.royaltiesError = errors.length ? errors.join('\n') : ''

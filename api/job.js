@@ -1,3 +1,5 @@
+
+process.env.NODE_ENV = 'develop';
 process.env["NODE_CONFIG_DIR"] = __dirname + '/../config/';
 let options = {};
 const say = (message) => {
@@ -10,7 +12,7 @@ const say = (message) => {
 const LoggingServer = require('./lib/logging-server').loggingServer;
 
 const sayImport = () => {
-  say('version 0.1 dd 2022-01-11')
+  say('version 0.2 dd 2022-12-14')
   say('global options:');
   say(' -s (silent) to stop the counters from displaying')
 
@@ -37,7 +39,12 @@ const sayImport = () => {
   say('  -r --reset remove the existing records')
   say('  --parts {comma seperated list of objects}. Values: art,agent,carrier,distribution,contact');
   say('');
-  say('  examples')
+  say('royalty:contact');
+  say(' generate the xslx for a specific period.')
+  say('  -y {number} year (default current year')
+  say('  -q {number} quarter')
+  say('');
+  say('examples')
   say('  node job import:watnext --parts contact -r -c 1000     => reimport all contacts')
 
   //say('  -p {names seperated by ,} the parts. Default all')
@@ -60,6 +67,8 @@ const optionDefinitions = [
   { name: 'count', alias: 'c', type: Number},
   { name: 'output', alias: 'o', type: String},
   { name: 'parts', type: String},
+  { name: 'year', alias: 'y', type: Number},
+  { name: 'quarter', alias: 'q', type: Number}
 //   { name: 'env', alias: 'e', type: String},
 ]
 const commandLineArgs = require('command-line-args')
@@ -78,6 +87,7 @@ if (options.help || !options.job || typeof options.job !== 'string') {
 }
 
 const util = require('util')
+const {jobImportWatsNext: jobWatsNextImport} = require("./jobs/import-watsnext");
 
 switch (options.job) {
   case 'generate:wikipedia':
@@ -144,6 +154,28 @@ switch (options.job) {
       })
     })
     break;
+  }
+
+  case 'royalty:contact': {
+    const jobRoyaltyContact = require('./jobs/royalties-per-contact').jobRoyaltyContact
+    util.promisify(jobRoyaltyContact);
+    LoggingServer.info('royalty:contact').then(() => {
+      jobRoyaltyContact(Object.assign({}, {recalc: true}, options)).then( async (x) => {
+        // say(`imported ${x.length} records, ${x.filter(x => x.action === 'changed').length} changes,  ${x.filter(x => x.action === 'not found').length} not found`)
+        say('xslx generated');
+        await  LoggingServer.info('royalty:contact.ended')
+        if (options.debug) {
+          console.log(x)
+        }
+        process.exit(0)
+      }).catch(async e => {
+        sayError(`royalty contact error: ${e.message}`)
+        await LoggingServer.error(e.message)
+        process.exit(1)
+      })
+    })
+    break;
+
   }
   default:
     sayError(`unknown job: "${options.job}"`)

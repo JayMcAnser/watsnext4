@@ -345,7 +345,9 @@ DistributionSchema.methods.royaltiesCalc = async function() {
     let line = this.lines[indexLine];
     line.royaltyAmount = 0;
     line.royaltyPercentage = 0;
-    line.royaltyErrors = [];
+    line.royaltyErrors = undefined
+    // line.royaltyErrors = [];
+    let royaltyErrors = [];
     line.agent = null;
     if (!this.noRoyalty) {
       if (line.price > 0) {
@@ -356,39 +358,45 @@ DistributionSchema.methods.royaltiesCalc = async function() {
           // the percentage is
           let valid = art.royaltiesValidate()
           if (valid.length > 0) {
-            line.royaltyErrors.push({type: 'error.art', message: valid.join('\n'), data: valid, index: indexLine})
-            continue; // can not compute this line
-          }
-          let agent = art.creator; // agents[indexAgent].agent;
-          if (!agent) {
-            line.royaltyErrors.push({type: 'error.agent', message: 'primary artist not found', index: indexAgent})
+            royaltyErrors.push({type: 'error.art', message: valid.join('\n'), data: valid, index: indexLine})
           } else {
-            if (agent.agentId === -1) {
-              line.royaltyErrors.push({type: 'error.art', message: 'there is no primary artist'})
-              continue;
-            }
-            let valid = agent.royaltiesValidate();
-            if (valid.length > 0) {
-              line.royaltyErrors.push({type: 'error.agent', message: valid.join('\n'), data: valid})
-              continue; // don't do anything else
-            }
-            // the percentage is defined in by the agent, but can be overruled by the artwork
-            let percAgent = agent.percentage === undefined ? Config.value('royalties.agent.percentage', 60): agent.percentage;
-            if (percAgent > 0) {
-              line.agent = agent;
-              line.royaltyPercentage = percAgent;
-              line.royaltyAmount = line.price * (percAgent / 100);
+            let agent = art.creator; // agents[indexAgent].agent;
+            if (!agent) {
+              royaltyErrors.push({type: 'error.agent', message: 'primary artist not found', index: indexAgent})
+            } else {
+              if (agent.agentId === -1) {
+                royaltyErrors.push({type: 'error.art', message: 'there is no primary artist'})
+              } else {
+                line.agent = agent;
+                let valid = agent.royaltiesValidate();
+                if (valid.length > 0) {
+                  royaltyErrors.push({type: 'error.agent', message: valid.join('\n'), data: valid})
+                } else {
+                  // the percentage is defined in by the agent, but can be overruled by the artwork
+                  let percAgent = agent.percentage === undefined ? Config.value('royalties.agent.percentage', 60) : agent.percentage;
+                  if (percAgent > 0) {
+                    line.royaltyPercentage = percAgent;
+                    line.royaltyAmount = line.price * (percAgent / 100);
+                  }
+                }
+              }
             }
           }
-          //}
         } else {
-          console.warn('art not found')
-          line.royaltyErrors.push({type: 'error', message: 'art not found', index: indexLine})
+          // console.warn('art not found')
+          royaltyErrors.push({type: 'error.distribution', message: 'the artwork does not exist', index: indexLine})
+        }
+      }
+      this.hasRoyaltyErrors = royaltyErrors.length > 0
+      if (royaltyErrors.length) {
+        line.royaltyErrors = []
+        for (let index = 0; index < royaltyErrors.length; index++) {
+          line.royaltyErrors.push(royaltyErrors[index])
         }
       }
     }
   }
-  this.hasRoyaltyErrors = this.lines.findIndex( (l) => l.royaltyErrors.length > 0) >= 0
+
   return this;
 }
 

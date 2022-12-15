@@ -1,6 +1,6 @@
 {
   "name": "watsnext-api",
-  "version": "4.2.2",
+  "version": "4.2.3",
   "description": "The api for WatsNext",
   "main": "index.js",
   "scripts": {
@@ -23,6 +23,7 @@
     "express": "^4.18.2",
     "express-fileupload": "^1.4.0",
     "joi": "^17.7.0",
+    "json-as-xlsx": "^2.5.0",
     "jsonfile": "^6.1.0",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",

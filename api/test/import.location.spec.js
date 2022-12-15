@@ -94,6 +94,7 @@ describe('import.location', function() {
       assert.equal(obj.shippingCosts, 200);
       assert.equal(obj.otherCosts, 300);
       assert.equal(obj.productionCosts, 400);
+      assert.equal(obj.eventStartDateVal, '20050103')
     })
   });
 

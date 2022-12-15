@@ -1,4 +1,8 @@
 
+## 2022-12-15 V4.2.3
+- add: job royalty:contacts to retrieve the contacts
+- 
+
 ## 2022-12-06 V4.2.2
 - fix: DeprecationWarning: Mongoose: the `strictQuery`
 - fix: date selection in distribution ranges

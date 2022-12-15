@@ -48,15 +48,45 @@ class QueryRoyalty extends QueryBuilder {
     // the filter definition
     a.push(this._partialMatch(req));
 
-    let recs = await Distribution.aggregate(a);
-    for (let index = 0; index < recs.length; index++) {
-      let roy = await Distribution.findById(recs[index]._id);
-      // there should be an easy way to call the calc function, but can not find it. So retrieve the record again
-      roy = await roy.royaltiesCalc();
-      await roy.save();
+    if (req.query.hasOwnProperty('recalc') && req.query.recalc) {
+      await this._recalcSelectedRecords(a)
     }
+
+    let filter = [
+      {$match: {"lines.royaltyErrors": {$exists: true}}},
+      {$unwind: "$lines"},
+      {$match: { "hasRoyaltyErrors": true}},
+      {$lookup: {
+        from: "arts",
+          localField: "lines.art",
+          foreignField: "_id",
+          as: "artData"
+      }},
+      {$unwind: {path: "$artData", "preserveNullAndEmptyArrays": true}},
+      {$lookup: {
+        from: "agents",
+          localField: "lines.agent",
+          foreignField: "_id",
+          as: "artistData"
+      }},
+      {$unwind: {"path": "$artistData", "preserveNullAndEmptyArrays": true}},
+   //   {$sort: "eventStartDateVal"}
+    ];
+    a = a.concat(filter)
+    // the page, limit, etc part
+    // let a = this.aggregate(req.query);
+    // // the filter definition
+    // a.push(this._partialMatch(req));
+    //
+    // let recs = await Distribution.aggregate(a);
+    // for (let index = 0; index < recs.length; index++) {
+    //   let roy = await Distribution.findById(recs[index]._id);
+    //   // there should be an easy way to call the calc function, but can not find it. So retrieve the record again
+    //   roy = await roy.royaltiesCalc();
+    //   await roy.save();
+    // }
     // -- list for errors
-    return await Distribution.find({"lines.royaltyErrors": {$exists: true, $not: {$size: 0}}})
+    return await Distribution.aggregate(a);
   }
 
   /**
@@ -387,7 +417,7 @@ class QueryRoyalty extends QueryBuilder {
           'price': '$lines.price',
           'royaltyAmount': '$lines.royaltyAmount',
           'royaltyPercentage': '$lines.royaltyPercentage',
-          'royaltyErrors': '$lines.royaltiesErrors'
+          'royaltyErrors': '$lines.royaltyErrors'
         }
       },
 

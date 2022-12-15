@@ -68,6 +68,11 @@ let ArtistIds = [
   {artistId: 994001, type: 'artist - year', royaltiesPeriod: 0, contacts: [{addr: 9985001, percentage: 100}]},                  // artist per year
   {artistId: 994002, type: 'artist - quarter', royaltiesPeriod: 1, contacts: [{addr: 9985001, percentage: 100}]},                  // artist per quarter
 
+  // validation errors
+  {artistId: 993001, type: 'artist - ok', royaltiesPeriod: 1, contacts: [{addr: 9985001, percentage: 100}]},
+  {artistId: 993002, type: 'artist - no contacts', royaltiesPeriod: 1, contacts: []},                                   // no contacts
+  {artistId: 993003, type: 'artist - no contacts', royaltiesPeriod: 1, contacts: [{addr: 9985001, percentage: 110}]},   // too much
+
 ];
 
 
@@ -99,6 +104,12 @@ let ArtIds = [
   {artId: 9994001, royaltiesPercentage: 0,    agents:[{artist: 994001}] }, // contact 1, artist 1, year
   {artId: 9994002, royaltiesPercentage: 0,    agents:[{artist: 994002}] },  // contact 1, artist 2, quarter
   {artId: 9994003, royaltiesPercentage: 0,    agents:[{artist: 994002}] },  // contact 1, artist 2, quarter
+
+  // validation errors
+  {artId: 9993001, royaltiesPercentage: 0,    agents:[] },                  // artist does not exist
+  {artId: 9993002, royaltiesPercentage: 110,  agents:[{artist: 993001}] },  // too much royalties on art
+  {artId: 9993003, royaltiesPercentage: 0,  agents:[{artist: 993002}] },  // no contacts
+  {artId: 9993004, royaltiesPercentage: 0,  agents:[{artist: 993003}] },  // contacts: too much royalties on artist contacts
 
 ];
 let CarrierIds = [
@@ -188,6 +199,28 @@ let DistributionIds = [
       {order: 'b-1', price: 200, art: 9994003 },                      // contact 1, artist 1, quarter
     ],
   },
+
+  // validation errors
+  {distributionId: 99946001, addrInvoice: 9986002, eventStartDate: '2012-04-01', lines: [
+      {order: 'a-0', price: 200, art: 1 },                          // art does not exist
+    ],
+  },
+  {distributionId: 99946002, addrInvoice: 9986002, eventStartDate: '2012-04-01', lines: [
+      {order: 'a-0', price: 200, art: 9993001 },                    // artist does not exist
+    ],
+  },
+  { distributionId: 99946003, addrInvoice: 9986002, eventStartDate: '2012-04-01', lines: [
+      {order: 'a-0', price: 200, art: 9993002},                    // too much royalties on art
+    ],
+  },
+  { distributionId: 99946004, addrInvoice: 9986002, eventStartDate: '2012-04-01', lines: [
+      {order: 'a-0', price: 200, art: 9993003},                    // no contacts for art
+    ],
+  },
+  { distributionId: 99946005, addrInvoice: 9986002, eventStartDate: '2012-04-01', lines: [
+      {order: 'a-0', price: 200, art: 9993004},                    // contacts too much royalties
+    ],
+  }
 
 ]
 
@@ -320,7 +353,8 @@ const addDistribution = async function(session) {
         try {
           distr.lines.push({order: line.order, art: ArtIds[i].id, price: line.price})
         } catch (e) {
-          console.error('missing art ', line.art)
+          console.error('missing art, but still added the line', line.art)
+          distr.lines.push({order: line.order, price: line.price})
         }
       } else if (line.carrier !== undefined) {
         let i = CarrierIds.findIndex( x => x.carrierId === line.carrier)

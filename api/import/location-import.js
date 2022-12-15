@@ -67,6 +67,7 @@ const ConvertMap = {
   comments: '',
   footer : 'footer_text',
   vat: 'btw_prc',
+  eventStartDate: 'rental_date',
 
   contact: async (rec, mongoRec) => { return await contactLink(mongoRec, rec.contact_address_ID) },
   contactName: 'contact_address_name',

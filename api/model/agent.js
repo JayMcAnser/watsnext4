@@ -186,7 +186,7 @@ AgentSchema.methods.royaltiesValidate = function() {
       perc += this.contacts[index].percentage
     }
     if (perc !== 100) {
-      errors.push('total of artist percentage should be 100%')
+      errors.push('total of artist percentage by its contacts should be 100%')
     }
   }
  // this.royaltiesError = errors.length ? errors.join('\n') : undefined;
