@@ -136,8 +136,10 @@ ArtSchema.virtual('creator')
     let index = this.creatorIndex;
     if (index >= 0) {
       let obj = this.agents[index].agent;
-      obj.royaltiesPercentage = this.agents[index].percentage;
-      return obj
+      if (obj) {
+        obj.royaltiesPercentage = this.agents[index].percentage;
+        return obj
+      }
     };
     LoggingServer.error(`the art [${this.artId}] - ${this.title} does not have an creator`, {action: 'data-repair', artId: this.artId, artistCount: this.agents.length})
     return { agentId: -1, error: 'there is no creator', toString: () => this.error }

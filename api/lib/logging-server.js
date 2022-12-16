@@ -11,14 +11,15 @@ class LoggingServer {
   /**
 
    curl 'https://services.li-ma.nl/log/gelf' \
-   -h 'apikey: myL6pkDoS430ZWM92Eg7zl9N9t0wwbgnA5wa2wz9GR6VSLNvjD' \
-   -h 'Content-Type: application/json' \
+   -H 'apikey: myL6pkDoS430ZWM92Eg7zl9N9t0wwbgnA5wa2wz9GR6VSLNvjD' \
+   -H 'Content-Type: application/json' \
    -d '{
       "short_message":"Hello there",
       "host":"example.org",
       "facility":"test",
       "_foo":"bar"
     }'
+
    * @param action: 'help', 'missing.image', 'not found', ect
    * @param msg: what should be read
    * data: any object

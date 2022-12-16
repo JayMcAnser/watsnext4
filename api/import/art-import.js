@@ -22,7 +22,6 @@ const ROLE_SUBJECT = require('../model/art').ROLE_SUBJECT;
 const FieldMap = {
 
   artId: 'art_ID',
-  code: 'searchcode',
   type: (rec) => {
     switch (rec.objecttype_ID) {
       case 1:

@@ -202,14 +202,17 @@ class MongoAsExcel {
     }
     for (let index = 0; index < this._errors.length; index++) {
       let err = this._errors[index];
-      tab.content.push({
-        location: err.locationId,
-        event: err.event,
-        type: err.lines.royaltyErrors[0].type,
-        message: err.lines.royaltyErrors[0].message,
-        artwork: err.artData ? err.artData.title : '-- unknown --',
-        artist: err.artistData ? err.artistData.name : '-- unknown --',
-      })
+//      console.log(index)
+      if ( err.lines.royaltyErrors &&  err.lines.royaltyErrors.length) { // can have lines without errors
+        tab.content.push({
+          location: err.code,
+          event: err.event,
+          type: err.lines.royaltyErrors[0].type,
+          message: err.lines.royaltyErrors[0].message,
+          artwork: err.artData ? err.artData.title : '-- unknown --',
+          artist: err.artistData ? err.artistData.name : '-- unknown --',
+        })
+      }
     }
     return tab;
   }

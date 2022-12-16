@@ -144,7 +144,7 @@ class ContactImport {
       sql = `SELECT * FROM addresses WHERE address_ID=${record.address_ID}`;
       qry = await con.query(sql);
       if (qry.length === 0) {
-         this._logging.log('warn', `address[${record.address_ID}] does not exist. skipped`);
+         this._logging.log('warn', `contact[${record.address_ID}] does not exist. skipped`);
         return undefined
       }
       record = qry[0];
@@ -289,9 +289,9 @@ class ContactImport {
     try {
       await contact.reSync();
       contact = await contact.save();
-      this._logging.log('info', `address[${contact.address_ID}]: imported`)
+      this._logging.log('info', `contact${contact.address_ID}]: imported`)
     } catch (e) {
-       this._logging.log('error', `importing address[${record.address_ID}]: ${e.message}`)
+       this._logging.log('error', `importing contact[${record.address_ID}]: ${e.message}`)
     }
     return contact;
   }

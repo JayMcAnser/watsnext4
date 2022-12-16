@@ -8,6 +8,7 @@ const makeLength = require('./import-helper').makeLength;
 const insertField = require('./import-helper').insertField;
 const ImportHelper = require('./import-helper');
 const CodeImport = require('./code-import');
+const ContactImport = require('./contact-import');
 
 const FieldMap = {
   agentId: 'agent_ID',
@@ -27,6 +28,7 @@ const FieldMap = {
   },
   name: 'name',
   sortOn: 'sort_on',
+  searchcode: 'searchcode',
   died: 'died',
   biography: 'biography_en',
   biographyNl: 'biography_nl',
@@ -44,6 +46,7 @@ class AgentImport {
     this._limit = options.limit !== undefined ? options.limit : 0;
     this._step = this._limit < STEP ? this._limit : STEP;
     this._codeImport = new CodeImport({session: this.session});
+    this._contactImport = new ContactImport({session: this.session})
     this._logging = options.logging ? options.logging : Logging
   }
 
@@ -80,7 +83,30 @@ class AgentImport {
       }
       dataRec[fieldName] = await recordValue(record, FieldMap[fieldName], Agent);
     }
-    //-- add the codes
+    // -- the address info
+    sql = `SELECT * FROM address2agent WHERE agent_ID=${record.agent_ID}`;
+    qry = await con.query(sql);
+    for (let addrIndex = 0; addrIndex < qry.length; addrIndex++) {
+      let addr = await this._contactImport.runOnData(qry[addrIndex], {loadSql: true});
+      if (addr) {
+        let addrRec = {
+          contact: addr._id,
+          isRights: qry[addrIndex].is_rights_address,
+          isContact: qry[addrIndex].is_contact_address,
+          isHome: qry[addrIndex].is_home_address,
+          percentage: qry[addrIndex].percentage_of_percentage
+        }
+        if (dataRec.contacts === undefined) {
+          dataRec.contacts = [addrRec]
+        } else {
+          dataRec.contacts.push(addrRec)
+        }
+      } else {
+        this._logging.log('error', `agent[${record.agent_ID}] has address[${qry.contactId}] but does not exist`)
+      }
+    }
+
+    // -- add the codes
     sql = `SELECT * FROM agent2code WHERE agent_ID=${record.agent_ID}`;
     qry = await con.query(sql);
     for (let codeIndex = 0; codeIndex < qry.length; codeIndex++) {

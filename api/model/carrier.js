@@ -41,7 +41,7 @@ const CarrierLayout = {
   carrierId: { type: String, index: true},        // the org carrier id in WatsNext
   type: String,
   locationNumber: String,
-  searchCode: String,
+  searchcode: String,
   creationDate: Date,
   mutationDate: Date,
   comments: String,

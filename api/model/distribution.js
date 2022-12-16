@@ -212,7 +212,7 @@ DistributionSchema.pre('save', async function() {
             this.lines[index].art = carrier.artwork[0].art;
           } else {
             this.art = undefined;
-            LoggingServer.warn('distribution.save', `distribution: ${this._id}: carrier ${carrier._id} has multiple artworks. Only first one is processed`);
+            LoggingServer.warn('distribution.save', {msg:`distribution: ${this._id}: carrier ${carrier._id} has multiple artworks. Only first one is processed`});
           }
 
         } else if (!this.lines[index].art) {

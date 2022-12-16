@@ -28,7 +28,7 @@ const FieldMap = {
     }
   },
   locationNumber: 'location_number',
-  searchCode: 'searchcode',
+  searchcode: 'searchcode',
   creationDate: 'creation_date',
   mutationDate: 'modifed_date',
   comments: 'comments',
