@@ -54,7 +54,7 @@ const AgentExtendLayout = {
 const AgentLayout = Object.assign({
   agentId: String,
   type: String,
-  searchcode:  String,
+ // searchcode:  String, // the original has no searchcode.
   name: String,
   sortOn: String,
   died: String,
@@ -186,7 +186,7 @@ AgentSchema.methods.royaltiesValidate = function() {
       perc += this.contacts[index].percentage
     }
     if (perc !== 100) {
-      errors.push(`total of artist (${this.agentId}) percentage by its contacts should be 100% (is ${perc}%)`)
+      errors.push(`total of artist (${this.name}) percentage by its contacts should be 100% (is ${perc}%)`)
     }
   }
  // this.royaltiesError = errors.length ? errors.join('\n') : undefined;

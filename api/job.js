@@ -44,6 +44,11 @@ const sayImport = () => {
   say('  -y {number} year (default current year')
   say('  -q {number} quarter')
   say('');
+  say('royalty:contract');
+  say(' list all contracts (dagstaten) with in a specific period as xslx.')
+  say('  -y {number} year (default current year')
+  say('  -q {number} quarter')
+  say('');
   say('examples')
   say('  node job import:watnext --parts contact -r -c 1000     => reimport all contacts')
 
@@ -68,7 +73,8 @@ const optionDefinitions = [
   { name: 'output', alias: 'o', type: String},
   { name: 'parts', type: String},
   { name: 'year', alias: 'y', type: Number},
-  { name: 'quarter', alias: 'q', type: Number}
+  { name: 'quarter', alias: 'q', type: Number},
+  { name: 'recalc', type: Boolean}
 //   { name: 'env', alias: 'e', type: String},
 ]
 const commandLineArgs = require('command-line-args')
@@ -88,6 +94,7 @@ if (options.help || !options.job || typeof options.job !== 'string') {
 
 const util = require('util')
 const {jobImportWatsNext: jobWatsNextImport} = require("./jobs/import-watsnext");
+const {jobRoyaltyContact} = require("./jobs/royalties-per-contact");
 
 switch (options.job) {
   case 'generate:wikipedia':
@@ -175,7 +182,26 @@ switch (options.job) {
       })
     })
     break;
-
+  }
+  case 'royalty:contract': {
+    const jobRoyaltyContract = require('./jobs/royalties-per-contact').jobRoyaltyContract
+    util.promisify(jobRoyaltyContract);
+    LoggingServer.info('royalty:contract').then(() => {
+      jobRoyaltyContract(Object.assign({}, {recalc: true}, options)).then(async (x) => {
+        // say(`imported ${x.length} records, ${x.filter(x => x.action === 'changed').length} changes,  ${x.filter(x => x.action === 'not found').length} not found`)
+        say('xslx generated');
+        await LoggingServer.info('royalty:contract.ended')
+        if (options.debug) {
+          console.log(x)
+        }
+        process.exit(0)
+      }).catch(async e => {
+        sayError(`royalty contract error: ${e.message}`)
+        await LoggingServer.error(e.message)
+        process.exit(1)
+      })
+    })
+    break;
   }
   default:
     sayError(`unknown job: "${options.job}"`)

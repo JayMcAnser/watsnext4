@@ -5,17 +5,17 @@
  */
 
 
-const RoyaltiesContact = require('../reports/royalties-contact')
+const RoyaltiesContact = require('../reports/royalties-contact').RoyaltiesContact
+const RoyaltiesContract = require('../reports/royalties-contact').RoyaltiesContract
 const DbMySQL = require("../lib/db-mysql");
 const DbMongo = require("../lib/db-mongo");
+const Moment = require('moment');
 
-const jobRoyaltyContact = async (options= {}) => {
-  await init();
-
+const _optionsToReq = (options)  => {
   if (options.debug) { debug(`importing ${options.file ? options.file : 'Speadsheet.xlsx'}`) }
   let req = {
     query: {
-      year: 2022
+      year: Moment().year()
     }
   }
   if (options.hasOwnProperty('year')) {
@@ -27,8 +27,22 @@ const jobRoyaltyContact = async (options= {}) => {
   if (options.hasOwnProperty('recalc')) {
     req.query.recalc = 1
   }
+  return req;
+}
+
+const jobRoyaltyContact = async (options= {}) => {
+  await init();
+
   let report = new RoyaltiesContact();
-  await report.execute(req)
+  await report.execute(_optionsToReq(options))
+  return true;
+}
+
+const jobRoyaltyContract = async(options = {} ) => {
+  await init();
+
+  let report = new RoyaltiesContract();
+  await report.execute(_optionsToReq(options))
   return true;
 }
 
@@ -47,5 +61,6 @@ async function init() {
 }
 
 module.exports = {
-  jobRoyaltyContact
+  jobRoyaltyContact,
+  jobRoyaltyContract
 }

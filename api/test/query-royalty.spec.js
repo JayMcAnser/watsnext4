@@ -32,8 +32,25 @@ describe('query-royalty', () => {
 
       assert.equal(errors.length, 3, '2 are number of programmed errors for testing')
     })
-
   });
+
+  describe('royalties period', async() => {
+
+    it('list the contacts - all', async () => {
+      let artistsReq = {
+        query: {
+          start: Moment().subtract(21, 'day').format('YYYYMMDD'),
+          end: Moment().subtract('19', 'days').format('YYYYMMDD'),
+          recalc: true
+        }
+      }
+
+      let qry = new QueryRoyalties(artistsReq);
+      let contacts = await qry.royaltyPeriod(artistsReq);
+      assert.equal(contacts.length, 5)
+      assert.equal(contacts[0]._id, '99986003')
+    })
+  })
 
   describe('royalties per contact in range', async() => {
 

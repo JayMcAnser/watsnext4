@@ -28,7 +28,6 @@ const FieldMap = {
   },
   name: 'name',
   sortOn: 'sort_on',
-  searchcode: 'searchcode',
   died: 'died',
   biography: 'biography_en',
   biographyNl: 'biography_nl',

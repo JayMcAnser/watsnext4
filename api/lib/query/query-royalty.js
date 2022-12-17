@@ -522,6 +522,109 @@ class QueryRoyalty extends QueryBuilder {
     }
     return Distribution.aggregate(a);
   }
+
+  /**
+   * list all the "dagstaten" Contract within the period
+   *
+   * @param req
+   * @param options
+   * @return {Promise<Aggregate<Array<any>>|*[]>}
+   */
+  async royaltyPeriod(req, options = {}) {
+    let a = [];
+    // -- build the select statement for the distribution contracts that are there
+    a.push(this._partialMatch(req));
+    // -- check if we need to load the agents / artworks
+    if (req.query.hasOwnProperty('recalc') && req.query.recalc) {
+      let errors = await this._recalcSelectedRecords(a);
+    }
+    let source = [
+      {
+        "$unwind": "$lines"
+      },
+      {
+        "$lookup": {
+          "from": "agents",
+          "localField": "lines.agent",
+          "foreignField": "_id",
+          "as": "agentData"
+        }
+      },
+      {
+        "$addFields": {
+          "agentInfo": {
+            "$arrayElemAt": [
+              "$agentData",
+              0
+            ]
+          }
+        }
+      },
+      {
+        "$unset": [
+          "agentData"
+        ]
+      },
+      {
+        "$lookup": {
+          "from": "arts",
+          "localField": "lines.art",
+          "foreignField": "_id",
+          "as": "artData"
+        }
+      },
+      {
+        "$addFields": {
+          "artInfo": {
+            "$arrayElemAt": [
+              "$artData",
+              0
+            ]
+          }
+        }
+      },
+      {
+        "$unset": [
+          "artData"
+        ]
+      },
+      {$addFields: {
+          "price": "$lines.price",
+          "royaltyAmount": "$lines.royaltyAmount",
+          "royaltyPercentage": "$lines.royaltyPercentage",
+          "royaltyError": {$arrayElemAt: ["$lines.royaltyErrors",0]}
+        }},
+      // {$unset: [ "lines" ]},
+      {
+        "$group": {
+          "_id": "$locationId",
+          "code": {$first: "$code"},
+          "event": {$first: "$event"},
+          "total": {
+            "$sum": "$lines.price"
+          },
+          "royalties": {
+            "$sum": "$lines.royaltyAmount"
+          },
+          "artworks": {
+            "$push": "$$ROOT"
+          }
+        }
+      },
+      {
+        "$sort": {
+          "code": 1
+        }
+      }
+
+        ]
+    a = a.concat(source)
+
+    if (options.hasOwnProperty('returnData') && ! options.returnData ) {
+      return a;
+    }
+    return Distribution.aggregate(a);
+  }
 }
 
 module.exports = QueryRoyalty;

@@ -353,7 +353,7 @@ const addDistribution = async function(session) {
         try {
           distr.lines.push({order: line.order, art: ArtIds[i].id, price: line.price})
         } catch (e) {
-          console.error('missing art, but still added the line', line.art)
+          console.log(`[warn] missing art (${line.art}), but still added the line`, line.art)
           distr.lines.push({order: line.order, price: line.price})
         }
       } else if (line.carrier !== undefined) {

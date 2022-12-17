@@ -371,13 +371,12 @@ DistributionSchema.methods.royaltiesCalc = async function() {
                 let valid = agent.royaltiesValidate();
                 if (valid.length > 0) {
                   royaltyErrors.push({type: 'error.agent', message: valid.join('\n'), data: valid})
-                } else {
-                  // the percentage is defined in by the agent, but can be overruled by the artwork
-                  let percAgent = agent.percentage === undefined ? Config.value('royalties.agent.percentage', 60) : agent.percentage;
-                  if (percAgent > 0) {
-                    line.royaltyPercentage = percAgent;
-                    line.royaltyAmount = line.price * (percAgent / 100);
-                  }
+                }
+                // the percentage is defined in by the agent, but can be overruled by the artwork
+                let percAgent = agent.percentage === undefined ? Config.value('royalties.agent.percentage', 60) : agent.percentage;
+                if (percAgent > 0) {
+                  line.royaltyPercentage = percAgent;
+                  line.royaltyAmount = line.price * (percAgent / 100);
                 }
               }
             }

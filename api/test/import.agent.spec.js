@@ -33,6 +33,7 @@ describe('import.agent', function() {
       "agent_ID": 1,
       "objecttype_ID": 512,
       "name": "name",
+      "searchcode": "searchcode",
       "sort_on": "sort on",
       "address_ID": 3,
       "rights_ID": 3,
@@ -50,6 +51,7 @@ describe('import.agent', function() {
     return imp.runOnData(record).then( (obj) => {
       assert.equal(obj.type, "collective in distribution");
       assert.equal(obj.name, 'name');
+      assert.equal(obj.searchcode, 'searchcode')
       assert.equal(obj.sortOn, 'sort on');
       assert.equal(obj.died, 'died');
       assert.equal(obj.biography, 'bio en');

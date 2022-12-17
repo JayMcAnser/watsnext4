@@ -28,6 +28,14 @@ Factory.register('user', () => {
 Factory.register('session', () => {
   return require('../lib/session');
 })
+
+const say = (message, options = {}) => {
+  if (options && options.silent) {
+    return;
+  }
+  console.log(message)
+}
+
 /**
  * import the watsnext db
  *
@@ -131,26 +139,31 @@ const jobImportWatsNext = async (options= {}) => {
     }
   }
   if (defaults.parts.indexOf('art') >= 0) {
+    say('import art', options)
     let imp = new ImportArt({session, limit: defaults.count, logging});
     await imp.run(DbMySQL)
     await LoggingServer.info(`imported art`);
   }
   if (defaults.parts.indexOf('agent') >= 0) {
+    say('import agent', options)
     let imp = new ImportAgent({session, limit: defaults.count, logging});
     await imp.run(DbMySQL)
     await LoggingServer.info(`imported agent`);
   }
   if (defaults.parts.indexOf('carrier') >= 0) {
+    say('import carrier', options)
     let imp = new ImportCarrier({session, limit: defaults.count, logging})
     await imp.run(DbMySQL)
     await LoggingServer.info(`imported carrier`);
   }
   if (defaults.parts.indexOf('distribution') >= 0) {
+    say('import distribution', options)
     let imp = new ImportLocation({session, limit: defaults.count, logging})
     await imp.run(DbMySQL)
     await LoggingServer.info(`imported distribution`);
   }
   if (defaults.parts.indexOf('contact') >= 0) {
+    say('import contact', options)
     let imp = new ImportContact({session, limit: defaults.count, logging})
     await imp.run(DbMySQL)
     await LoggingServer.info(`imported contact`);
