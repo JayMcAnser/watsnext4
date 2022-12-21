@@ -85,7 +85,7 @@ command:
 node job import:wiki -f part.csv
 ```
 This command updates the MongoDB with the urls for the known artists. It uses a .CSV file to import the data.
-Standard the files should be relative the **./data** directory, but this can be changed by the setup in the ../config
+Standard the files should be relative the **./api/../data** directory, but this can be changed by the setup in the **../config**
 definition by the **Path.importRoot** key. The default root is the **../** directory of the API (systemRoot).
 
 The format of the .CSV (comma separated) is:
