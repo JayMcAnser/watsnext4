@@ -99,19 +99,55 @@ The format can be change the config in the section **Import.csv** with the keys:
 * comment: "#",
 * hasFieldNames: true
 
+The mongodb is updated so the wikipedia key is set. The data is _not_ retrieved from the wikipedia
+
 ### Generate Wikipedia biography in Mediakunst
 command:
 ```shell
 node job generate:wikipedia
 ```
 The generated HTML fragments are stored in the mySQL database for use in mediakunst.net. This process should run **after**
-the mediakunst import has been done, because it extends the existin data with the biography information.
+the mediakunst import has been done, because it extends the existing data with the biography information.
 
+**TODO**: The biography still uses the image from the wikipedia not our converted image which is much smaller.
 
 ### import watsnext
 command:
 ```shell
 node job import:watsnext
 ```
+
+Import the data from the mySQL watsnext to the MongoDB watsnext (final, dev or test). The existing changes will _not_ be
+removed but remain in the data.
+
+* -r --reset remove the existing records
+* --parts {comma seperated list of objects}. Values: art,agent,carrier,distribution,contact');
+
+
+### build royalty reports per contact
+
+```shell
+node job royalty:contact
+```
+Builds a spreadsheet which is sorted by the contact (artist) that will get the royalties in a specific period. 
+the options:
+* -y the year to use (default current year
+* -c the quarter to use (1 t0 4)
+
+The spreadsheet is placed in the /temp directory by the name of {year}-{quarter if it there}- RoyaltiesPerArtist.xlsx
+
+
+### build royalty reports per contract (dagstaat)
+
+```shell
+node job royalty:contract'
+```
+Builds a spreadsheet which is sorted by the contact (artist) that will get the royalties in a specific period.
+the options:
+* -y the year to use (default current year
+* -c the quarter to use (1 t0 4)
+
+The spreadsheet is placed in the /temp directory by the name of {year}{-quarter if it there}-RoyaltiesPerContract.xlsx
+
 
 

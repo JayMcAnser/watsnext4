@@ -16,6 +16,12 @@ const sayImport = () => {
   say('global options:');
   say(' -s (silent) to stop the counters from displaying')
 
+  say('import:wiki');
+  say(' the information is sync between watsnext and mediakunst by using the csv file. Options:')
+  say('  -f {name}  set the name of the file to import. Default dir /data')
+  say('  -r reset/remove the existing wikipedia, setting only the once in the import file')
+  say('  -d debug the process')
+  say('')
   say('generate:wikipedia');
   say(' the wikipedia articles are retrieved and stored in mediakunst')
   say('  -d debug the process (default: 0)');
@@ -23,12 +29,6 @@ const sayImport = () => {
   say('  -r (reset) force all biographies to be updated even if not changed')
   say('  -i (id) the watsnext id of the artist to import, if omitted all is imported');
   say('');
-  say('import:wiki');
-  say(' the information is sync between watsnext and mediakunst by using the csv file. Options:')
-  say('  -f {name}  set the name of the file to import. Default dir /data')
-  say('  -r reset/remove the existing wikipedia, setting only the once in the import file')
-  say('  -d debug the process')
-  say('')
   say('import:watsnext');
   say(' import the watsnext database');
   say('  -d debug the process (default: 0)');

@@ -24,6 +24,7 @@ local.json
 /_site
 /_site-save
 
+/data/wiki-images
 _backup
 api/data/__mongo
 # Editor directories and files

@@ -77,6 +77,7 @@ const jobWikipedia = async (options= {}) =>  {
   } else {
     artistSet = await Agent.find({wikipedia: {$exists: true}})
   }
+  options.artistSet = artistSet;
   await LoggingServer.info(`generate ${artistSet.length} wikipedia pages`);
   if (options.debug) { debug(`found ${artistSet.length} artists to process`) }
   let template = options.template ? options.template : Config.get('Mediakunst.biographyTemplate')
