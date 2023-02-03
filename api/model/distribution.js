@@ -457,6 +457,13 @@ DistributionSchema.static('findRoyaltiesMatch', function(options = {}) {
       expr.$and.push({$eq: ['$isLocked', true]})
     }
   }
+  if (options.hasOwnProperty('code')) {
+    expr.$and.push(
+      {
+        $eq: ['$code', options.code]
+      }
+    )
+  }
 
   if (expr.$and.length === 0) {
     return {$match: {}}

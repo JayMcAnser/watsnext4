@@ -12,7 +12,7 @@ const say = (message) => {
 const LoggingServer = require('./lib/logging-server').loggingServer;
 
 const sayImport = () => {
-  say('version 0.2 dd 2022-12-14')
+  say('version 0.3 dd 2023-02-02')
   say('global options:');
   say(' -s (silent) to stop the counters from displaying')
 
@@ -31,11 +31,12 @@ const sayImport = () => {
   say('');
   say('import:watsnext');
   say(' import the watsnext database');
+  say('  -c {number} the number of records to import');
   say('  -d debug the process (default: 0)');
   say('  -e {name} the email address of the user to use (default: watsnext@li-ma.nl)')
-  say('  -p {password} the password to use (default: 123456' );
-  say('  -c {number} the number of records to import');
+  say('  -i {number} record id to import. needs --parts to define table')
   say('  -o {filename} output the debug to this file')
+  say('  -p {password} the password to use (default: 123456' );
   say('  -r --reset remove the existing records')
   say('  --parts {comma seperated list of objects}. Values: art,agent,carrier,distribution,contact');
   say('');
@@ -43,6 +44,7 @@ const sayImport = () => {
   say(' generate the xslx for a specific period.')
   say('  -y {number} year (default current year')
   say('  -q {number} quarter')
+  say('  -i (id) the contact to scan')
   say('');
   say('royalty:contract');
   say(' list all contracts (dagstaten) with in a specific period as xslx.')
@@ -187,12 +189,12 @@ switch (options.job) {
     const jobRoyaltyContract = require('./jobs/royalties-per-contact').jobRoyaltyContract
     util.promisify(jobRoyaltyContract);
     LoggingServer.info('royalty:contract').then(() => {
-      jobRoyaltyContract(Object.assign({}, {recalc: true}, options)).then(async (x) => {
+      jobRoyaltyContract(Object.assign({}, {recalc: true}, options)).then(async (result) => {
         // say(`imported ${x.length} records, ${x.filter(x => x.action === 'changed').length} changes,  ${x.filter(x => x.action === 'not found').length} not found`)
-        say('xslx generated');
+        say(`xslx generated (${result.filename})`);
         await LoggingServer.info('royalty:contract.ended')
         if (options.debug) {
-          console.log(x)
+          console.log(result.debugInfo)
         }
         process.exit(0)
       }).catch(async e => {

@@ -276,8 +276,9 @@ class MongoAsExcel {
       this._sheet.push(tab)
     }
     return new Promise((resolve, reject) => {
+      const settings = this.getSettings(req)
       xlsx( this._sheet, this.getSettings(req), (x) => {
-        resolve();
+        resolve({filename: settings.fileName + '.xlsx'});
       })
     })
 

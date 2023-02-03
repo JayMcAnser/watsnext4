@@ -185,11 +185,13 @@ _agentIdToIndex = function(vm, id) {
  * @return {boolean|number} the index or false
  * @private
  */
-ArtSchema.methods._indexOfAgent = function(agentId) {
-  if (this._agents && this._agents.length) {
-    for (let l = 0; l < this._agents.length; l++) {
-      if (agentId.toString() === this._agents._id.toString()) {
-        return l;
+ArtSchema.methods._indexOfAgent = function(agentId, role = undefined) {
+  if (this.agents && this.agents.length) {
+    for (let l = 0; l < this.agents.length; l++) {
+      if (agentId.toString() === this.agents[l].agent.toString()) {
+        if (role === undefined || role === this.agents[l].role) {
+          return l;
+        }
       }
     }
   }
@@ -265,14 +267,17 @@ ArtSchema.methods.agentAdd = function(data) {
   } else {
     dataRec = {agent: data._id}
   }
-  let index = this._indexOfAgent(dataRec.agent._id);
+  if (dataRec.percentage === undefined) {
+    dataRec.percentage = 0
+  }
+  if (!dataRec.role) {
+    dataRec.role = this.agents.length ? ROLE_CONTRIBUTOR : ROLE_CREATOR;
+  }
+  let index = this._indexOfAgent(dataRec.agent._id, dataRec.rol);
   if (index !== false) {
     // it's an update because we replace the agent
     this.agentUpdate(index, dataRec);
   } else {
-    if (!dataRec.role) {
-      dataRec.role = this.agents.length ? ROLE_CONTRIBUTOR : ROLE_CREATOR;
-    }
     index = this.agents.length;
     this.agents.push(dataRec);
     this._setCreator(index, data.role === ROLE_CREATOR)

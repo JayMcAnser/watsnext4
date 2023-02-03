@@ -116,23 +116,26 @@ class QueryRoyalty extends QueryBuilder {
    */
   _partialMatch(req) {
     let config = {};
-    config.startDate = req.query.start;
-    config.endDate = req.query.end;
-    if (req.query.process) {
-      config.shouldProcess = !!req.query.process
-    }
-    if (req.query.year) {
-      const year = req.query.year;
-      if (req.query.hasOwnProperty('quarter')) {
-        const quarter = req.query.quarter;
-        config.startDate = Moment.utc(year + '-01-01').add(quarter, 'Q').format('YYYYMMDD');
-        config.endDate = Moment.utc(year + '-01-01').add(quarter + 1, 'Q').subtract(1, 'd').format('YYYYMMDD');
-      } else {
-        config.startDate = year + '0101';
-        config.endDate =  Moment.utc(year + '-01-01').add(1, 'y').subtract(1, 'd').format('YYYYMMDD');
+    if (req.query.id) { // we want one specific one
+      config.code = req.query.id
+    } else {
+      config.startDate = req.query.start;
+      config.endDate = req.query.end;
+      if (req.query.process) {
+        config.shouldProcess = !!req.query.process
+      }
+      if (req.query.year) {
+        const year = req.query.year;
+        if (req.query.hasOwnProperty('quarter')) {
+          const quarter = req.query.quarter;
+          config.startDate = Moment.utc(year + '-01-01').add(quarter, 'Q').format('YYYYMMDD');
+          config.endDate = Moment.utc(year + '-01-01').add(quarter + 1, 'Q').subtract(1, 'd').format('YYYYMMDD');
+        } else {
+          config.startDate = year + '0101';
+          config.endDate = Moment.utc(year + '-01-01').add(1, 'y').subtract(1, 'd').format('YYYYMMDD');
+        }
       }
     }
-
     return Distribution.findRoyaltiesMatch(config);
   }
 

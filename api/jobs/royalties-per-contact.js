@@ -27,6 +27,9 @@ const _optionsToReq = (options)  => {
   if (options.hasOwnProperty('recalc')) {
     req.query.recalc = 1
   }
+  if (options.hasOwnProperty('id')) {
+    req.query.id = options.id
+  }
   return req;
 }
 
@@ -42,8 +45,7 @@ const jobRoyaltyContract = async(options = {} ) => {
   await init();
 
   let report = new RoyaltiesContract();
-  await report.execute(_optionsToReq(options))
-  return true;
+  return await report.execute(_optionsToReq(options))
 }
 
 const debug = (msg) => {

@@ -118,6 +118,7 @@ class ArtImport {
     this._codeImport = new CodeImport({session: this.session});
     this._agentImport = new AgentImport({ session: this.session});
     this._logging = options.logging ? options.logging : Logging
+    this._id = options.id;
   }
 
   /**
@@ -130,10 +131,16 @@ class ArtImport {
    * @private
    */
   async _convertRecord(con, record, options = {}) {
+    let dataRec = {};
     let art = await Art.queryOne(this.session,{artId: record.art_ID});
     if (art) {
-      this._logging.log('info', `art[${record.art_ID}]: already exists`)
-      return art;
+      if (options.refresh) {
+        // we want to rebuild this one, but keep the _id
+        dataRec._id = art._id
+      } else {
+        this._logging.log('info', `art[${record.art_ID}]: already exists`)
+        return art;
+      }
     }
     let sql;
     let qry;
@@ -146,7 +153,7 @@ class ArtImport {
       }
       record = qry[0];
     }
-    let dataRec = {};
+
     for (let fieldName in FieldMap) {
       if (!FieldMap.hasOwnProperty(fieldName)) {
         continue
@@ -166,7 +173,11 @@ class ArtImport {
         }
       }
     }
-    art = Art.create(this.session, dataRec);
+    if (!dataRec._id) {
+      art = Art.create(this.session, dataRec);
+    } else {
+      Object.assign(art, dataRec)
+    }
     // add the urls
     sql = `SELECT * FROM art_url WHERE art_ID=${record.art_ID}`;
     qry = await con.query(sql);
@@ -214,20 +225,24 @@ class ArtImport {
       try {
         do {
           let dis;
-          let sql = `SELECT *
-                     FROM art
-                     ORDER BY art_ID LIMIT ${start}, ${vm._step}`;
+          let sql = 'SELECT * FROM art'
+          if (this._id) {
+            // we must delete this record because it is a re-import
+            sql += ` WHERE art_ID = ${this._id}`
+          } else {
+            sql += ` ORDER BY art_ID LIMIT ${start}, ${vm._step}`;
+          }
           qry = await con.query(sql);
           if (qry.length > 0) {
             for (let l = 0; l < qry.length; l++) {
-              await this._convertRecord(con, qry[l]);
+              await this._convertRecord(con, qry[l], {refresh: !!this._id});
               ImportHelper.step(counter.count++);
               start++;
-              if (start >= this._limit) { break}
+              if (start >= this._limit || this._id) { break}
             }
           }
 
-        } while (qry.length > 0 && (this._limit === 0 || counter.count < this._limit));
+        } while (qry.length > 0 && (this._limit === 0 || counter.count < this._limit) && !this._id);
         //console.log('done')
       } catch(e) {
          this._logging.log('error', e.message)

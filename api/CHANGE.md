@@ -1,4 +1,8 @@
 
+## 2023-02-02
+- add: royalties can be listed per contract
+- fix: Art import misses records because of no percentage
+
 ## 2022-12-15 V4.2.3
 - add: job royalty:contacts to retrieve the contacts
 - 
