@@ -239,8 +239,22 @@ DistributionSchema.methods.lineAdd = function(itemData) {
   if (itemData.art || itemData.carrier) {
     // and object with art or carrier
     if (itemData.art) {
+      // an artwork can only be added once !
+      for (let index = 0; index < this.lines.length; index++) {
+        if (this.lines[index].art.toString() === itemData.art._id.toString()) {
+          // it already exists
+          return;
+        }
+      }
       itm.art = itemData.art._id === undefined ? itemData.art : itemData.art._id;
     } else if (itemData.carrier) {
+      // carriers can only be added once
+      for (let index = 0; index < this.lines.length; index++) {
+        if (this.lines[index].carrier.toString() === itemData.carrier._id.toString()) {
+          // it already exists
+          return;
+        }
+      }
       itm.carrier = itemData.carrier._id === undefined ? itemData.carrier : itemData.carrier._id;
     }
 //    FlexModel.objectSet(itm, LineFieldMap, itemData);

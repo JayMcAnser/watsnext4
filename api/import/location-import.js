@@ -99,7 +99,7 @@ class LocationImport {
   }
 
   async _convertRecord(con, record, options = {}) {
-    let dis = await Distribution.queryOne(this.session,{locationId: record.location_ID});
+    let dis = await Distribution.queryOne(this.session,{locationId: String(record.location_ID)});
     if (!dis) {
       dis = await Distribution.create(this.session, {locationId: record.location_ID});
     }
