@@ -397,7 +397,23 @@ DistributionSchema.methods.royaltiesCalc = async function() {
           }
         } else {
           // console.warn('art not found')
-          royaltyErrors.push({type: 'error.distribution', message: 'the artwork does not exist', index: indexLine})
+          let carrier = await Carrier.findById(line.carrier);
+          if (carrier) {
+            if (carrier.noArt) {
+              royaltyErrors.push({type: 'error.distribution', message:   `the carrier ${carrier.carrierId} has been deleted. Please re create the carrier with the artwork`, index: indexLine})
+            } else if (carrier.artwork.length > 1) {
+              // how to rent a artwork with multiple artworks ....
+              royaltyErrors.push({type: 'error.distribution', message:   `the carrier ${carrier.carrierId} has multiple artworks. this is not supported`, index: indexLine})
+            } else {
+              royaltyErrors.push({
+                type: 'error.distribution',
+                message: `the carrier ${carrier.carrierId} location number: ${carrier.locationNumber} has no artwork`,
+                index: indexLine
+              })
+            }
+          } else {
+            royaltyErrors.push({type: 'error.distribution', message: 'the carrier could not be found (no reference)', index: indexLine})
+          }
         }
       }
       this.hasRoyaltyErrors = royaltyErrors.length > 0
