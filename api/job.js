@@ -38,6 +38,7 @@ const sayImport = () => {
   say('  -o {filename} output the debug to this file')
   say('  -p {password} the password to use (default: 123456' );
   say('  -r --reset remove the existing records')
+  say('  -v validate if the import did succeed')
   say('  --parts {comma seperated list of objects}. Values: art,agent,carrier,distribution,contact');
   say('');
   say('royalty:contact');
@@ -74,6 +75,7 @@ const optionDefinitions = [
   { name: 'count', alias: 'c', type: Number},
   { name: 'output', alias: 'o', type: String},
   { name: 'parts', type: String},
+  { name: 'validate', alias: 'v', type: Boolean},
   { name: 'year', alias: 'y', type: Number},
   { name: 'quarter', alias: 'q', type: Number},
   { name: 'recalc', type: Boolean}
@@ -149,7 +151,11 @@ switch (options.job) {
     LoggingServer.info('import:watsnext.start').then(() => {
       jobWatsNextImport(options).then( async (x) => {
         // say(`imported ${x.length} records, ${x.filter(x => x.action === 'changed').length} changes,  ${x.filter(x => x.action === 'not found').length} not found`)
-        say('data imported');
+        if (options.validate) {
+          console.log(x)
+        } else {
+          say('data imported');
+        }
        await  LoggingServer.info('import:watsnext.ended')
         if (options.debug) {
           console.log(x)

@@ -174,6 +174,43 @@ class LocationImport {
     let con = DbMySQL.connection;
     return await this._convertRecord(con, record);
   }
+
+  async validateImport(con) {
+    // get the mySQL ids
+    let sql = `SELECT location_code FROM locations WHERE objecttype_ID > 0  ORDER BY location_code `;
+    let qry = await con.query(sql);
+    let mySQLIds = {}
+    for (let index = 0; index < qry.length; index++) {
+      mySQLIds[qry[index].location_code] = true;
+    }
+    // get the mongo is
+    let dis = await Distribution.find();
+    let mongoIds = {};
+    for (let index = 0; index < dis.length; index++) {
+      mongoIds[dis[index].code] = true;
+    }
+
+    let notInMongo = [];
+    let keys = Object.keys(mySQLIds)
+    for (let index = 0; index < keys.length; index++) {
+      if (!mongoIds.hasOwnProperty(keys[index])) {
+        notInMongo.push(keys[index])
+      }
+    }
+
+    let notInMysql = [];
+    let keys2 = Object.keys(mongoIds)
+    for (let index = 0; index < keys2.length; index++) {
+      if (!mySQLIds.hasOwnProperty(keys2[index])) {
+        notInMysql.push(keys2[index])
+      }
+    }
+    return {
+      notInMongo,
+      notInMysql
+    }
+
+  }
 }
 
 module.exports = LocationImport;

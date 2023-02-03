@@ -3,10 +3,10 @@
 - add: royalties can be listed per contract
 - fix: Art import misses records because of no percentage
 - fix: reimport Distribution duplicates the lines
+- add: job import:watsnext validate distribution import (-v option)
 
 ## 2022-12-15 V4.2.3
 - add: job royalty:contacts to retrieve the contacts
-- 
 
 ## 2022-12-06 V4.2.2
 - fix: DeprecationWarning: Mongoose: the `strictQuery`
