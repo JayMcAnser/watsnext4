@@ -51,6 +51,7 @@ const sayImport = () => {
   say(' list all contracts (dagstaten) with in a specific period as xslx.')
   say('  -y {number} year (default current year')
   say('  -q {number} quarter')
+  say('  -i {number} the royalty contract')
   say('');
   say('examples')
   say('  node job import:watnext --parts contact -r -c 1000     => reimport all contacts')

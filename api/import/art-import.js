@@ -224,7 +224,7 @@ class ArtImport {
       ImportHelper.stepStart('Art');
       try {
         do {
-          let dis;
+          // let dis;
           let sql = 'SELECT * FROM art'
           if (this._id) {
             // we must delete this record because it is a re-import

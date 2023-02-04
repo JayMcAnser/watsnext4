@@ -364,7 +364,7 @@ DistributionSchema.methods.royaltiesCalc = async function() {
     let royaltyErrors = [];
     line.agent = null;
     if (!this.noRoyalty) {
-      if (line.price > 0) {
+//      if (line.price >= 0) {
         let art = await Art.findById(line.art).populate({
           path: 'agents.agent'  // to get the creator
         });
@@ -415,7 +415,7 @@ DistributionSchema.methods.royaltiesCalc = async function() {
             royaltyErrors.push({type: 'error.distribution', message: 'the carrier could not be found (no reference)', index: indexLine})
           }
         }
-      }
+ //     }
       this.hasRoyaltyErrors = royaltyErrors.length > 0
       if (royaltyErrors.length) {
         line.royaltyErrors = []

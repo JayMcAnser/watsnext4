@@ -183,12 +183,8 @@ const jobImportWatsNext = async (options= {}) => {
       await LoggingServer.info(`imported carrier`);
     }
     if (defaults.parts.indexOf('distribution') >= 0) {
-      if (defaults.id) {
-        say('id only works currently for art')
-        return
-      }
       say('import distribution', options)
-      let imp = new ImportLocation({session, limit: defaults.count, logging})
+      let imp = new ImportLocation({session, limit: defaults.count, logging, id: defaults.id})
       await imp.run(DbMySQL)
       await LoggingServer.info(`imported distribution`);
     }

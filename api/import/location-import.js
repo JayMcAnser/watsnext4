@@ -96,6 +96,7 @@ class LocationImport {
     this._limit = options.limit !== undefined ? options.limit : 0;
     this._step = 5;
     this._logging = options.logging ? options.logging : Logging
+    this._id = options.id;
   }
 
   async _convertRecord(con, record, options = {}) {
@@ -152,19 +153,23 @@ class LocationImport {
       let counter = { count: 0, add: 0, update: 0, errors: []};
       let qry = [];
       do {
-        let dis;
-        let sql = `SELECT * FROM locations WHERE objecttype_ID > 0 ORDER BY location_code LIMIT ${start}, ${vm._step}`;
+        let sql = 'SELECT * FROM locations ';
+        if (this._id) {
+          sql += ` WHERE location_ID = ${this._id}`
+        } else {
+          sql += ` WHERE objecttype_ID > 0 ORDER BY location_code LIMIT ${start}, ${vm._step}`;
+        }
         qry = await con.query(sql);
         if (qry.length > 0) {
           for (let l = 0; l < qry.length; l++) {
             await this._convertRecord(con, qry[l]);
             ImportHelper.step(counter.count++);
-            if (start >= this._limit) { break }
+            if (start >= this._limit || this._id) { break }
             start++;
           }
 
         }
-      } while (qry.length > 0 && (this._limit === 0 || counter.count < this._limit));
+      } while ((qry.length > 0 && (this._limit === 0 || counter.count < this._limit)) && !this._id);
       ImportHelper.stepEnd('Location');
       return resolve(counter)
     })
