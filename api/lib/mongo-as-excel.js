@@ -265,7 +265,13 @@ class MongoAsExcel {
   async execute(req, options = {}) {
     this._data = [];
     await this.errorsClear();
+    if (req.query && req.query.mongoQueryFilename) {
+      await this.getData(req, {returnData: false});
+      // this.data holds now the query
+      return JSON.stringify(this.data, null, '\t')
+    }
     await this.getData(req);
+
     let tab = await this.addInfoTab(req)
     this._sheet.push(tab)
     tab = await this.processData(req);

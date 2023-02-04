@@ -5,6 +5,8 @@
 - fix: reimport Distribution duplicates the lines
 - add: job import:watsnext validate distribution import (-v option)
 - fix: royalty import misses some artist
+- add: include email in artist report
+- fix: contact.institution is not import the right way
 
 ## 2022-12-15 V4.2.3
 - add: job royalty:contacts to retrieve the contacts

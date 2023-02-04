@@ -30,6 +30,9 @@ const _optionsToReq = (options)  => {
   if (options.hasOwnProperty('id')) {
     req.query.id = options.id
   }
+  if (options.hasOwnProperty('mongo')) {
+    req.query.mongoQueryFilename = options.mongo
+  }
   return req;
 }
 
@@ -37,8 +40,8 @@ const jobRoyaltyContact = async (options= {}) => {
   await init();
 
   let report = new RoyaltiesContact();
-  await report.execute(_optionsToReq(options))
-  return true;
+  return await report.execute(_optionsToReq(options))
+  // return true;
 }
 
 const jobRoyaltyContract = async(options = {} ) => {

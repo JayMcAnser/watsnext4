@@ -83,9 +83,9 @@ function insertField(text, label, group, mongoRec, fieldName) {
 function stepStart(type) {
 
 }
-function step(count) {
+function step(count, text = '') {
   let rotate = ['|','/','-','\\'];
-  process.stdout.write(`${rotate[count % 4]} ${count}\r`);
+  process.stdout.write(`${rotate[count % 4]} ${count} ${text}                                                            \r`);
 }
 
 function stepEnd(type) {

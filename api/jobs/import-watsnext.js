@@ -70,7 +70,7 @@ const jobImportWatsNext = async (options= {}) => {
   if (defaults.debug) { debug(`importing watsnext as user ${defaults.email} from ${DbMySQL.connection}`) }
 
   if (defaults.parts === false) {
-    defaults.parts = ['art','location','carrier','contact', 'distribution']
+    defaults.parts = ['art','location','carrier', 'agent', 'contact', 'distribution']
   } else {
     defaults.parts = defaults.parts.split(',')
   }
@@ -189,12 +189,8 @@ const jobImportWatsNext = async (options= {}) => {
       await LoggingServer.info(`imported distribution`);
     }
     if (defaults.parts.indexOf('contact') >= 0) {
-      if (defaults.id) {
-        say('id only works currently for art')
-        return
-      }
       say('import contact', options)
-      let imp = new ImportContact({session, limit: defaults.count, logging})
+      let imp = new ImportContact({session, limit: defaults.count, logging, id: defaults.id})
       await imp.run(DbMySQL)
       await LoggingServer.info(`imported contact`);
     }

@@ -17,12 +17,38 @@ class RoyaltiesContact extends MongoAsExcel {
    * @param req
    * @return {Promise<void>}
    */
-  async getData(req) {
+  async getData(req, options = {}) {
     let qry = new QueryRoyalties(req);
-    let contacts = await qry.contactEvents(req);
+    let contacts = await qry.contactEvents(req, options);
     this.data = contacts
   }
 
+  _makeFullName(contact) {
+    let result = '';
+    if (contact.firstName) {
+      result += contact.firstName + ' '
+    }
+    if (contact.insertion) {
+      result += contact.insertion + ' '
+    }
+    if (contact.name) {
+      result += contact.name
+    }
+    return result
+  }
+
+  /**
+   * convert the 12345 into 123.45  (english notation
+   * @param amount
+   * @private
+   */
+  _makeAmount(amount) {
+    if (amount === 0) {
+      return '0.00'
+    } else {
+      return '' + amount.toFixed(0) / 100 // +(Math.round((amount / 100) + "e+2")  + "e-2")
+    }
+  }
   /**
    * process the this.data and returns the sheet info
    * during processing the erorr can be set
@@ -38,15 +64,24 @@ class RoyaltiesContact extends MongoAsExcel {
       if (contact.events.length > 0) {
         for (let eventIndex = 0; eventIndex < contact.events.length; eventIndex++) {
           let event = contact.events[eventIndex];
-          content.push({contact: eventIndex === 0 ? contact.contact.name :'', event: event.event, artwork: event.artInfo.title, royalties: event.royaltyAmount, artist: event.agentInfo.name })
+          let emailIndex = contact.contact.emails ? contact.contact.emails.findIndex( (e) => e.isDefault) : -1
+          content.push({
+            contact: eventIndex === 0 ? this._makeFullName(contact.contact) :'',
+            email: eventIndex === 0 && emailIndex >= 0 ? contact.contact.emails[emailIndex].address :'',
+            event: event.event,
+            artwork: event.artInfo.title,
+            royalties: this._makeAmount(event.royaltyAmount),
+            artist: event.agentInfo.name
+          })
         }
-        content.push({contact: '', event: '', artwork: '', royalties: '', artist: '', total: contact.total })
+        content.push({contact: '', event: '', artwork: '', royalties: '', artist: '', total: this._makeAmount(contact.total) })
       }
     }
     let dataTab = {
       sheet: 'Royalties',
       columns: [
         { label: "Contact ", value: "contact", format: "#"},
+        { label: "email", value: "email", format: "#"},
         { label: "Event", value: "event", format: "#" },
         { label: "Artwork", value: "artwork", format: "#" },
         { label: "Royalties", value: "royalties", format: "#" },
@@ -109,8 +144,8 @@ class RoyaltiesContract extends MongoAsExcel {
         content.push({
           artwork: artwork.artInfo ? artwork.artInfo.title : '-- unknown art --',
           artist: artwork.agentInfo ? artwork.agentInfo.name : '-- unknown artist --',
-          price: artwork.price,
-          artRoyalty: artwork.royaltyAmount,
+          price: this._makeAmount(artwork.price),
+          artRoyalty: this._makeAmount(artwork.royaltyAmount),
           percentage: artwork.royaltyPercentage,
           error: artwork.royaltyError ? artwork.royaltyError.message : ''
         })

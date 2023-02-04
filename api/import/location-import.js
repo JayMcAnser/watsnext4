@@ -157,17 +157,16 @@ class LocationImport {
         if (this._id) {
           sql += ` WHERE location_ID = ${this._id}`
         } else {
-          sql += ` WHERE objecttype_ID > 0 ORDER BY location_code LIMIT ${start}, ${vm._step}`;
+          sql += ` WHERE objecttype_ID > 0 ORDER BY location_code DESC LIMIT ${start}, ${vm._step}`;
         }
         qry = await con.query(sql);
         if (qry.length > 0) {
           for (let l = 0; l < qry.length; l++) {
             await this._convertRecord(con, qry[l]);
-            ImportHelper.step(counter.count++);
+            ImportHelper.step(counter.count++, qry[l].location_code);
             if (start >= this._limit || this._id) { break }
             start++;
           }
-
         }
       } while ((qry.length > 0 && (this._limit === 0 || counter.count < this._limit)) && !this._id);
       ImportHelper.stepEnd('Location');

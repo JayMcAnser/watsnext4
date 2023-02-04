@@ -80,6 +80,7 @@ class ContactImport {
     this._codeImport = new CodeImport({session: this.session});
     this._countries = false;
     this._logging = options.logging ? options.logging : Logging;
+    this._id = options.id
   }
 
   async _countryTranslate(con, id) {
@@ -156,6 +157,11 @@ class ContactImport {
       }
       dataRec[fieldName] = await recordValue(record, FieldMap[fieldName], Contact);
     }
+    // patch the institutions
+    if (dataRec.type === 'institution') {
+      dataRec.name = await recordValue(record, 'full_name', Contact)
+    }
+
     Object.assign(contact, dataRec);
     if (options.loadSql) {
       //-- add the codes
@@ -308,19 +314,22 @@ class ContactImport {
       let qry = [];
       ImportHelper.stepStart('Contact');
       do {
-        let dis;
-        let sql = `SELECT * FROM addresses ORDER BY address_ID LIMIT ${start}, ${vm._step}`;
+        let sql = 'SELECT * FROM addresses ';
+        if (this._id) {
+          sql += ` WHERE address_ID = ${this._id}`
+        } else  {
+          sql += ` ORDER BY address_ID LIMIT ${start}, ${vm._step}`;
+        }
         qry = await con.query(sql);
         if (qry.length > 0) {
           for (let l = 0; l < qry.length; l++) {
             await this._convertRecord(con, qry[l], {loadSql: true});
             ImportHelper.step(counter.count++);
-            if (start >= this._limit) { break}
+            if (start >= this._limit  || this._id) { break}
             start++;
           }
         }
-
-      } while (qry.length > 0 && (this._limit === 0 || counter.count < this._limit));
+      } while ((qry.length > 0 && (this._limit === 0 || counter.count < this._limit)) && !this._id);
       ImportHelper.stepEnd('Contact');
       return resolve(counter)
     })

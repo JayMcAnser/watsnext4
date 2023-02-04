@@ -43,9 +43,10 @@ const sayImport = () => {
   say('');
   say('royalty:contact');
   say(' generate the xslx for a specific period.')
-  say('  -y {number} year (default current year')
-  say('  -q {number} quarter')
   say('  -i (id) the contact to scan')
+  say('  -m {filename} write the mongodb query to filename')
+  say('  -q {number} quarter')
+  say('  -y {number} year (default current year')
   say('');
   say('royalty:contract');
   say(' list all contracts (dagstaten) with in a specific period as xslx.')
@@ -79,7 +80,8 @@ const optionDefinitions = [
   { name: 'validate', alias: 'v', type: Boolean},
   { name: 'year', alias: 'y', type: Number},
   { name: 'quarter', alias: 'q', type: Number},
-  { name: 'recalc', type: Boolean}
+  { name: 'recalc', type: Boolean},
+  { name: 'mongo', alias: 'm', type: String}
 //   { name: 'env', alias: 'e', type: String},
 ]
 const commandLineArgs = require('command-line-args')
@@ -178,6 +180,9 @@ switch (options.job) {
     LoggingServer.info('royalty:contact').then(() => {
       jobRoyaltyContact(Object.assign({}, {recalc: true}, options)).then( async (x) => {
         // say(`imported ${x.length} records, ${x.filter(x => x.action === 'changed').length} changes,  ${x.filter(x => x.action === 'not found').length} not found`)
+        if (x !== true) {
+          console.log(x)
+        }
         say('xslx generated');
         await  LoggingServer.info('royalty:contact.ended')
         if (options.debug) {

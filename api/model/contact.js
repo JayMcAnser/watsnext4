@@ -122,6 +122,26 @@ const ContactLayout = Object.assign({
 let ContactSchema = new Schema(ContactLayout);
 ModelHelper.upgradeBuilder('ContactExtra', ContactSchema, ContactExtendedLayout);
 
+ContactSchema.virtual('fullNameFull').get(function() {
+  return ((this.firstName + ' ' + this.insertion).trim() + ' ' + this.name).trim()
+})
+
+ContactSchema.virtual('fullNameShort').get(function() {
+  return ((this.firstLetters + ' ' + this.insertion).trim() + ' ' + this.name).trim()
+})
+
+ContactSchema.virtual('defaultEmail').get(function () {
+  if (this.emails) {
+    let index = this.emails.findIndex((e) => e.isDefault());
+    if (index) {
+      return this.emails[index.address]
+    } else if (this.email.length) {
+      return this.emails[0].address
+    }
+  }
+  return ''
+})
+
 ContactSchema.methods.locationAdd = function(loc) {
   ModelHelper.addObject(this, 'locations', loc)
 }
