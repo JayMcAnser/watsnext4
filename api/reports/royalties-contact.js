@@ -46,7 +46,7 @@ class RoyaltiesContact extends MongoAsExcel {
     if (amount === 0) {
       return '0.00'
     } else {
-      return '' + amount.toFixed(0) / 100 // +(Math.round((amount / 100) + "e+2")  + "e-2")
+      return (amount.toFixed(0) / 100).toFixed(2) // +(Math.round((amount / 100) + "e+2")  + "e-2")
     }
   }
   /**
@@ -99,6 +99,19 @@ class RoyaltiesContract extends MongoAsExcel {
     super(Object.assign({}, options, { title: 'RoyaltiesPerContract'}));
   }
 
+
+  /**
+   * convert the 12345 into 123.45  (english notation
+   * @param amount
+   * @private
+   */
+  _makeAmount(amount) {
+    if (amount === 0) {
+      return '0.00'
+    } else {
+      return (amount.toFixed(0) / 100).toFixed(2) // +(Math.round((amount / 100) + "e+2")  + "e-2")
+    }
+  }
   /**
    * retrieve the data from any source
    * store the result in data property

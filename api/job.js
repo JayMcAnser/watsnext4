@@ -45,6 +45,7 @@ const sayImport = () => {
   say(' generate the xslx for a specific period.')
   say('  -i (id) the contact to scan')
   say('  -m {filename} write the mongodb query to filename')
+  say('  --royaltyType {number}  0 = per year, 1 = per quarter');
   say('  -q {number} quarter')
   say('  -y {number} year (default current year')
   say('');
@@ -52,6 +53,7 @@ const sayImport = () => {
   say(' list all contracts (dagstaten) with in a specific period as xslx.')
   say('  -y {number} year (default current year')
   say('  -q {number} quarter')
+  say('  --royaltyType {number}  0 = per year, 1 = per quarter');
   say('  -i {number} the royalty contract')
   say('');
   say('examples')
@@ -81,7 +83,8 @@ const optionDefinitions = [
   { name: 'year', alias: 'y', type: Number},
   { name: 'quarter', alias: 'q', type: Number},
   { name: 'recalc', type: Boolean},
-  { name: 'mongo', alias: 'm', type: String}
+  { name: 'mongo', alias: 'm', type: String},
+  { name: 'royaltyType', type: Number},
 //   { name: 'env', alias: 'e', type: String},
 ]
 const commandLineArgs = require('command-line-args')
@@ -178,15 +181,12 @@ switch (options.job) {
     const jobRoyaltyContact = require('./jobs/royalties-per-contact').jobRoyaltyContact
     util.promisify(jobRoyaltyContact);
     LoggingServer.info('royalty:contact').then(() => {
-      jobRoyaltyContact(Object.assign({}, {recalc: true}, options)).then( async (x) => {
+      jobRoyaltyContact(Object.assign({}, {recalc: true}, options)).then( async (result) => {
         // say(`imported ${x.length} records, ${x.filter(x => x.action === 'changed').length} changes,  ${x.filter(x => x.action === 'not found').length} not found`)
-        if (x !== true) {
-          console.log(x)
-        }
-        say('xslx generated');
+        say(`xslx generated (${result.filename})`);
         await  LoggingServer.info('royalty:contact.ended')
         if (options.debug) {
-          console.log(x)
+          console.log(result.debugInfo)
         }
         process.exit(0)
       }).catch(async e => {

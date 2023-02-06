@@ -8,7 +8,8 @@
 const xlsx = require("json-as-xlsx").xlsx;
 const Moment = require('moment');
 const QueryRoyalties = require("./query/query-royalty");
-
+const JsonFile = require('jsonfile');
+const Path = require('path');
 // const data =
 //   [
 //     {
@@ -79,8 +80,6 @@ const QueryRoyalties = require("./query/query-royalty");
 //
 // }
 
-const Path = require('path');
-
 class MongoAsExcel {
   /**
    * @param options
@@ -96,7 +95,7 @@ class MongoAsExcel {
     this.title = options.title;
     this.filename = options.filename
     this.dirname = options.dirname ? options.dirname : Path.join(__dirname, '../../temp')
-    this.date = Moment().format('DD-MM-YYYY');
+    this.date = Moment().format('DD-MM-YYYY hh:mm');
     this._sheet = [];
   }
 
@@ -131,18 +130,44 @@ class MongoAsExcel {
       sheet: "Info",
       columns: [
         { label: "Caption", value: "caption", format: "# "},
-        { label: "Value", value: "value", format: "# "},
+        { label: "", value: "value", format: "# "},
       ],
       content:  [
-        { caption: "Title", value: this.title },
+        { caption: "Title", value: this.splitCamelCase(this.title) },
         { caption: "Date", value: this.date}
       ],
     }
     let params = this.requestToQuery(req)
     infoTab.content = infoTab.content.concat(
-      params
+      params,
+      [{caption: 'Version', value: require('../package.json').version}]
     )
     return infoTab;
+  }
+
+  /**
+   * Splits a camelCase or PascalCase word into individual words separated by spaces.
+   * @param {Object} word
+   * @returns {String}
+   */
+   splitCamelCase(word) {
+    var output, i, l, capRe = /[A-Z]/;
+    if (typeof(word) !== "string") {
+      throw new Error("The \"word\" parameter must be a string.");
+    }
+    output = [];
+    for (i = 0, l = word.length; i < l; i += 1) {
+      if (i === 0) {
+        output.push(word[i].toUpperCase());
+      }
+      else {
+        if (i > 0 && capRe.test(word[i])) {
+          output.push(" ");
+        }
+        output.push(word[i]);
+      }
+    }
+    return output.join("");
   }
 
   /**
@@ -152,7 +177,7 @@ class MongoAsExcel {
   requestToQuery(req) {
     let result = []
     if (req.query.year) {
-      result.push({caption: 'Year', value: req.query.year})
+      result.push({caption: 'Year', value: String(req.query.year)})
     } else {
       result.push({caption: 'Year', value: 'all years'})
     }
@@ -268,7 +293,17 @@ class MongoAsExcel {
     if (req.query && req.query.mongoQueryFilename) {
       await this.getData(req, {returnData: false});
       // this.data holds now the query
-      return JSON.stringify(this.data, null, '\t')
+      let filename = req.query.mongoQueryFilename
+      if (filename.substring(0, 1) !== '/') {
+        filename = Path.join(__dirname, '../../temp', filename)
+      }
+      JsonFile.writeFileSync(filename, this.data, {
+        spaces: 2,
+        EOL: '\r\n'
+      })
+      // return JSON.stringify(this.data, null, '\t')
+      this.data = []
+      await this.errorsClear();
     }
     await this.getData(req);
 

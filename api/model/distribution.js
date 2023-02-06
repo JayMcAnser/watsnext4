@@ -430,36 +430,6 @@ DistributionSchema.methods.royaltiesCalc = async function() {
 }
 
 
-// DistributionSchema.static('findRoyaltiesMatch', function(options = {}) {
-//   let qry = {$and: []};
-//   if (options.startDate) {
-//     // qry.$and.push({$eventStartDate: {$gte: {$dateFromString: {dateString: Moment(options.startDate).startOf('day').toISOString()}}}});
-//     qry.$and.push({
-//         '$gte':
-//           {
-//             '$eventStartDate': {
-//               $dateFromString: {dateString: Moment(options.startDate).startOf('day').toISOString()}
-//             }
-//           }
-//       }
-//     )
-//   }
-//   if (options.endDate) {
-//     qry.$and.push({eventStartDate: {$lte: Moment(options.endDate).startOf('day').format()}});
-//   }
-//   if (options.hasOwnProperty('shouldProcess')) {
-//     if (options.shouldProcess) {
-//       qry.$and.push({$or: [{isLocked: false}, {isLocked: {$exists: false}}]})
-//     } else {
-//       qry.$and.push({isLocked: true});
-//     }
-//   }
-//   if (qry.$and.length === 0) {
-//     delete qry.$and;
-//   }
-//   return {$match: qry}
-// })
-
 DistributionSchema.static('findRoyaltiesMatch', function(options = {}) {
   let expr = {$and: []};
   if (options.startDate) {

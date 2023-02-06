@@ -183,7 +183,9 @@ AgentSchema.methods.royaltiesValidate = function() {
   } else {
     let perc = 0;
     for (let index = 0; index < this.contacts.length; index++) {
-      perc += this.contacts[index].percentage
+      if (this.contacts[index].isRights) {  // only people with rights get the money
+        perc += this.contacts[index].percentage
+      }
     }
     if (perc !== 100) {
       errors.push(`total of artist (${this.name}) percentage by its contacts should be 100% (is ${perc}%)`)

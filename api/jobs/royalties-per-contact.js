@@ -33,6 +33,10 @@ const _optionsToReq = (options)  => {
   if (options.hasOwnProperty('mongo')) {
     req.query.mongoQueryFilename = options.mongo
   }
+  if (options.hasOwnProperty('royaltyType')) {
+    req.query.royaltyType = options.royaltyType
+  }
+
   return req;
 }
 

@@ -457,6 +457,7 @@ class QueryRoyalty extends QueryBuilder {
           "foreignField": "_id",
           "as": "contactData"
         }},
+      {$match: {"contact.isRights": true}},
       {$addFields: {
           "contactInfo": {$arrayElemAt: ["$contactData",0]}
         }},
