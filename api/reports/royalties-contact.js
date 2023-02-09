@@ -70,7 +70,9 @@ class RoyaltiesContact extends MongoAsExcel {
             email: eventIndex === 0 && emailIndex >= 0 ? contact.contact.emails[emailIndex].address :'',
             event: event.event,
             artwork: event.artInfo.title,
-            royalties: this._makeAmount(event.royaltyAmount),
+            price: this._makeAmount(event.price),
+            percentage: event.royaltyPercentage + (event.contactInfo.percentage != '100' ? ` / ${event.contactInfo.percentage}` : ''),
+            royalties: this._makeAmount(event.payableAmount),
             artist: event.agentInfo.name
           })
         }
@@ -84,6 +86,8 @@ class RoyaltiesContact extends MongoAsExcel {
         { label: "email", value: "email", format: "#"},
         { label: "Event", value: "event", format: "#" },
         { label: "Artwork", value: "artwork", format: "#" },
+        { label: "Price", value: "price", format: "#"},
+        { label: "Percentage", value: "percentage", format: "#"},
         { label: "Royalties", value: "royalties", format: "#" },
         { label: "Artist", value: "artist", format: "#" },
         { label: "Total", value: "total", format: "#"}

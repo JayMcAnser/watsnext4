@@ -463,9 +463,13 @@ class QueryRoyalty extends QueryBuilder {
         }},
 // -- need artist info in the contact
       {$unset: "contactData"},
-      {$addFields: {
+      {"$addFields": {
           "contactInfo.percentage": "$contact.percentage",
           "contactInfo.royaltiesPeriod": "$agentInfo.royaltiesPeriod",
+          "contactPercentage": {$divide: [{$multiply: ["$contact.percentage", "$royaltyPercentage"]  }, 100]}
+        }},
+      {"$addFields": {
+          "payableAmount": {$divide: [{$multiply: ["$contactPercentage", "$price" ]}, 100]}
         }},
       {$unset: "contact"},
 // -- sort on event order
@@ -482,7 +486,7 @@ class QueryRoyalty extends QueryBuilder {
 // -- group on the contact
       {$group: {
           _id: "$contactInfo._id",
-          total: {$sum: '$royaltyAmount'},
+          total: {$sum: '$payableAmount'},
           events: {$push: "$$ROOT"},
           contacts: {$push: "$contactInfo"},
       }},
