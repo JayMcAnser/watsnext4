@@ -469,8 +469,8 @@ class QueryRoyalty extends QueryBuilder {
         }},
       {$unset: "contact"},
 // -- sort on event order
-      {$sort: {"eventStartDate": 1}}];
-
+//-- should order on logical code      {$sort: {"eventStartDate": 1}}];
+      {$sort: {"code": 1}}];
 // ----------------------------------------------------------------------------------
 // -- the filter for the matching
       if (options.royaltyType !== false) {
@@ -488,8 +488,8 @@ class QueryRoyalty extends QueryBuilder {
       }},
 // -- set the contact to the base level
       {$addFields: {
-          contact: {$arrayElemAt: ["$contacts",0]}}
-      },
+          contact: {$arrayElemAt: ["$contacts",0]},
+      }},
       {$unset: 'contacts'},
 // -- sort it so it reproducable
       {$sort: {'contact.name': 1}},

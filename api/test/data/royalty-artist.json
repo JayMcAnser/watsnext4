@@ -1,0 +1,391 @@
+{
+  "_id": "63e2667fed53f7d4ee120dde",
+  "total": 7999.8,
+  "events": [
+    {
+      "_id": "63e2668fed53f7d4ee121729",
+      "locationId": "3549",
+      "created": {
+        "createdAt": "2023-02-07T14:56:15.436Z",
+        "by": "importer"
+      },
+      "hasRoyaltyErrors": false,
+      "isLocked": false,
+      "lockHistory": [],
+      "code": "2022-0009",
+      "event": "16th International Short & Independent Film Festival, Dhaka 2022, Bangladesh",
+      "vat": 21,
+      "eventStartDate": "2022-01-31T00:00:00.000Z",
+      "contactName": "16th.isiff@gmail.com",
+      "invoice": "63e2668fed53f7d4ee12172b",
+      "invoiceName": "16th.isiff@gmail.com",
+      "mail": "63e2668fed53f7d4ee12172b",
+      "shippingCosts": 0,
+      "otherCosts": 0,
+      "eventStartDateVal": "20220131",
+      "__v": 1,
+      "agent": "63e2667fed53f7d4ee120de5",
+      "art": "63e2668fed53f7d4ee121749",
+      "price": 0,
+      "royaltyAmount": 0,
+      "royaltyPercentage": 60,
+      "agentInfo": {
+        "_id": "63e2667fed53f7d4ee120de5",
+        "agentId": "17004",
+        "type": "artist in distribution",
+        "name": "PolakVanBekkum",
+        "sortOn": "PolakVanBekkum",
+        "biography": "PolakVanBekkum is our artist-collective, consisting of Esther Polak (1962) and Ivar van Bekkum (1965). In their work landscape and movement are the recurring elements with a focus on the concept of perception of space.\r\nAlthough they do not work medium specific (meaning that we do not work with specific materials or tools), the medium Google Earth plays an important role in their video work. Unlike other 3D worlds Google Earth has a 1-to- 1 relationship of the world as we know it and has in that way also a political, social and economic reality. They challenge and involve people in their work, whether it’s participants or audience.\r\nEsther Polak studied at the KABK in The Hague and Rijksakademie in Amsterdam. Ivar van Bekkum studied at the School for Journalism in Kampen.",
+        "bornInCountry": "NL",
+        "percentage": 60,
+        "contacts": {
+          "contact": "63e2667fed53f7d4ee120dde",
+          "isRights": true,
+          "isContact": true,
+          "percentage": 100,
+          "_id": "63e2667fed53f7d4ee120de6"
+        },
+        "codes": [],
+        "royaltiesPeriod": 0,
+        "__v": 0
+      },
+      "artInfo": {
+        "_id": "63e2668fed53f7d4ee121749",
+        "artId": "21620",
+        "type": "video",
+        "title": "Lost On Arrival",
+        "titleEn": "Lost On Arrival",
+        "sortOn": "Lost On Arrival",
+        "yearFrom": "2020",
+        "length": "00:08:00.00",
+        "descriptionNl": "Een man heeft tijdens zijn werkzame leven jarenlang op het Caraïbische eiland Curaçao gewoond. Na zijn pensionering wil hij er zijn laatste levensjaren slijten. De voorbereidingen gaan voorspoedig, hij doet zijn huis van de hand en alle bezittingen gaan in dozen. Maar dan laat zijn gezondheid hem in de steek. Tegen de tijd dat hij vertrekt, heeft dementie zijn geheugen aangetast.\r\n\r\nDit hartverscheurende drama wordt op bijzonder minimalistische wijze in beeld gebracht. Op de openingsscène na zien we enkel het uitzicht vanaf een tropische veranda. Op de geluidsband horen we de man telefoongesprekken voeren met zijn zoon, waarin hij zelf gaandeweg erkent dat hij zijn grip op de werkelijkheid aan het verliezen is. Maar nog sterker spreekt de stilte tijdens de onhoorbare antwoorden van de zoon, woorden die machteloos oplossen in eindeloze herhaling.\r\n\r\nLangzaam komt op de veranda de zon op, terwijl in het brein van de man het licht dooft. Hij is naar Curaçao gegaan maar is eigenlijk nooit aangekomen.",
+        "description": "A man lived on the Caribbean island of Curaçao for many years during his working life. After his retirement he wants to spend his last years there. The preparations are going well: he sells his house and all his possessions are put into boxes. But then his health fails him. By the time he leaves, dementia has affected his memory.\r\n\r\nThis heartbreaking drama is portrayed using extremely minimalist means. Except for the opening scene, all we see is the view from a tropical veranda. At the same time we hear the man having telephone conversations with his son, in which he gradually acknowledges that he is losing his grip on reality. Even more telling is the silence during the son’s inaudible answers, his words helplessly dissolving into endless repetition.\r\n\r\nThe sun slowly rises on the porch as the light in the man’s brain dims. He may have gone to Curaçao, but he never actually arrived.",
+        "hasSound": true,
+        "royaltiesPercentage": 100,
+        "codes": [
+          "63e21fa06fb5339467c808e3",
+          "63e21f9c6fb5339467c80754",
+          "63e21f9d6fb5339467c80784",
+          "63e21f9f6fb5339467c80829",
+          "63e21fa06fb5339467c808e0",
+          "63e21f9d6fb5339467c8078a",
+          "63e21f9d6fb5339467c80787"
+        ],
+        "urls": [],
+        "created": {
+          "createdAt": "2023-02-07T14:56:15.752Z",
+          "by": "importer"
+        },
+        "agents": [
+          {
+            "agent": "63e2667fed53f7d4ee120de5",
+            "role": "creator",
+            "percentage": 100,
+            "_id": "63e2668fed53f7d4ee12174c"
+          }
+        ],
+        "__v": 0,
+        "royaltiesPeriod": 0
+      },
+      "contactInfo": {
+        "_id": "63e2667fed53f7d4ee120dde",
+        "codes": [],
+        "locations": [],
+        "telephones": [
+          {
+            "isDefault": true,
+            "number": "06 44692524",
+            "usage": "telephone",
+            "_id": "63e2667fed53f7d4ee120ddf"
+          }
+        ],
+        "emails": [
+          {
+            "isDefault": true,
+            "address": "ivar@ivarvanbekkum.nl",
+            "_id": "63e2667fed53f7d4ee120de0"
+          }
+        ],
+        "extras": [],
+        "addressId": "1003343",
+        "type": "female",
+        "firstName": "Ivar",
+        "insertion": "van",
+        "name": "Bekkum",
+        "sortOn": "Bekkum",
+        "__v": 0,
+        "percentage": 100,
+        "royaltiesPeriod": 0
+      }
+    },
+    {
+      "_id": "63e26693ed53f7d4ee121953",
+      "locationId": "3559",
+      "created": {
+        "createdAt": "2023-02-07T14:56:19.432Z",
+        "by": "importer"
+      },
+      "hasRoyaltyErrors": false,
+      "isLocked": false,
+      "lockHistory": [],
+      "code": "2021-0105",
+      "event": "LIMA @ Kriterion How to move? 23 december, 6 januari en 20 februari 2021 - online Kriterion, Amsterdam",
+      "footer": "Kunstenaars krijgen 60% van 58,33 en 83,33 Euro, dat is 35,- en 50,- Euro",
+      "vat": 21,
+      "eventStartDate": "2022-02-15T00:00:00.000Z",
+      "invoice": "63e26662ed53f7d4ee11fcbb",
+      "mail": "63e26662ed53f7d4ee11fcbb",
+      "shippingCosts": 0,
+      "otherCosts": 0,
+      "eventStartDateVal": "20220215",
+      "__v": 6,
+      "agent": "63e2667fed53f7d4ee120de5",
+      "art": "63e26696ed53f7d4ee121b3d",
+      "price": 8333,
+      "royaltyAmount": 4999.8,
+      "royaltyPercentage": 60,
+      "agentInfo": {
+        "_id": "63e2667fed53f7d4ee120de5",
+        "agentId": "17004",
+        "type": "artist in distribution",
+        "name": "PolakVanBekkum",
+        "sortOn": "PolakVanBekkum",
+        "biography": "PolakVanBekkum is our artist-collective, consisting of Esther Polak (1962) and Ivar van Bekkum (1965). In their work landscape and movement are the recurring elements with a focus on the concept of perception of space.\r\nAlthough they do not work medium specific (meaning that we do not work with specific materials or tools), the medium Google Earth plays an important role in their video work. Unlike other 3D worlds Google Earth has a 1-to- 1 relationship of the world as we know it and has in that way also a political, social and economic reality. They challenge and involve people in their work, whether it’s participants or audience.\r\nEsther Polak studied at the KABK in The Hague and Rijksakademie in Amsterdam. Ivar van Bekkum studied at the School for Journalism in Kampen.",
+        "bornInCountry": "NL",
+        "percentage": 60,
+        "contacts": {
+          "contact": "63e2667fed53f7d4ee120dde",
+          "isRights": true,
+          "isContact": true,
+          "percentage": 100,
+          "_id": "63e2667fed53f7d4ee120de6"
+        },
+        "codes": [],
+        "royaltiesPeriod": 0,
+        "__v": 0
+      },
+      "artInfo": {
+        "_id": "63e26696ed53f7d4ee121b3d",
+        "artId": "20101",
+        "type": "video",
+        "title": "A Collision of Sorts",
+        "titleEn": "A Collision of Sorts",
+        "sortOn": "Collision of Sorts, A",
+        "yearFrom": "2017",
+        "length": "00:17:12.00",
+        "description": "In A Collision of Sorts, inhabitants of the City of Philadelphia, (Pennsylvania, US) go their way, as discontinuous moving dots on a flat surface. The world in which this film plays is Google Earth: an alienating landscape of almost seamlessly stitched-together satellite images of the familiar planet we humans are moving around on. On Google Earth, nothing moves. Buildings, bridges and cars seem warped and flattened and compete for attention with the black weirdness of their own shadows. A virtual camera shows this frozen flattened landscape, reconnoitring the cityscape of the city. Meanwhile we hear sounds and voices. People and animals are down there, crossing the country. It is them who share a physical reality: we hear very intimately their breath, the rustling of clothes, traffic, their vehicles. They travel from one place to another giving the suggestion of a destination. They talk about encounters, visual, economic, political, social and personal but never the main characters seem to meet. Until a bad dream of one of them seems to come true.\r\nask",
+        "hasSound": true,
+        "credits": "Credits\r\nPolakvanBekkum - director\r\nJulia Guerero - production\r\nRob Das - Editing\r\nArno Peeters - sound\r\nHuba de Graaff - music\r\nEdward Farrell/Sean McGinnis - software development\r\n\r\nWith\r\nDanielle & Kate\r\nKasaan Smith, Grace and Bruno\r\nAkhneton Jones\r\nSarah Mueller\r\nRam Riches",
+        "royaltiesPercentage": 100,
+        "codes": [
+          "63e21f9f6fb5339467c80829",
+          "63e21f9f6fb5339467c80838",
+          "63e21fa06fb5339467c808e3",
+          "63e21fa56fb5339467c80b56",
+          "63e21fa56fb5339467c80b5d",
+          "63e21f9c6fb5339467c80754",
+          "63e21f9d6fb5339467c80784",
+          "63e21fa06fb5339467c808e0",
+          "63e21fbc6fb5339467c8171f",
+          "63e21f9d6fb5339467c80787",
+          "63e21f9d6fb5339467c8078a"
+        ],
+        "urls": [],
+        "created": {
+          "createdAt": "2023-02-07T14:56:22.518Z",
+          "by": "importer"
+        },
+        "agents": [
+          {
+            "agent": "63e2667fed53f7d4ee120de5",
+            "role": "creator",
+            "percentage": 100,
+            "_id": "63e26696ed53f7d4ee121b40"
+          }
+        ],
+        "__v": 0,
+        "royaltiesPeriod": 0
+      },
+      "contactInfo": {
+        "_id": "63e2667fed53f7d4ee120dde",
+        "codes": [],
+        "locations": [],
+        "telephones": [
+          {
+            "isDefault": true,
+            "number": "06 44692524",
+            "usage": "telephone",
+            "_id": "63e2667fed53f7d4ee120ddf"
+          }
+        ],
+        "emails": [
+          {
+            "isDefault": true,
+            "address": "ivar@ivarvanbekkum.nl",
+            "_id": "63e2667fed53f7d4ee120de0"
+          }
+        ],
+        "extras": [],
+        "addressId": "1003343",
+        "type": "female",
+        "firstName": "Ivar",
+        "insertion": "van",
+        "name": "Bekkum",
+        "sortOn": "Bekkum",
+        "__v": 0,
+        "percentage": 100,
+        "royaltiesPeriod": 0
+      }
+    },
+    {
+      "_id": "63e2667fed53f7d4ee120db9",
+      "locationId": "3571",
+      "created": {
+        "createdAt": "2023-02-07T14:55:59.048Z",
+        "by": "importer"
+      },
+      "hasRoyaltyErrors": false,
+      "isLocked": false,
+      "lockHistory": [],
+      "code": "2022-0028",
+      "event": "Screening Glued & Screwed #2, What You See Is What You Get, Filmhuis Den Haag, 2",
+      "vat": 21,
+      "eventStartDate": "2022-04-12T00:00:00.000Z",
+      "contactName": "Mike Kokken",
+      "invoice": "63e2667fed53f7d4ee120dc3",
+      "invoiceName": "Mike Kokken",
+      "mail": "63e2667fed53f7d4ee120dbb",
+      "shippingCosts": 0,
+      "otherCosts": 0,
+      "eventStartDateVal": "20220412",
+      "__v": 1,
+      "agent": "63e2667fed53f7d4ee120de5",
+      "art": "63e2667fed53f7d4ee120ddb",
+      "price": 5000,
+      "royaltyAmount": 3000,
+      "royaltyPercentage": 60,
+      "agentInfo": {
+        "_id": "63e2667fed53f7d4ee120de5",
+        "agentId": "17004",
+        "type": "artist in distribution",
+        "name": "PolakVanBekkum",
+        "sortOn": "PolakVanBekkum",
+        "biography": "PolakVanBekkum is our artist-collective, consisting of Esther Polak (1962) and Ivar van Bekkum (1965). In their work landscape and movement are the recurring elements with a focus on the concept of perception of space.\r\nAlthough they do not work medium specific (meaning that we do not work with specific materials or tools), the medium Google Earth plays an important role in their video work. Unlike other 3D worlds Google Earth has a 1-to- 1 relationship of the world as we know it and has in that way also a political, social and economic reality. They challenge and involve people in their work, whether it’s participants or audience.\r\nEsther Polak studied at the KABK in The Hague and Rijksakademie in Amsterdam. Ivar van Bekkum studied at the School for Journalism in Kampen.",
+        "bornInCountry": "NL",
+        "percentage": 60,
+        "contacts": {
+          "contact": "63e2667fed53f7d4ee120dde",
+          "isRights": true,
+          "isContact": true,
+          "percentage": 100,
+          "_id": "63e2667fed53f7d4ee120de6"
+        },
+        "codes": [],
+        "royaltiesPeriod": 0,
+        "__v": 0
+      },
+      "artInfo": {
+        "_id": "63e2667fed53f7d4ee120ddb",
+        "artId": "21339",
+        "type": "video",
+        "title": "De Rit",
+        "titleEn": "The Ride",
+        "sortOn": "Rit, De",
+        "yearFrom": "2019",
+        "length": "00:12:14.00",
+        "descriptionNl": "De nacht is helder en er zijn volop sterren te zien. De wegmarkering licht op met een geruststellende regelmaat, de smalle weg maant tot langzaam rijden. We zien alleen het uitzicht, maar uit de spaarzame dialoog maken we op dat de auto een man en een vrouw vervoert en dat zij zich op een eiland bevinden. Ze zijn onderweg naar een plek waar in het verleden iets ergs is gebeurd.\r\n\r\nWat er precies is voorgevallen en waarom dat zo ingrijpend was, wordt niet duidelijk. Het is misschien ook niet belangrijk. Het gaat in The Ride om de reactie die de herbeleving oproept. Die wordt enerzijds afgevlakt doordat het landschap wordt verbeeld met onpersoonlijke satellietbeelden van Google Earth. Het zijn de korte, ondramatische zinnetjes die de emotionele laag aanbrengen, en het versterkte geluid van een hartslag die de autorit naar een dramatische climax stuwt. Het resultaat is een cinematografische ervaring die de kijker meeneemt, maar ook genoeg ruimte laat om er een eigen verhaal op te projecteren.",
+        "description": "Synopsis short: It’s a clear and starry night. Road markings are lighting up with reassuring regularity. We only see the view through the windshield, but from the sparse dialogue we know we are in the company of a man and a woman, and that they’re on an island. They’re on her their way to a place where something bad happened long ago. The visual landscape of impersonal Google Earth satellite images counterbalances the emotional charge of the short, low-key sentences and the sound of amplified heartbeats.\r\n\r\n\r\nSynopsis long: It’s a clear and starry night. The road markings are lighting up with reassuring regularity, and there’s no option but to drive slowly on the narrow road. We only see the view through the windshield, but from the sparse dialogue we know we are in the company of a man and a woman, and that they’re on an island. They’re on her their way to a place where something bad happened long ago.\r\n\r\nIt’s unclear what exactly occurred, and why it’s so significant. Perhaps it’s not important to know. The Ride is all about the response to the relived experience. The visual landscape of impersonal Google Earth satellite images counterbalances the emotional charge of the short, low-key sentences and the sound of an amplified heartbeat driving towards a dramatic climax. This cinematic experience carries us along, while leaving enough space for the imagination.",
+        "hasSound": true,
+        "credits": "Cast en crew\r\nDirector: PolakVanBekkum (Esther Polak and Ivar van Bekkum)\r\nResearch: Monique Lesterhuis\r\nConcept supervision: Rabiaâ Benlahbib\r\nSound: Arno Peeters\r\nColor grading: Laurent Fluttert\r\nSubtitles: Siji Jabbar",
+        "royaltiesPercentage": 100,
+        "codes": [
+          "63e21f9c6fb5339467c80754",
+          "63e21fa56fb5339467c80b5d",
+          "63e21f9f6fb5339467c80829",
+          "63e21fa56fb5339467c80b51",
+          "63e21fa06fb5339467c808e0",
+          "63e21fa56fb5339467c80b56",
+          "63e21fa06fb5339467c808e3",
+          "63e21f9d6fb5339467c80784",
+          "63e21f9d6fb5339467c80787",
+          "63e21f9d6fb5339467c8078a"
+        ],
+        "urls": [],
+        "created": {
+          "createdAt": "2023-02-07T14:55:59.348Z",
+          "by": "importer"
+        },
+        "agents": [
+          {
+            "agent": "63e2667fed53f7d4ee120de5",
+            "role": "creator",
+            "percentage": 100,
+            "_id": "63e2667fed53f7d4ee120dea"
+          }
+        ],
+        "__v": 0,
+        "royaltiesPeriod": 0
+      },
+      "contactInfo": {
+        "_id": "63e2667fed53f7d4ee120dde",
+        "codes": [],
+        "locations": [],
+        "telephones": [
+          {
+            "isDefault": true,
+            "number": "06 44692524",
+            "usage": "telephone",
+            "_id": "63e2667fed53f7d4ee120ddf"
+          }
+        ],
+        "emails": [
+          {
+            "isDefault": true,
+            "address": "ivar@ivarvanbekkum.nl",
+            "_id": "63e2667fed53f7d4ee120de0"
+          }
+        ],
+        "extras": [],
+        "addressId": "1003343",
+        "type": "female",
+        "firstName": "Ivar",
+        "insertion": "van",
+        "name": "Bekkum",
+        "sortOn": "Bekkum",
+        "__v": 0,
+        "percentage": 100,
+        "royaltiesPeriod": 0
+      }
+    }
+  ],
+  "contact": {
+    "_id": "63e2667fed53f7d4ee120dde",
+    "codes": [],
+    "locations": [],
+    "telephones": [
+      {
+        "isDefault": true,
+        "number": "06 44692524",
+        "usage": "telephone",
+        "_id": "63e2667fed53f7d4ee120ddf"
+      }
+    ],
+    "emails": [
+      {
+        "isDefault": true,
+        "address": "ivar@ivarvanbekkum.nl",
+        "_id": "63e2667fed53f7d4ee120de0"
+      }
+    ],
+    "extras": [],
+    "addressId": "1003343",
+    "type": "female",
+    "firstName": "Ivar",
+    "insertion": "van",
+    "name": "Bekkum",
+    "sortOn": "Bekkum",
+    "__v": 0,
+    "percentage": 100,
+    "royaltiesPeriod": 0
+  }
+}

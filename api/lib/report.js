@@ -3,16 +3,24 @@ const Fs = require('fs')
 const Path = require('path')
 const _ = require('lodash')
 const PdfKit = require('pdfkit')
+const Moment = require('moment')
 
 class ReportBasic {
-
-  static vm;
 
   constructor(options = {}) {
     this.name = options.name ? options.name : 'no-name';
     this.report = false;
     this._data = {}
     this.imagePath = Path.join(__dirname, '../images')
+  }
+
+  /**
+   * create a new PDF definition
+   * @param options
+   * @return {PDFDocument}
+   */
+  createPdf(options) {
+    return new PdfKit(options)
   }
 
   basicFonts() {
@@ -40,8 +48,54 @@ class ReportBasic {
     return this._data
   }
 
-  header() {
+  /**
+   * this is the PdfDocument, this.report is the ReportBasic
+   */
+  pageHeader() {
+    this.report.image(Path.join(this.imagePath, 'lima.logo.jpg'), 50, 185, { width: 40 })
+  }
 
+  pageFooter() {
+    // this does not work, it moves the entire text !!
+    // if (options.footerText) {
+    //   pdf.fontSize(
+    //     10,
+    //   ).text(
+    //     options.footerText,
+    //     50,
+    //     pdf.page.height - pdf.page.margins.bottom - 20 ,
+    //     {align: 'center', width: 500},
+    //   );
+    // }
+  }
+  /**
+   * called when a page is added
+   * this is the PDF document
+   * to find the current report use ReportBasic.vm
+   */
+  pageAdded() {
+    this.report.pageHeader()
+    this.report.pageFooter();
+  }
+
+  async addPage() {
+    let pageOptions = {};
+    if (this.report.reportOptions.margins) {
+      pageOptions = this.report.reportOptions.margins
+    } else {
+      pageOptions = {margins: { left: 120, right: 50, top: 110, bottom: 10}}
+    }
+    this.report.addPage(pageOptions)
+  }
+
+  async docHeader(pdf) {
+    pdf.text('docHeader')
+  }
+  async docBody(pdf) {
+    pdf.text('docBody '.repeat(400), pdf.page.margins.left)
+  }
+  async docFooter(pdf) {
+    pdf.text('docFooter')
   }
 
   /**
@@ -51,121 +105,86 @@ class ReportBasic {
    * @param options
    * @return { filename }
    */
-  async render(filename, data, options) {
-
-    const defaults = Object.assign({}, {paper: 'A4', }, options)
-    this._data = Object.assign({}, {_options: options},  _.cloneDeep(data));
-    this._options = options
-    this.report = new PdfKit(defaults);
+  async render(filename, data = {}, options = {}) {
+    ReportBasic.vm = this;
+    const defaults = Object.assign({}, {size: 'A4', autoFirstPage: false}, options)
+    // this._data = data;
+    // this._options = defaults
+    this.report = this.createPdf(defaults);
+    this.report.data = data;
+    this.report.reportOptions = options
+    this.report.report = this;   // our definition of a report
+    this.report.on('pageAdded', this.pageAdded)
     this.stream = filename
     if (typeof filename === 'string') {
       this.stream = Fs.createWriteStream(filename)
     }
-    this.header()
-    this.body()
-    this.footer
+
+    await this.addPage();
+    await this.docHeader(this.report)
+    await this.docBody(this.report)
+    await this.docFooter(this.report)
 
     this.report.end();
     this.report.pipe(this.stream)
 
-    // load the specific content
-    // await this.content(data, options)
-    // return new Promise((resolve, reject) => {
-    //   this.report.render((err, data) => {
-    //     if (err) {
-    //       reject(err)
-    //     } else {
-    //       resolve({ data, filename, name: this.name, report: this.report} )
-    //     }
-    //   })
-    // })
-
     return this;
   }
 }
-//
-// class ReportDoc extends ReportBasic {
-//
-//   constructor(options = {}) {
-//     super(options)
-//     this.image = false;
-//   }
-//
-//   pageHeader(report) {
-//     report
-//       .image(ReportBasic.vm.image, { x: 40, y: 180, width: 30, valign: 'top'})
-//   }
-//
-//   headerReport(report) {
-//     ReportBasic.vm.headerBlockLeft(report)
-//     ReportBasic.vm.headerBlockRight(report)
-//   }
-//
-//   headerBlockLeft(report) {
-//     report.print('Abramovic', {fontBold: true});  // should be this.data.name
-//     report.print('70 Grand Street Apt.4')
-//     report.print('NY 10013 New York')
-//     report.print('USA')
-//   }
-//   headerBlockRight(report) {
-//     const XPOS = 360
-//     const YPOS = 90
-//     report.print('LIMA', {fontBold: true, x: XPOS, y: YPOS});  // should be this.data.name
-//     report.print('Arie Biemondstraat 111\n1054 PD Amsterdam, Netherland', {x: XPOS})
-//     report.print('K.V.K 56569254\nBTW NL852191005B01', {x: XPOS})
-//   }
-//
-//
-//   intro(report) {
-//     report.print('lkasdj flaksdj flaksd jflaksdj lfkasjdlfksjadlfjkasldfintro')
-//   }
-//   body(report) {
-//     report.print('body')
-//   }
-//   outro(report) {
-//     report.print('outro')
-//   }
-//   footer(report) {
-//     report.print('footer')
-//   }
-//
-//   bodyReport(report) {
-//     let vm = ReportBasic.vm
-//    // report.header(this.intro)
-//     report.detail(vm.body)
-//    // report.footer(this.outro)
-//   }
-//
-//   pageFooter(report) {
-//     report.print('page footer')
-//   }
-//
-//   async content(data, options = {}) {
-//     this.image = options.image ? options.image : '../images/lima.logo.jpg'
-//     if (this.image.substring(0, 1) !== '/') {
-//       this.image = Path.join(__dirname, this.image)
-//     }
-//     let contentPart = new Report(this.report)
-//
-//     // this.assignBodyData(contentPart, data)
-//     this.report
-//       .data( data )
-//       .info({Title:  options.title ? options.title : 'Lima Royalties', Author: 'LIMA'})
-//       .margins(90)
-//       .pageHeader(this.pageHeader)
-//       .pageFooter(this.pageFooter)
-// //    this.body(this.report)
-//     contentPart
-//       .data(data)
-//       .header(this.headerReport)
-//       .detail(this.intro)
-//     //this.report
-//
-//
-//     return this.report
-//   }
-// }
-//
+
+class ReportDoc extends ReportBasic {
+  _makeFullName(contact) {
+    let result = '';
+    if (contact.firstName) {
+      result += contact.firstName + ' '
+    }
+    if (contact.insertion) {
+      result += contact.insertion + ' '
+    }
+    if (contact.name) {
+      result += contact.name
+    }
+    // address could be included
+    return result
+  }
+
+  async docHeader(pdf) {
+    let contact = this._makeFullName(pdf.data.contact)
+    let lima = 'LIMA\nArie Biemondstraat 111\n1054 PD Amsterdam\nNetherlands'
+
+    let pageWidth = pdf.page.width - pdf.page.margins.left - pdf.page.margins.right
+    let mid = pdf.page.margins.left + (pageWidth / 2)
+    let top = pdf.page.margins.top
+    pdf
+      .text(contact, pdf.page.margins.left, top, {width: mid})
+      .text(lima, mid, top, {width: mid})
+    if (pdf.reportOptions.showDate) {
+      pdf
+        .text(`Amsterdam, ${Moment().format('d MMMM YYYY')}`, this.report.page.margins.left, 230)
+        .moveDown(2)
+    }
+  }
+}
+
+class ReportTable extends ReportDoc {
+
+  tableHeader(pdf){
+    pdf.text('table header')
+  }
+  tableBody(pdf) {
+    pdf.text('table body')
+  }
+  tableFooter(pdf) {
+    pdf.text('table footer')
+  }
+
+  docBody(pdf) {
+   this.tableHeader(pdf)
+   this.tableBody(pdf)
+   this.tableFooter(pdf)
+  }
+}
+
 //
 // class ReportLetter extends ReportDoc {
 //
@@ -238,6 +257,7 @@ class ReportBasic {
 
 module.exports = {
   ReportBasic,
-  // ReportDoc,
+  ReportDoc,
+  ReportTable
   // ReportLetter
 }
