@@ -55,7 +55,7 @@ class ReportRoyaltyArtist extends Report {
   tableHeader(pdf) {
     let pageWidth = pdf.page.width - pdf.page.margins.right - pdf.page.margins.left;
     const numWidth = 42;
-    const percWidth = 30
+    const percWidth = 35
     return [
       { label: "Event", property: 'event', width: pageWidth - 3 * numWidth, renderer: null },
       { label: "Price", property: 'price', width: numWidth, renderer: null, align: 'right' },
@@ -69,21 +69,22 @@ class ReportRoyaltyArtist extends Report {
     let data = pdf.data
     let id = 0
     for (let eventIndex = 0; eventIndex < data.events.length; eventIndex++ ) {
-      if (id !== data.events[eventIndex].event) {
+      let event = data.events[eventIndex]
+      if (id !== event.event) {
         result.push({
-          event: {label: `bold:${data.events[eventIndex].event}   `}, // needs space for the error calc
+          event: {label: `bold:${event.event}   `}, // needs space for the error calc
           price: '',
           perc: '',
           total: '',
           // options: {separation: false }
         })
-        id = data.events[eventIndex].event
+        id = event.event
       }
       result.push({
-        event: {label: data.events[eventIndex].artInfo.title + ' (' + data.events[eventIndex].agentInfo.name +')' },
-        price: {label: this._makeAmount(data.events[eventIndex].price) },
-        perc: {label: data.events[eventIndex].royaltyPercentage + '%' },
-        total: {label: this._makeAmount(data.events[eventIndex].royaltyAmount) },
+        event: {label: event.artInfo.title + ' (' + event.agentInfo.name +')' },
+        price: {label: this._makeAmount(event.price) },
+        perc: {label: event.royaltyPercentage + (event.contactInfo.percentage != 100 ? `/${event.contactInfo.percentage}` : '') + '%' },
+        total: {label: this._makeAmount(event.royaltyAmount) },
       })
     }
     result.push({
