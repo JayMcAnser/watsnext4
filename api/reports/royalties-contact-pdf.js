@@ -65,7 +65,99 @@ class RoyaltiesContactPdf extends MongoAsExcel {
       let rpt = new ReportRoyaltArtist()
       await rpt.render(Path.join(this.directory, artist.pdfFilename), artist,{showDate: true})
     }
+    // write the index file into the directory
+    let xlsx = new RoyaltiesContactXlsx({directory: this.directory})
+    await xlsx.execute(req, {data: this.data})
   }
 }
+
+/**
+ * this creats the excelsheet belonging to all the pdfs
+ */
+class ReportExcel {
+
+  constructor(options) {
+    this.directory = options.directory;
+    this.filename = options.filename ? options.filename : 'no-name.xlsx';
+    this.errors = [];
+    this.sheets = []
+    this.schema = []
+  }
+
+  async init(req, options) {
+    this.errors = []
+    this.sheets = []
+    this.schema = []
+  }
+  async postProcess(req, options) {
+    if (this.errors.length) {
+      // write a sheet with the errors
+    }
+    const writeXlsxFile = require('write-excel-file/node')
+    let filename = Path.join(this.directory, (options.filename ? options.filename : this.filename))
+    if (!filename.substring(0, 1) === Path.sep) {
+      filename = Path.join(__dirname, '../../temp', filename)
+    }
+    return writeXlsxFile(
+      [this.data], {
+        schema: [this.schema],
+        sheets: ['artists'],
+        filePath: filename
+      }
+    )
+  }
+
+  async infoTab(req, options) {
+
+  }
+
+  async getData(req, options) {
+    let qry = new QueryRoyalties(req);
+    this.data = await qry.contactEvents(req, options);
+  }
+
+  /**
+   * this processor
+   * @param req
+   * @param options
+   * @returns {Promise<void>}
+   */
+  async processData(req, options) {
+
+  }
+  async execute(req, options = {}) {
+    if (options.data) {
+      this.data = options.data
+    } else {
+      await this.getData(req, options)
+    }
+    await this.init(req, options)
+    if (options.infoTab) {
+      await this.addInfoTab(req, options)
+    }
+    await this.processData(req, options)
+    await this.postProcess(req, options)
+  }
+}
+
+class RoyaltiesContactXlsx extends ReportExcel {
+
+  async init(req, options) {
+    super.init(req, options);
+    this.schema = [
+      {column: 'Artist', type: String, value: (contact) => contact.contact.name},
+      {column: 'Email', type: String, value: (contact) => {
+        let emails = contact.contact.email;
+        let index = emails ? email.findIndex(x => x.isDefault) : -1
+        if (index >= 0) {
+          return emails[index].address
+        }
+        return ''
+      }},
+      {column: 'Filename', type: String, value: (contact) => contact.pdfFilename}
+    ]
+  }
+}
+
 
 module.exports = RoyaltiesContactPdf

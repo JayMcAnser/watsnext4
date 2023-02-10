@@ -40,7 +40,9 @@
     "sha-1": "^1.0.0",
     "short-uuid": "^4.2.2",
     "uuid": "^9.0.0",
-    "winston": "^3.8.2"
+    "winston": "^3.8.2",
+    "write-excel-file": "^1.4.21",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.19.2/xlsx-0.19.2.tgz"
   },
   "devDependencies": {
     "chai": "^4.3.7",

@@ -80,8 +80,8 @@ const jobRoyaltiesContactPdf = async (options = {})  => {
   let req = _optionsToReq(options)
   let report = new RoyaltiesContactPdf();
 
-  return await report.execute(req)
-
+  let result = await report.execute(req)
+  return result;
 }
 
 module.exports = {
