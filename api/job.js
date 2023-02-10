@@ -56,6 +56,15 @@ const sayImport = () => {
   say('  --royaltyType {number}  0 = per year, 1 = per quarter');
   say('  -i {number} the royalty contract')
   say('');
+  say('royalty:contact:pdf');
+  say(' generate all the pdf files for the artists')
+  say('  -i (id) the contact to scan')
+  say('  -o {directory} the output directory. Default the temp directory subdir {year.quarter}')
+  say('  -q {number} quarter')
+  say('  --royaltyType {number}  0 = per year, 1 = per quarter');
+  say('  -y {number} year (default current year')
+  say('');
+
   say('examples')
   say('  node job import:watnext --parts contact -r -c 1000     => reimport all contacts')
 
@@ -104,7 +113,7 @@ if (options.help || !options.job || typeof options.job !== 'string') {
 
 const util = require('util')
 const {jobImportWatsNext: jobWatsNextImport} = require("./jobs/import-watsnext");
-const {jobRoyaltyContact} = require("./jobs/royalties-per-contact");
+const {jobRoyaltyContact, jobRoyaltyContract} = require("./jobs/royalties-per-contact");
 
 switch (options.job) {
   case 'generate:wikipedia':
@@ -217,6 +226,28 @@ switch (options.job) {
     })
     break;
   }
+  case 'royalty:contact:pdf': {
+    const jobRoyaltyContactPdf = require('./jobs/royalties-per-contact').jobRoyaltiesContactPdf
+    util.promisify(jobRoyaltyContactPdf)
+
+    LoggingServer.info('royalty:contact:pdf').then(() => {
+      jobRoyaltyContactPdf(Object.assign({}, {recalc: true}, options)).then(async (result) => {
+        // say(`imported ${x.length} records, ${x.filter(x => x.action === 'changed').length} changes,  ${x.filter(x => x.action === 'not found').length} not found`)
+        say(`pdfs generated in (${result.directory})`);
+        await LoggingServer.info('royalty:contact:pdf.ended')
+        if (options.debug) {
+          console.log(result.debugInfo)
+        }
+        process.exit(0)
+      }).catch(async e => {
+        sayError(`royalty contact pdf error: ${e.message}`)
+        await LoggingServer.error(e.message)
+        process.exit(1)
+      })
+    })
+    break;
+  }
+
   default:
     sayError(`unknown job: "${options.job}"`)
     sayImport()

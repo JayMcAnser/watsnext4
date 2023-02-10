@@ -81,10 +81,11 @@ class ReportRoyaltyArtist extends Report {
         id = event.event
       }
       result.push({
-        event: {label: event.artInfo.title + ' (' + event.agentInfo.name +')' },
+        event: {label: event.artInfo.title + ' (' + event.agentInfo.name +')', options: { padding: 3 } },
         price: {label: this._makeAmount(event.price) },
         perc: {label: event.royaltyPercentage + (event.contactInfo.percentage != 100 ? `/${event.contactInfo.percentage}` : '') + '%' },
-        total: {label: this._makeAmount(event.royaltyAmount) },
+        total: {label: this._makeAmount(event.payableAmount) },
+
       })
     }
     result.push({

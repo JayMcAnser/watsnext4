@@ -7,6 +7,8 @@
 
 const RoyaltiesContact = require('../reports/royalties-contact').RoyaltiesContact
 const RoyaltiesContract = require('../reports/royalties-contact').RoyaltiesContract
+const RoyaltiesContactPdf = require('../reports/royalties-contact-pdf')
+
 const DbMySQL = require("../lib/db-mysql");
 const DbMongo = require("../lib/db-mongo");
 const Moment = require('moment');
@@ -35,6 +37,9 @@ const _optionsToReq = (options)  => {
   }
   if (options.hasOwnProperty('royaltyType')) {
     req.query.royaltyType = options.royaltyType
+  }
+  if (options.hasOwnProperty('output')) {
+    req.query.outputFile = options.output
   }
 
   return req;
@@ -69,7 +74,18 @@ async function init() {
   }
 }
 
+const jobRoyaltiesContactPdf = async (options = {})  => {
+  await init();
+
+  let req = _optionsToReq(options)
+  let report = new RoyaltiesContactPdf();
+
+  return await report.execute(req)
+
+}
+
 module.exports = {
   jobRoyaltyContact,
-  jobRoyaltyContract
+  jobRoyaltyContract,
+  jobRoyaltiesContactPdf
 }

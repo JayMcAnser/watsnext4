@@ -100,6 +100,13 @@ class MongoAsExcel {
   }
 
   /**
+   * setup of the routines
+   * @param options
+   */
+  async init(req) {
+
+  }
+  /**
    * retrieve the data from any source
    * store the result in data property
    * @param req
@@ -281,6 +288,15 @@ class MongoAsExcel {
     return result;
   }
 
+  async postProcess(req) {
+    return new Promise((resolve, reject) => {
+      const settings = this.getSettings(req)
+      xlsx( this._sheet, this.getSettings(req), (x) => {
+        resolve({filename: settings.fileName + '.xlsx'});
+      })
+    })
+
+  }
   /**
    * run this report
    * @param req - the request object
@@ -289,6 +305,7 @@ class MongoAsExcel {
    */
   async execute(req, options = {}) {
     this._data = [];
+    await this.init(req)
     await this.errorsClear();
     if (req.query && req.query.mongoQueryFilename) {
       await this.getData(req, {returnData: false});
@@ -316,12 +333,7 @@ class MongoAsExcel {
       tab = await this.addErrorTab()
       this._sheet.push(tab)
     }
-    return new Promise((resolve, reject) => {
-      const settings = this.getSettings(req)
-      xlsx( this._sheet, this.getSettings(req), (x) => {
-        resolve({filename: settings.fileName + '.xlsx'});
-      })
-    })
+    return this.postProcess(req);
 
   }
 }

@@ -501,6 +501,20 @@ class QueryRoyalty extends QueryBuilder {
     return result;
   }
 
+  _makeFullName(contact) {
+    let result = '';
+    if (contact.firstName) {
+      result += contact.firstName + ' '
+    }
+    if (contact.insertion) {
+      result += contact.insertion + ' '
+    }
+    if (contact.name) {
+      result += contact.name
+    }
+    return result
+  }
+
   /**
    *
    * @param req Object the request object
@@ -528,7 +542,16 @@ class QueryRoyalty extends QueryBuilder {
     if (options.hasOwnProperty('returnData') && ! options.returnData ) {
       return a;
     }
-    return Distribution.aggregate(a);
+    let data = await Distribution.aggregate(a);
+    // we NEED filename that are valid.
+    const convertToValidFilename = (string) => {
+      return (string.replace(/[\/|\\:*?"<>]/g, " "));
+    }
+    let qryDef = String(req.query.hasOwnProperty('year') ? req.query.year : 'all') + String(req.query.hasOwnProperty('quarter') ? `.${req.query.quarter}` : '')
+    for (let index = 0; index < data.length; index++) {
+      data[index].pdfFilename = convertToValidFilename(`${this._makeFullName(data[index].contact)}.${qryDef}.pdf`)
+    }
+    return data
   }
 
   /**
