@@ -2,12 +2,12 @@
 const ReportExcel = require('../lib/report-excel')
 const Report = require('../lib/report')
 const QueryRoyalties = require("../lib/query/query-royalty");
-// const MongoAsExcel = require("../lib/mongo-as-excel");
 const Path = require("path");
 const Fs = require("fs");
 const FsExtra = require('fs-extra')
 const ReportRoyaltArtist = require("./report-royalty-artist");
 const Moment = require("moment/moment");
+const Archiver = require('archiver');
 
 class RoyaltyPerArtist extends ReportExcel {
 
@@ -179,7 +179,7 @@ class RoyaltiesContactPdf extends Report {
 
     if (req.query.hasOwnProperty('output')) {
       if (req.query.output.substring(0,1) === Path.sep) {
-        this.directory = Path.join(optireq.queryons.output, storeDir)
+        this.directory = Path.join(req.query.output, storeDir)
       } else {
         this.directory = Path.join(__dirname, '../../temp', req.query.output, storeDir)
       }
@@ -187,6 +187,7 @@ class RoyaltiesContactPdf extends Report {
     } else {
       this.directory = Path.join(__dirname, '../../temp', String(storeDir))
     }
+    Fs.mkdirSync(this.directory, {recursive: true})
   }
 
   async getData(req, options) {
@@ -206,7 +207,6 @@ class RoyaltiesContactPdf extends Report {
       await FsExtra.emptyDir(this.directory)
       // Fs.rmSync(this.directory, { recursive: true, force: true });
     }
-    Fs.mkdirSync(this.directory, {recursive: true})
     for (let index = 0; index < this.data.length; index ++) {
       let artist = this.data[index];
       let rpt = new ReportRoyaltArtist()
@@ -217,7 +217,31 @@ class RoyaltiesContactPdf extends Report {
       let xlsx = new RoyaltiesContactIndex({directory: this.directory})
       await xlsx.execute(req, {data: this.data})
     }
-
+    if (options.zip) {
+      let zipFilename = options.zip
+      if (zipFilename.substring(0, Path.sep.length) !== Path.sep) {
+        zipFilename = Path.join(__dirname, '../../temp', zipFilename)
+      }
+      if (Fs.existsSync(zipFilename)) {
+        Fs.unlinkSync(zipFilename)
+      }
+      let archive = Archiver('zip', {zlib: {level: 9}});
+      const output = Fs.createWriteStream(zipFilename);
+      archive.pipe(output)
+      return new Promise(async (resolve, reject) => {
+        output.on('end', () => {
+          resolve()
+        })
+        output.on('close', () => {
+          resolve()
+        })
+        output.on('error', (err) => {
+          reject(err)
+        })
+        archive.directory(this.directory, '')
+        archive.finalize()
+      })
+    }
   }
   async postProcess(req) {
     return {

@@ -64,6 +64,7 @@ const sayImport = () => {
   say('  -r --reset removes all files from the directory before generating the pdfs')
   say('  --royaltyType {number}  0 = per year, 1 = per quarter');
   say('  -y {number} year (default current year')
+  say('  -z {filename} zips all generated files to this zip file')
   say('');
 
   say('examples')
@@ -95,6 +96,7 @@ const optionDefinitions = [
   { name: 'recalc', type: Boolean},
   { name: 'mongo', alias: 'm', type: String},
   { name: 'royaltyType', type: Number},
+  { name: 'zip', alias: 'z', type: String}
 //   { name: 'env', alias: 'e', type: String},
 ]
 const commandLineArgs = require('command-line-args')
