@@ -7,7 +7,7 @@ const Path = require('path');
 const Fs = require('fs')
 const QueryRoyalties = require("../lib/query/query-royalty");
 const JsonFile = require("jsonfile");
-
+const Moment = require('moment')
 const MongoAsExcel = require('../lib/mongo-as-excel');
 const ReportRoyaltArtist = require("./report-royalty-artist");
 
@@ -82,6 +82,8 @@ class ReportExcel {
     this.errors = [];
     this.sheets = []
     this.schema = []
+    this.label = 'Sheet 1'
+    this.info = {}  // {label, schema, data}
   }
 
   async init(req, options) {
@@ -98,21 +100,28 @@ class ReportExcel {
     if (!filename.substring(0, 1) === Path.sep) {
       filename = Path.join(__dirname, '../../temp', filename)
     }
+    let data = []
     let settings = {
-      schema: [this.schema],
-      sheets: ['artists'],
+      schema: [],
+      sheets: [],
       filePath: filename
     }
+    if (this.info && this.info.data) {
+      settings.schema.push(this.info.schema)
+      settings.sheets.push(this.info.label)
+      data.push(this.info.data)
+    }
+    settings.schema.push(this.schema)
+    settings.sheets.push(this.label)
+    data.push(this.data)
+
     if (options.stickyRowsCount) {
      settings.stickyRowsCount = options.stickyRowsCount
     }
-    return writeXlsxFile(
-      [this.data], settings
-    )
+    return writeXlsxFile(data, settings)
   }
 
-  async infoTab(req, options) {
-
+  async addInfoTab(req, options) {
   }
 
   async getData(req, options) {
@@ -136,15 +145,38 @@ class ReportExcel {
       await this.getData(req, options)
     }
     await this.init(req, options)
-    if (options.infoTab) {
-      await this.addInfoTab(req, options)
-    }
+    await this.addInfoTab(req, options)
     await this.processData(req, options)
     await this.postProcess(req, options)
   }
 }
 
 class RoyaltiesContactXlsx extends ReportExcel {
+
+  async addInfoTab(req, options) {
+    this.info = {
+      label: 'Information',
+      schema: [
+        { type: String, width: 10, alignVertical: 'top', value: (opt) => opt.label},
+        { type: String, width: 50, alignVertical: 'top', value: (opt) => opt.value}
+      ],
+      data: [
+        { label: 'Report', value: 'Royalty Contacts'},
+        { label: 'Date', value: Moment().format('d MMMM YYYY hh:mm')},
+      ]
+    }
+    if (req.query.year) {
+      this.info.data.push({label: 'Year', value: String(req.query.year)})
+    }
+    if (req.query.quarter) {
+      this.info.data.push({label: 'Quarter', value: String(req.query.quarter + 1)})
+    }
+
+    if (req.query.recalc) {
+      this.info.data.push({label: 'Recalc', value: req.query.recalc ? 'Yes' : 'No'})
+    }
+  }
+
   _makeAmount(amount) {
     if (amount === 0) {
       return 0.00
@@ -170,7 +202,7 @@ class RoyaltiesContactXlsx extends ReportExcel {
   }
 
   async init(req, options) {
-    super.init(req, options);
+    await super.init(req, options);
     this.schema = [
       {column: 'Artist', type: String, width: 50, alignVertical: 'top', value: (contact) => contact.contact.name},
       {column: 'Email', type: String, width: 25, alignVertical: 'top', value: (contact) => {
