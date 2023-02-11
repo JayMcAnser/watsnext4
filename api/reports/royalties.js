@@ -5,6 +5,7 @@ const QueryRoyalties = require("../lib/query/query-royalty");
 // const MongoAsExcel = require("../lib/mongo-as-excel");
 const Path = require("path");
 const Fs = require("fs");
+const FsExtra = require('fs-extra')
 const ReportRoyaltArtist = require("./report-royalty-artist");
 const Moment = require("moment/moment");
 
@@ -186,7 +187,6 @@ class RoyaltiesContactPdf extends Report {
     } else {
       this.directory = Path.join(__dirname, '../../temp', String(storeDir))
     }
-    Fs.mkdirSync(this.directory, {recursive: true})
   }
 
   async getData(req, options) {
@@ -202,6 +202,11 @@ class RoyaltiesContactPdf extends Report {
    * @returns {Promise<void>}
    */
   async processData(req, options) {
+    if (options.reset) {
+      await FsExtra.emptyDir(this.directory)
+      // Fs.rmSync(this.directory, { recursive: true, force: true });
+    }
+    Fs.mkdirSync(this.directory, {recursive: true})
     for (let index = 0; index < this.data.length; index ++) {
       let artist = this.data[index];
       let rpt = new ReportRoyaltArtist()

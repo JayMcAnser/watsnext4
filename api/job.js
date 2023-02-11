@@ -61,6 +61,7 @@ const sayImport = () => {
   say('  -i (id) the contact to scan')
   say('  -o {directory} the output directory. Default the temp directory subdir {year.quarter}')
   say('  -q {number} quarter')
+  say('  -r --reset removes all files from the directory before generating the pdfs')
   say('  --royaltyType {number}  0 = per year, 1 = per quarter');
   say('  -y {number} year (default current year')
   say('');

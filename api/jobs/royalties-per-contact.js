@@ -88,7 +88,7 @@ const jobRoyaltiesContactPdf = async (options = {})  => {
   // let report = new RoyaltiesContactPdf();
   let report = new (Royalty.RoyaltiesContactPdf)(options)
 
-  let result = await report.execute(req)
+  let result = await report.execute(req, options)
   return result;
 }
 
