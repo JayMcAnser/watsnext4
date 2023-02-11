@@ -89,7 +89,7 @@ class ReportExcel {
     this.sheets = []
     this.schema = []
   }
-  async postProcess(req, options) {
+  async postProcess(req, options = {}) {
     if (this.errors.length) {
       // write a sheet with the errors
     }
@@ -98,12 +98,16 @@ class ReportExcel {
     if (!filename.substring(0, 1) === Path.sep) {
       filename = Path.join(__dirname, '../../temp', filename)
     }
+    let settings = {
+      schema: [this.schema],
+      sheets: ['artists'],
+      filePath: filename
+    }
+    if (options.stickyRowsCount) {
+     settings.stickyRowsCount = options.stickyRowsCount
+    }
     return writeXlsxFile(
-      [this.data], {
-        schema: [this.schema],
-        sheets: ['artists'],
-        filePath: filename
-      }
+      [this.data], settings
     )
   }
 
@@ -141,20 +145,56 @@ class ReportExcel {
 }
 
 class RoyaltiesContactXlsx extends ReportExcel {
+  _makeAmount(amount) {
+    if (amount === 0) {
+      return 0.00
+    } else {
+      return amount / 100; //  (amount.toFixed(0) / 100).toFixed(2) // +(Math.round((amount / 100) + "e+2")  + "e-2")
+    }
+  }
+
+  _locationString(location) {
+    let result = location.street
+    if (location.number) {
+      result += ` ${location.number}`
+    }
+    result += '\n'
+    if (location.zipcode) {
+      result += `${location.zipcode} `
+    }
+    result += location.city
+    if (location.country !== 'Netherlands') {
+      result += '\n' + location.country
+    }
+    return result
+  }
 
   async init(req, options) {
     super.init(req, options);
     this.schema = [
-      {column: 'Artist', type: String, value: (contact) => contact.contact.name},
-      {column: 'Email', type: String, value: (contact) => {
-        let emails = contact.contact.email;
-        let index = emails ? email.findIndex(x => x.isDefault) : -1
+      {column: 'Artist', type: String, width: 50, alignVertical: 'top', value: (contact) => contact.contact.name},
+      {column: 'Email', type: String, width: 25, alignVertical: 'top', value: (contact) => {
+        let emails = contact.contact.emails;
+        let index = emails ? emails.findIndex(x => x.isDefault) : -1
         if (index >= 0) {
           return emails[index].address
+        } else if (emails.length) {
+          return emails[0].address
         }
         return ''
       }},
-      {column: 'Filename', type: String, value: (contact) => contact.pdfFilename}
+      {column: 'Address', type: String, width: 25, alignVertical: 'top', value: (contact) => {
+          let locations = contact.contact.locations;
+          let index = locations ? locations.findIndex(x => x.usage === 'post') : -1
+          if (index >= 0) {
+            return this._locationString(locations[index])
+          } else if (locations.length) {
+            return this._locationString(locations[0])
+          }
+          return ''
+        }},
+      {column: 'Amount', type: Number, width: 10, alignVertical: 'top', format: "#,##0.00", value: (contact) => this._makeAmount(contact.total) },
+      {column: 'Filename', type: String, width: 50, alignVertical: 'top', value: (contact) => contact.pdfFilename}
     ]
   }
 }
