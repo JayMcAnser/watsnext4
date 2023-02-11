@@ -93,10 +93,10 @@ class RoyaltiesContactXlsx extends ReportExcel {
     if (req.query.quarter) {
       this.info.data.push({label: 'Quarter', value: String(req.query.quarter + 1)})
     }
-
     if (req.query.recalc) {
       this.info.data.push({label: 'Recalc', value: req.query.recalc ? 'Yes' : 'No'})
     }
+    this.info.data.push({label: 'Version', value: require('../package.json').version})
   }
 
   async getData(req, options) {

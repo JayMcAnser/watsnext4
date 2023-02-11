@@ -8,6 +8,9 @@
 const RoyaltiesContact = require('../reports/royalties-contact').RoyaltiesContact
 const RoyaltiesContract = require('../reports/royalties-contact').RoyaltiesContract
 const RoyaltiesContactPdf = require('../reports/royalties-contact-pdf')
+const RoyaltiesPerArtist = require('../reports/royalties').RoyaltyPerArtist
+const RoyaltiesPerContract = require('../reports/royalties').RoyaltyPerContract
+const Royalty = require('../reports/royalties')
 
 const DbMySQL = require("../lib/db-mysql");
 const DbMongo = require("../lib/db-mongo");
@@ -48,16 +51,20 @@ const _optionsToReq = (options)  => {
 const jobRoyaltyContact = async (options= {}) => {
   await init();
 
-  let report = new RoyaltiesContact();
-  return await report.execute(_optionsToReq(options))
+  // let report = new RoyaltiesContact();
+  // return await report.execute(_optionsToReq(options))
+  let report = new RoyaltiesPerArtist(options)
+  return await report.execute(_optionsToReq(options), options)
   // return true;
 }
 
 const jobRoyaltyContract = async(options = {} ) => {
   await init();
 
-  let report = new RoyaltiesContract();
-  return await report.execute(_optionsToReq(options))
+  // let report = new RoyaltiesContract();
+  // return await report.execute(_optionsToReq(options))
+  let report = new RoyaltiesPerContract(options);
+  return await report.execute(_optionsToReq(options), options)
 }
 
 const debug = (msg) => {
@@ -78,7 +85,8 @@ const jobRoyaltiesContactPdf = async (options = {})  => {
   await init();
 
   let req = _optionsToReq(options)
-  let report = new RoyaltiesContactPdf();
+  // let report = new RoyaltiesContactPdf();
+  let report = new (Royalty.RoyaltiesContactPdf)(options)
 
   let result = await report.execute(req)
   return result;
