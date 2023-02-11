@@ -84,7 +84,7 @@ class RoyaltiesContactXlsx extends ReportExcel {
       ],
       data: [
         { label: 'Report', value: 'Royalty Contacts'},
-        { label: 'Date', value: Moment().format('d MMMM YYYY hh:mm')},
+        { label: 'Date', value: Moment().format('d MMMM YYYY H:mm')},
       ]
     }
     if (req.query.year) {

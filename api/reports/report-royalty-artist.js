@@ -1,7 +1,7 @@
 const PdfDocument = require("pdfkit-table");
-const Report = require('../lib/report' ).ReportDoc
+const PdfDoc = require('../lib/pdf-doc' ).PdfDoc
 
-class ReportRoyaltyArtist extends Report {
+class PdfRoyaltyArtist extends PdfDoc {
 
   static fontSize = 11;
 
@@ -12,7 +12,7 @@ class ReportRoyaltyArtist extends Report {
 
   async docHeader(pdf) {
     pdf
-      .fontSize(ReportRoyaltyArtist.fontSize)
+      .fontSize(PdfRoyaltyArtist.fontSize)
     super.docHeader(pdf);
     pdf
       // .moveDown(1)
@@ -25,7 +25,7 @@ class ReportRoyaltyArtist extends Report {
 
   docFooter(pdf) {
     pdf
-      .fontSize(ReportRoyaltyArtist.fontSize)
+      .fontSize(PdfRoyaltyArtist.fontSize)
       .moveDown(2)
       .text('Please send you invoice within days  ............. to ... ')
       .moveDown()
@@ -107,4 +107,4 @@ class ReportRoyaltyArtist extends Report {
 
 }
 
-module.exports = ReportRoyaltyArtist
+module.exports =  PdfRoyaltyArtist

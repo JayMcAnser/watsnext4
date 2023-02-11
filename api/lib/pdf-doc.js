@@ -5,7 +5,7 @@ const _ = require('lodash')
 const PdfKit = require('pdfkit')
 const Moment = require('moment')
 
-class ReportBasic {
+class PdfBasic {
 
   constructor(options = {}) {
     this.name = options.name ? options.name : 'no-name';
@@ -49,7 +49,7 @@ class ReportBasic {
   }
 
   /**
-   * this is the PdfDocument, this.report is the ReportBasic
+   * this is the PdfDocument, this.report is the PdfDoc
    */
   pageHeader() {
     this.report.image(Path.join(this.imagePath, 'lima.logo.jpg'), 50, 185, { width: 40 })
@@ -106,7 +106,7 @@ class ReportBasic {
    * @return { filename }
    */
   async render(filename, data = {}, options = {}) {
-    ReportBasic.vm = this;
+    // ReportBasic.vm = this;
     const defaults = Object.assign({}, {size: 'A4', autoFirstPage: false}, options)
     // this._data = data;
     // this._options = defaults
@@ -132,7 +132,7 @@ class ReportBasic {
   }
 }
 
-class ReportDoc extends ReportBasic {
+class PdfDoc extends PdfBasic {
   _makeFullName(contact) {
     let result = '';
     if (contact.firstName) {
@@ -166,98 +166,9 @@ class ReportDoc extends ReportBasic {
   }
 }
 
-class ReportTable extends ReportDoc {
-
-  tableHeader(pdf){
-    pdf.text('table header')
-  }
-  tableBody(pdf) {
-    pdf.text('table body')
-  }
-  tableFooter(pdf) {
-    pdf.text('table footer')
-  }
-
-  docBody(pdf) {
-   this.tableHeader(pdf)
-   this.tableBody(pdf)
-   this.tableFooter(pdf)
-  }
-}
-
-//
-// class ReportLetter extends ReportDoc {
-//
-//   _makeFullName(contact) {
-//     let result = '';
-//     if (contact.firstName) {
-//       result += contact.firstName + ' '
-//     }
-//     if (contact.insertion) {
-//       result += contact.insertion + ' '
-//     }
-//     if (contact.name) {
-//       result += contact.name
-//     }
-//     return result
-//   }
-//
-//   contact(report) {
-//    let contact = ReportBasic.vm.data.contact;
-//    report.print(ReportBasic.vm._makeFullName(contact), {fontBold: true});  // should be this.data.name
-//   // report.print('70 Grand Street Apt.4')
-//   // report.print('NY 10013 New York')
-//   // report.print('USA')
-//   }
-//
-//   /*
-//    * assign the data element for the body part
-//    */
-//   assignBodyData(subReport) {
-//     const vm = ReportBasic.vm;
-//     subReport.data(vm.data)
-//   }
-//
-//   intro(report, data) {
-//     const YPOS = 250
-//     if (data._options && data._options.intro) {
-//       if (typeof data._options.intro === 'function') {
-//         data._options.intro(report, data)
-//       } else {
-//         report.print(data._options.intro, {fontBold: true, y: YPOS});  // should be this.data.name
-//       }
-//     }
-//     report.newLine()
-//     report.newLine()
-//   }
-//
-//   table(report) {
-//     report.print('Intro text with why this is send to the artist' );  // should be this.data.name
-//   }
-//
-//   outro(report) {
-//     report.newLine()
-//     report.newLine()
-//     report.print('Tell why we are telling this' );  // should be this.data.name
-//   }
-//
-//
-//   body(report) {
-//     const vm = ReportBasic.vm;
-//     let subReport = new Report(this.report)
-//     vm.assignBodyData(subReport, vm.data)
-//     subReport
-//       .header( this.intro)
-//       .detail(this.table)
-//       .footer(this.outro)
-//     // report.detail(this.table)
-//     // report.detail(this.outro)
-//   }
-// }
 
 module.exports = {
-  ReportBasic,
-  ReportDoc,
-  ReportTable
-  // ReportLetter
+  PdfBasic,
+  PdfDoc,
+
 }
