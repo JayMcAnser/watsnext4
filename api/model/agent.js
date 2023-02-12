@@ -178,9 +178,7 @@ AgentSchema.methods.codeSet = function(codes) {
  */
 AgentSchema.methods.royaltiesValidate = function() {
   let errors = [];
-  if (this.agentId == '4498') {
-    console.log('FOUND')
-  }
+
   if (this.contacts === undefined || this.contacts.length === 0) {
     errors.push('no contacts defined for this artist')
   } else {
