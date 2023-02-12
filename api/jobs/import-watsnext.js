@@ -77,28 +77,31 @@ const jobImportWatsNext = async (options= {}) => {
 
   if (options.reset) {
     // this will remove the existing art works
-    if (defaults.parts.indexOf('art') >= 0) {
+    if (defaults.parts.indexOf('art') >= 0 || options.clear) {
       await Art.deleteMany({})
       await LoggingServer.info(`removing art`)
     }
-    if (defaults.parts.indexOf('agent') >= 0) {
+    if (defaults.parts.indexOf('agent') >= 0 || options.clear) {
       await Agent.deleteMany({})
       await LoggingServer.info(`removed all agent`)
     }
-    if (defaults.parts.indexOf('carrier') >= 0) {
+    if (defaults.parts.indexOf('carrier') >= 0 || options.clear) {
       await Carrier.deleteMany({})
       await LoggingServer.info(`removed all carrier`)
     }
-    if (defaults.parts.indexOf('distribution') >= 0) {
+    if (defaults.parts.indexOf('distribution') >= 0 || options.clear) {
       await Distribution.deleteMany({})
       await LoggingServer.info(`removed all distribution`)
     }
-    if (defaults.parts.indexOf('contact') >= 0) {
+    if (defaults.parts.indexOf('contact') >= 0 || options.clear) {
       await Contact.deleteMany({})
       await LoggingServer.info(`removed all contacts`)
     }
   }
 
+  if (options.clear) {
+    return
+  }
   if (defaults.id) {
     if (!defaults.parts || !defaults.parts.length === 1) {
       throw new Error('id requires only one parts to be present')

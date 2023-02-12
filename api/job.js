@@ -32,6 +32,7 @@ const sayImport = () => {
   say('import:watsnext');
   say(' import the watsnext database');
   say('  -c {number} the number of records to import');
+  say('  --clear removes all records and exit (require -r options too)')
   say('  -d debug the process (default: 0)');
   say('  -e {name} the email address of the user to use (default: watsnext@li-ma.nl)')
   say('  -i {number} record id to import. needs --parts to define table')
@@ -88,6 +89,7 @@ const optionDefinitions = [
   { name: 'email', alias: 'e', type: String},
   { name: 'password', alias: 'p', type: String},
   { name: 'count', alias: 'c', type: Number},
+  { name: 'clear', type: Boolean},
   { name: 'output', alias: 'o', type: String},
   { name: 'parts', type: String},
   { name: 'validate', alias: 'v', type: Boolean},
