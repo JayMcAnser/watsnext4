@@ -178,6 +178,9 @@ AgentSchema.methods.codeSet = function(codes) {
  */
 AgentSchema.methods.royaltiesValidate = function() {
   let errors = [];
+  if (this.agentId == '4498') {
+    console.log('FOUND')
+  }
   if (this.contacts === undefined || this.contacts.length === 0) {
     errors.push('no contacts defined for this artist')
   } else {
@@ -189,6 +192,9 @@ AgentSchema.methods.royaltiesValidate = function() {
     }
     if (perc !== 100) {
       errors.push(`total of artist (${this.name}) percentage by its contacts should be 100% (is ${perc}%)`)
+    }
+    if (this.percentage < 0 || this.percentage > 100) {
+      errors.push(`the artist (${this.name}) can only recieve a percentage between 0 and 100`)
     }
   }
  // this.royaltiesError = errors.length ? errors.join('\n') : undefined;

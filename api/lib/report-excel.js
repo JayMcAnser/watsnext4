@@ -30,9 +30,7 @@ class ReportExcel extends Report{
   }
 
   async postProcess(req, options = {}) {
-    if (this.errors.length) {
-      // write a sheet with the errors
-    }
+
     const writeXlsxFile = require('write-excel-file/node')
     let filename = Path.join(this.directory, options.filename || this.filename)
     if (filename.substring(0, Path.sep.length) != Path.sep) {
@@ -52,6 +50,13 @@ class ReportExcel extends Report{
     settings.schema.push(this.schema)
     settings.sheets.push(this.label)
     data.push(this.data)
+
+    if (this.hasErrors()) {
+      // write a sheet with the errors
+      settings.schema.push(this.errors.schema)
+      settings.sheets.push(this.errors.label)
+      data.push(this.errors.data)
+    }
 
     if (options.stickyRowsCount) {
       settings.stickyRowsCount = options.stickyRowsCount

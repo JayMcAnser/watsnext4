@@ -6,13 +6,27 @@
 class Report {
 
   constructor(options) {
-    this.errors = []; // array of {label, data}.
+    this.errorsClear()
     this.title = 'no-title'
     this.data = []
   }
 
+  errorsClear() {
+    this.errors = {
+      label: 'Errors',
+      data: [],
+      schema: []
+    };
+  }
+  hasErrors() {
+    return this.errors.data.length > 0
+  }
+  addError(error) {
+
+  }
+
   async init(req, options) {
-    this.errors = []
+
   }
 
   async postProcess(req, options = {}) {
@@ -23,7 +37,6 @@ class Report {
   }
 
   async getData(req, options) {
-    this.data = []
   }
   /**
    * this processor
@@ -36,6 +49,7 @@ class Report {
   }
 
   async execute(req, options = {}) {
+    this.errorsClear();
     if (options.data) {
       this.data = options.data
     } else {

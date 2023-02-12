@@ -8,8 +8,34 @@ const FsExtra = require('fs-extra')
 const ReportRoyaltArtist = require("./report-royalty-artist");
 const Moment = require("moment/moment");
 const Archiver = require('archiver');
+const JsonFile = require("jsonfile");
 
-class RoyaltyPerArtist extends ReportExcel {
+
+class RoyaltyMongo extends ReportExcel {
+  /**
+   * so we can dump the query
+   * @param req
+   * @param options
+   * @returns {Promise<void>}
+   */
+  async init(req, options = {}) {
+    await super.init(req, options);
+    if (req.query && req.query.mongoQueryFilename) {
+      let query = await this.getData(req, {returnData: false});
+      // this.data holds now the query
+      let filename = req.query.mongoQueryFilename
+      if (filename.substring(0, 1) !== '/') {
+        filename = Path.join(__dirname, '../../temp', filename)
+      }
+      JsonFile.writeFileSync(filename, query, {
+        spaces: 2,
+        EOL: '\r\n'
+      })
+    }
+  }
+}
+
+class RoyaltyPerArtist extends RoyaltyMongo {
 
   constructor(options) {
     super();
@@ -25,6 +51,9 @@ class RoyaltyPerArtist extends ReportExcel {
   async getData(req, options) {
     let qry = new QueryRoyalties(req);
     let artists = await qry.contactEvents(req, options);
+    if (options.hasOwnProperty('returnData') && options.returnData === false) {
+      return artists
+    }
     for (let artistIndex = 0; artistIndex < artists.length; artistIndex++) {
       let a = artists[artistIndex]
       this.data.push({total: a.total, event: a.events[0], contact: a.contact, pdfFilename: a.pdfFilename})
@@ -32,8 +61,27 @@ class RoyaltyPerArtist extends ReportExcel {
         this.data.push({total: null, event: a.events[eventIndex], contact: '', pdfFilename: ''})
       }
     }
+    let errors = this.data.filter( (e) => e.event.hasRoyaltyErrors)
+    for (let index = 0; index < errors.length; index++) {
+      this.addError(errors[index])
+    }
+    await super.getData(req, options)
+    return this.data
   }
 
+  addError(line) {
+    if (!this.hasErrors()) {
+      this.errors.schema = [
+        {column: 'Event', type: String, width: 60, alignVertical: 'top', value: (contract) => contract.event },
+        {column: 'Error', type: String, width: 60, alignVertical: 'top', value: (contract) => contract.error },
+        {column: 'Artwork', type: String, width: 40, alignVertical: 'top', value: (contract) => contract.artwork},
+        {column: 'Artist', type: String, width: 40, alignVertical: 'top', value: (contract) => contract.artist},
+      ]
+    }
+    this.errors.data.push({
+      event: line.event.event, error:line.event.royaltyErrors ? line.event.royaltyErrors[0].message : 'unknown error', artist: line.event.agentInfo.name, artwork: line.event.artInfo.title
+    })
+  }
   async addInfoTab(req, options) {
     super.addInfoTab(req, options)
     this.info.data[0].value = this.title
@@ -91,7 +139,7 @@ class RoyaltyPerArtist extends ReportExcel {
 }
 
 
-class RoyaltyPerContract extends ReportExcel {
+class RoyaltyPerContract extends RoyaltyMongo {
 
   constructor(options) {
     super();
@@ -107,13 +155,18 @@ class RoyaltyPerContract extends ReportExcel {
   async getData(req, options) {
     let qry = new QueryRoyalties(req);
     let contracts = await qry.royaltyPeriod(req, options);
+    if (options.hasOwnProperty('returnData') && options.returnData === false) {
+      return contracts
+    }
     for (let contactIndex = 0; contactIndex < contracts.length; contactIndex++) {
       let c = contracts[contactIndex]
-      this.data.push({code: c.code, total: c.total, event: c.event, royalties: c.royalties, artwork: c.artworks[0], errors: c.artworks[0].royaltyErrors})
+      this.data.push({code: c.code, total: c.total, event: c.event, royalties: c.royalties, artwork: c.artworks[0], error: c.artworks[0].royaltyError ? c.artworks[0].royaltyError.message : null})
       for (let artIndex = 1; artIndex < c.artworks.length; artIndex++) {
-        this.data.push({code: '', total: null, event: null, royalties: null, artwork: c.artworks[artIndex], errors: c.artworks[artIndex].royaltyErrors})
+        this.data.push({code: '', total: null, event: null, royalties: null, artwork: c.artworks[artIndex], error: c.artworks[artIndex].royaltyError ? c.artworks[artIndex].royaltyError.message : null })
       }
     }
+//    await super.getData(req, options)
+    return contracts;
   }
 
   async addInfoTab(req, options) {
@@ -156,7 +209,7 @@ class RoyaltyPerContract extends ReportExcel {
       {column: 'Amount', type: Number, width: 10, alignVertical: 'top', format: '#,##0.00', value: (contract) => this._makeAmount(contract.total || 0)},
       {column: 'Perc', type: Number, width: 5, alignVertical: 'top', value: (contract) => contract.artwork.royaltyPercentage},
       {column: 'Royalty', type: Number, width: 10, alignVertical: 'top', format: '#,##0.00', value: (contract) => this._makeAmount(contract.artwork.royaltyAmount || 0)},
-      {column: 'Error', type: String, width: 10, alignVertical: 'top',  value: (contract) => contract.royaltyError} ,
+      {column: 'Error', type: String, width: 60, alignVertical: 'top',  value: (contract) => contract.error},
     ]
   }
 }
@@ -251,7 +304,7 @@ class RoyaltiesContactPdf extends Report {
 }
 
 
-class RoyaltiesContactIndex extends ReportExcel {
+class RoyaltiesContactIndex extends RoyaltyMongo {
 
   constructor(options) {
     super(options)
