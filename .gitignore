@@ -23,12 +23,13 @@ local.json
 /temp
 /_site
 /_site-save
+api/__node_modules
 
 /data/wiki-images
 _backup
 api/data/__mongo
 # Editor directories and files
-.idea
+workspace.xml
 .vscode
 *.suo
 *.ntvs*
