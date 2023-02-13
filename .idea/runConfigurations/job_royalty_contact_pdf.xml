@@ -1,0 +1,5 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="job royalty contact pdf" type="NodeJSConfigurationType" application-parameters="royalty:contact:pdf -y 2022  -r -z &quot;royalties.22.zip&quot; -i &quot;2022-0021&quot;" path-to-js-file="api/job.js" working-dir="$PROJECT_DIR$">
+    <method v="2" />
+  </configuration>
+</component>

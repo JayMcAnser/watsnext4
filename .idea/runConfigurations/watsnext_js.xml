@@ -1,0 +1,5 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="watsnext.js" type="NodeJSConfigurationType" application-parameters="royalties" nameIsGenerated="true" path-to-js-file="api/watsnext.js" working-dir="$PROJECT_DIR$">
+    <method v="2" />
+  </configuration>
+</component>

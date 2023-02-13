@@ -1,0 +1,5 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="job import wikipedia" type="NodeJSConfigurationType" application-parameters="import:wiki -f wikipedia/artist.csv -r -d" path-to-js-file="api/job.js" working-dir="$PROJECT_DIR$">
+    <method v="2" />
+  </configuration>
+</component>

@@ -1,0 +1,5 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="job generate abramovic" type="NodeJSConfigurationType" application-parameters="generate:wikipedia -d -i 4498" path-to-js-file="api/job.js" working-dir="$PROJECT_DIR$">
+    <method v="2" />
+  </configuration>
+</component>

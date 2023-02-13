@@ -1,0 +1,5 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="import all art" type="NodeJSConfigurationType" folderName="import" application-parameters="import:watsnext --parts art -r" path-to-js-file="api/job.js" working-dir="$PROJECT_DIR$">
+    <method v="2" />
+  </configuration>
+</component>
