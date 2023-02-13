@@ -264,6 +264,10 @@ class RoyaltiesContactPdf extends Report {
       let artist = this.data[index];
       let rpt = new ReportRoyaltArtist()
       await rpt.render(Path.join(this.directory, artist.pdfFilename), artist,{showDate: true})
+      if (options.xlsx) {
+        let xlsx = new ReportContactXlsx({directory: this.directory, filename: artist.pdfFilename, contact: artist})
+        await xlsx.execute(req, options)
+      }
     }
     if (!options.hasOwnProperty('index') || options.index) {
       // write the index file into the directory
@@ -303,6 +307,106 @@ class RoyaltiesContactPdf extends Report {
   }
 }
 
+
+class ReportContactXlsx extends ReportExcel {
+
+  constructor(options) {
+    super(options);
+    this.filename = Path.format({...Path.parse(this.filename), base: '', ext: '.xlsx'})
+    this.contact = options.contact
+  }
+  async addInfoTab(req, options) {
+    // nothing
+  }
+
+  _makeFullName(contact) {
+    let result = '';
+    if (contact.firstName) {
+      result += contact.firstName + ' '
+    }
+    if (contact.insertion) {
+      result += contact.insertion + ' '
+    }
+    if (contact.name) {
+      result += contact.name
+    }
+    return result
+  }
+  _locationString(location) {
+    if (!location.street) {
+      return ''
+    }
+    let result = location.street
+    if (location.number) {
+      result += ` ${location.number}`
+    }
+    result += '\n'
+    if (location.zipcode) {
+      result += `${location.zipcode} `
+    }
+    result += location.city
+    if (location.country && location.country !== 'Netherlands') {
+      result += '\n' + location.country
+    }
+    return result
+  }
+
+  _makeAmount(amount) {
+    if (amount === 0) {
+      return 0.00
+    } else {
+      return  amount / 100; // (amount.toFixed(0) / 100).toFixed(2) // +(Math.round((amount / 100) + "e+2")  + "e-2")
+    }
+  }
+
+  async init(req, options) {
+    await super.init(req, options);
+
+    this.schema = [
+      {column: '', type: String, width: 10, alignVertical: 'top', value: (line) => line.info},
+      {column: '', type: String, width: 10, alignVertical: 'top', value: (line) => line.event },
+      {column: '', type: String, width: 50, alignVertical: 'top', value: (line) => line.art},
+      {column: '', type: Number, width: 10, alignVertical: 'top', format: '#,##0.00', value: (line) => line.price},
+      {column: '', type: String, width: 10, alignVertical: 'top', align: 'right', value: (line) => line.percentage},
+      {column: '', type: Number, width: 10, alignVertical: 'top', format: '#,##0.00', value: (line) => line.total},
+    ]
+  }
+
+  getData(req, options) {
+    let c = this.contact
+    this.data = []
+    this.data.push({})
+    this.data.push({info: this._makeFullName(c.contact)})
+    if (c.contact.name === 'Werve') {
+      console.log('xxx')
+    }
+    let loc = c.contact.locations.find((x) => x.isDefault && x.usage === 'post') || {}
+    if (loc) {
+      this.data.push({info: this._locationString(loc)});
+    }
+    this.data.push({})
+    //this.data.push({event: 'Event', art: 'Artwork', price: 'Price', percentage: 'Perc', total: 'Total'})
+    let locId = '';
+    for (let evtIndex = 0; evtIndex < c.events.length; evtIndex++) {
+      let evt = c.events[evtIndex]
+      if (evt.locationId !== locId) {
+        this.data.push({event: evt.event});
+        locId = evt.locationId
+      }
+      this.data.push({
+        art: evt.artInfo.title,
+        price: this._makeAmount(evt.price),
+        // percentage: String(evt.royaltyAmount + ' / ' + evt.contactPercentage),
+        percentage: evt.royaltyPercentage + (evt.contactInfo.percentage != 100 ? `/${evt.contactInfo.percentage}` : '') + '%',
+        total: this._makeAmount(evt.payableAmount)})
+
+      if (evtIndex === c.events.length - 1 || locId != c.events[evtIndex + 1].locationId) {
+        this.data.push({})
+      }
+    }
+    this.data.push({percentage: 'Total', total: this._makeAmount(c.total)})
+  }
+}
 
 class RoyaltiesContactIndex extends RoyaltyMongo {
 
