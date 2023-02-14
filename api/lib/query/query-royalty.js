@@ -128,8 +128,8 @@ class QueryRoyalty extends QueryBuilder {
         const year = req.query.year;
         if (req.query.hasOwnProperty('quarter')) {
           const quarter = req.query.quarter;
-          config.startDate = Moment.utc(year + '-01-01').add(quarter, 'Q').format('YYYYMMDD');
-          config.endDate = Moment.utc(year + '-01-01').add(quarter + 1, 'Q').subtract(1, 'd').format('YYYYMMDD');
+          config.startDate = Moment.utc(year + '-01-01').add(quarter - 1, 'Q').format('YYYYMMDD');
+          config.endDate = Moment.utc(year + '-01-01').add(quarter, 'Q').subtract(1, 'd').format('YYYYMMDD');
         } else {
           config.startDate = year + '0101';
           config.endDate = Moment.utc(year + '-01-01').add(1, 'y').subtract(1, 'd').format('YYYYMMDD');
@@ -442,7 +442,7 @@ class QueryRoyalty extends QueryBuilder {
         }},
       {$addFields: {"artInfo": {$arrayElemAt: ["$artData",0]}}},
 // add the period to the artwork for later selecting
-      {$addFields: {"artInfo.royaltiesPeriod": "$agentInfo.royaltiesPeriod"}},
+      {$addFields: {"arInfo.royaltiesPeriod": "$agentInfo.royaltiesPeriod"}},
       {$unset: 'artData'},
 
 // -- load the contact
@@ -478,7 +478,7 @@ class QueryRoyalty extends QueryBuilder {
 // ----------------------------------------------------------------------------------
 // -- the filter for the matching
       if (options.royaltyType !== false) {
-        result.push({$match: {"artInfo.royaltiesPeriod": options.royaltyType}})
+        result.push({$match: {"agentInfo.royaltiesPeriod": options.royaltyType}})
       }
 
 // ----------------------------------------------------------------------------------

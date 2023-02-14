@@ -68,7 +68,11 @@ const sayImport = () => {
   say('  --xlsx also generate the xslx file per contact')
   say('  -z {filename} zips all generated files to this zip file')
   say('');
-
+  say('royalty:type');
+  say(' change the royalty type for an agent')
+  say('  -i {number} the artist number')
+  say('  -t {number between 0 and 2} the royalty type (0 year, 1 quarter')
+  say('')
   say('examples')
   say('  node job import:watnext --parts contact -r -c 1000     => reimport all contacts')
 
@@ -101,6 +105,7 @@ const optionDefinitions = [
   { name: 'royaltyType', type: Number},
   { name: 'zip', alias: 'z', type: String},
   { name: 'xlsx', type: Boolean},
+  { name: 'type', type: Number},
 //   { name: 'env', alias: 'e', type: String},
 ]
 const commandLineArgs = require('command-line-args')
@@ -120,7 +125,7 @@ if (options.help || !options.job || typeof options.job !== 'string') {
 
 const util = require('util')
 const {jobImportWatsNext: jobWatsNextImport} = require("./jobs/import-watsnext");
-const {jobRoyaltyContact, jobRoyaltyContract} = require("./jobs/royalties-per-contact");
+const {jobRoyaltyContact, jobRoyaltyContract, jobRoyaltyContactPdf} = require("./jobs/royalties-per-contact");
 
 switch (options.job) {
   case 'generate:wikipedia':
@@ -213,7 +218,7 @@ switch (options.job) {
     })
     break;
   }
-  case 'royalty:contract': {
+  case 'royalty:contract':
     const jobRoyaltyContract = require('./jobs/royalties-per-contact').jobRoyaltyContract
     util.promisify(jobRoyaltyContract);
     LoggingServer.info('royalty:contract').then(() => {
@@ -232,8 +237,8 @@ switch (options.job) {
       })
     })
     break;
-  }
-  case 'royalty:contact:pdf': {
+
+  case 'royalty:contact:pdf':
     const jobRoyaltyContactPdf = require('./jobs/royalties-per-contact').jobRoyaltiesContactPdf
     util.promisify(jobRoyaltyContactPdf)
 
@@ -253,7 +258,15 @@ switch (options.job) {
       })
     })
     break;
-  }
+
+  case 'royalty:type':
+    let change = require('./jobs/royalty-type').jobRoyaltyType
+    LoggingServer.info('royalty:type').then(() => {
+      change(Object.assign({}, options)).then(async (result) => {
+        say(result)
+      })
+    })
+    break;
 
   default:
     sayError(`unknown job: "${options.job}"`)

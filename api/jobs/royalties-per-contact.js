@@ -5,9 +5,9 @@
  */
 
 
-const RoyaltiesContact = require('../reports/royalties-contact').RoyaltiesContact
-const RoyaltiesContract = require('../reports/royalties-contact').RoyaltiesContract
-const RoyaltiesContactPdf = require('../reports/royalties-contact-pdf')
+// const RoyaltiesContact = require('../reports/royalties-contact').RoyaltiesContact
+//const RoyaltiesContract = require('../reports/royalties-contact').RoyaltiesContract
+// const RoyaltiesContactPdf = require('../reports/royalties-contact-pdf')
 const RoyaltiesPerArtist = require('../reports/royalties').RoyaltyPerArtist
 const RoyaltiesPerContract = require('../reports/royalties').RoyaltyPerContract
 const Royalty = require('../reports/royalties')

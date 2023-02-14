@@ -113,7 +113,7 @@ class RoyaltyPerArtist extends RoyaltyMongo {
 
   async init(req, options) {
     await super.init(req, options);
-    this.filename = options.filename ||  `${req.query.year}${req.query.hasOwnProperty('quarter') ? '-' + req.query.quarter + 1 : ''}-${this.title}.xlsx`
+    this.filename = options.filename ||  `${req.query.year}${req.query.hasOwnProperty('quarter') ? ('-q' + (req.query.quarter)) : ''}-${this.title}.xlsx`
 
     this.schema = [
       {column: 'Contact', type: String, width: 50, alignVertical: 'top', value: (contact) => contact.contact.name},
@@ -127,8 +127,8 @@ class RoyaltyPerArtist extends RoyaltyMongo {
           }
           return ''
         }},
-      {column: 'Event', type: String, width: 10, alignVertical: 'top', value: (line) => line.event.event },
-      {column: 'Artwork', type: String, width: 50, alignVertical: 'top', value: (line) => line.event.artInfo.title},
+      {column: 'Event', type: String, width: 30, alignVertical: 'top', value: (line) => line.event.event },
+      {column: 'Artwork', type: String, width: 30, alignVertical: 'top', value: (line) => line.event.artInfo.title},
       {column: 'Price', type: Number, width: 10, alignVertical: 'top', format: '#,##0.00', value: (line) => this._makeAmount(line.event.price || 0)},
       {column: 'Perc artist', type: Number, width: 10, alignVertical: 'top', value: (line) => line.event.royaltyPercentage},
       {column: 'Perc contact', type: Number, width: 10, alignVertical: 'top', value: (line) => line.event.contactPercentage},
@@ -200,12 +200,13 @@ class RoyaltyPerContract extends RoyaltyMongo {
 
   async init(req, options) {
     await super.init(req, options);
-    this.filename = options.filename ||  `${req.query.year}${req.query.hasOwnProperty('quarter') ? '-' + req.query.quarter + 1 : ''}-${this.title}.xlsx`
+    this.filename = options.filename ||  `${req.query.year}${req.query.hasOwnProperty('quarter') ? ('-q' + (req.query.quarter + 1)) : ''}-${this.title}.xlsx`
 
     this.schema = [
       {column: 'Code', type: String, width: 10, alignVertical: 'top', value: (contract) => contract.code},
       {column: 'Event', type: String, width: 60, alignVertical: 'top', value: (contract) => contract.event },
       {column: 'Artwork', type: String, width: 40, alignVertical: 'top', value: (contract) => contract.artwork.artInfo.title},
+      {column: 'Artist', type: String, width: 40, alignVertical: 'top', value: (contract) => contract.artwork.agentInfo.name },
       {column: 'Amount', type: Number, width: 10, alignVertical: 'top', format: '#,##0.00', value: (contract) => this._makeAmount(contract.total || 0)},
       {column: 'Perc', type: Number, width: 5, alignVertical: 'top', value: (contract) => contract.artwork.royaltyPercentage},
       {column: 'Royalty', type: Number, width: 10, alignVertical: 'top', format: '#,##0.00', value: (contract) => this._makeAmount(contract.artwork.royaltyAmount || 0)},
@@ -252,7 +253,7 @@ class RoyaltiesContactPdf extends Report {
   /**
    *
    * @param req
-   * @param options {index}
+   * @param options {index, xlsx, showDate}
    * @returns {Promise<void>}
    */
   async processData(req, options) {
@@ -263,7 +264,7 @@ class RoyaltiesContactPdf extends Report {
     for (let index = 0; index < this.data.length; index ++) {
       let artist = this.data[index];
       let rpt = new ReportRoyaltArtist()
-      await rpt.render(Path.join(this.directory, artist.pdfFilename), artist,{showDate: true})
+      await rpt.render(Path.join(this.directory, artist.pdfFilename), artist,{showDate: false})
       if (options.xlsx) {
         let xlsx = new ReportContactXlsx({directory: this.directory, filename: artist.pdfFilename, contact: artist})
         await xlsx.execute(req, options)
@@ -412,7 +413,7 @@ class RoyaltiesContactIndex extends RoyaltyMongo {
 
   constructor(options) {
     super(options)
-    this.filename = (options.filename || 'contact.index') + '.xlsx'
+    this.filename = (options.filename || '_index') + '.xlsx'
     this.label = 'Contacts'
   }
 

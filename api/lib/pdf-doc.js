@@ -150,7 +150,7 @@ class PdfDoc extends PdfBasic {
 
   async docHeader(pdf) {
     let contact = this._makeFullName(pdf.data.contact)
-    let lima = 'LIMA\nArie Biemondstraat 111\n1054 PD Amsterdam\nNetherlands'
+    let lima = 'LIMA\nArie Biemondstraat 111\n1054 PD Amsterdam\nNetherlands\nVAT: NL852191005B01\nCompany registration number: 56569254'
 
     let pageWidth = pdf.page.width - pdf.page.margins.left - pdf.page.margins.right
     let mid = pdf.page.margins.left + (pageWidth / 2)
@@ -158,11 +158,13 @@ class PdfDoc extends PdfBasic {
     pdf
       .text(contact, pdf.page.margins.left, top, {width: mid})
       .text(lima, mid, top, {width: mid})
+      .text('', pdf.page.margins.left)
     if (pdf.reportOptions.showDate) {
       pdf
-        .text(`Amsterdam, ${Moment().format('d MMMM YYYY')}`, this.report.page.margins.left, 230)
-        .moveDown(2)
+        .text(`Amsterdam, ${Moment().format('D MMMM YYYY')}`, this.report.page.margins.left)
+      //  .moveDown(2)
     }
+    pdf.moveDown(2)
   }
 }
 

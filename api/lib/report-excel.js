@@ -81,7 +81,10 @@ class ReportExcel extends Report{
       this.info.data.push({label: 'Year', value: String(req.query.year)})
     }
     if (req.query.quarter) {
-      this.info.data.push({label: 'Quarter', value: String(req.query.quarter + 1)})
+      this.info.data.push({label: 'Quarter', value: String(req.query.quarter)})
+    }
+    if (req.query.hasOwnProperty('royaltyType')) {
+      this.info.data.push({label: 'Royalty type', value: ['Yearly', 'Quarterly', 'Monthly'][req.query.royaltyType % 3]})
     }
     if (req.query.recalc) {
       this.info.data.push({label: 'Recalc', value: req.query.recalc ? 'Yes' : 'No'})
