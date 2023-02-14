@@ -200,8 +200,11 @@ class RoyaltyPerContract extends RoyaltyMongo {
 
   async init(req, options) {
     await super.init(req, options);
-    this.filename = options.filename ||  `${req.query.year}${req.query.hasOwnProperty('quarter') ? ('-q' + (req.query.quarter + 1)) : ''}-${this.title}.xlsx`
-
+    this.filename = options.filename ||  `${req.query.year}${req.query.hasOwnProperty('quarter') ? ('-q' + (req.query.quarter)) : ''}-${this.title}`
+    if (req.query.hasOwnProperty('royaltyType')) {
+      this.filename += ['-year', '-quarter', '-month'][req.query.royaltyType % 3]
+    }
+    this.filename += '.xlsx'
     this.schema = [
       {column: 'Code', type: String, width: 10, alignVertical: 'top', value: (contract) => contract.code},
       {column: 'Event', type: String, width: 60, alignVertical: 'top', value: (contract) => contract.event },

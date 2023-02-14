@@ -477,7 +477,7 @@ class QueryRoyalty extends QueryBuilder {
       {$sort: {"code": 1}}];
 // ----------------------------------------------------------------------------------
 // -- the filter for the matching
-      if (options.royaltyType !== false) {
+      if (options.royaltyType !== undefined) {
         result.push({$match: {"agentInfo.royaltiesPeriod": options.royaltyType}})
       }
 
@@ -569,7 +569,7 @@ class QueryRoyalty extends QueryBuilder {
     if (req.query.hasOwnProperty('recalc') && req.query.recalc) {
       let errors = await this._recalcSelectedRecords(a);
     }
-    let source = [
+    a = a.concat([
       {
         "$unwind": "$lines"
       },
@@ -590,7 +590,13 @@ class QueryRoyalty extends QueryBuilder {
             ]
           }
         }
-      },
+      }]);
+    // ----------------------------------------------------------------------------------
+// -- the filter for the matching
+    if (options.royaltyType !== undefined) {
+      a = a.concat([{"$match": {"agentInfo.royaltiesPeriod": options.royaltyType}}])
+    }
+    a = a.concat([
       {
         "$unset": [
           "agentData"
@@ -646,10 +652,9 @@ class QueryRoyalty extends QueryBuilder {
         "$sort": {
           "code": 1
         }
-      }
+      }])
 
-        ]
-    a = a.concat(source)
+
 
     if (options.hasOwnProperty('returnData') && ! options.returnData ) {
       return a;

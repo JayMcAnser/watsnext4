@@ -34,6 +34,14 @@ let ArtSchema = new Schema({
   }]
 });
 
+const CarrierExtendLayout = {
+  artId: String,  // first field is always the ID field
+  newInfo: String,
+  isMediakunst: Boolean, // set to true if part of mediakunst
+  mediakunstId: String,  // the link on mediakunst
+  mediakunstDate: Date,
+}
+
 /**
  * carrier record
  */
@@ -79,7 +87,9 @@ const CarrierLayout = {
 };
 
 let CarrierSchema = new Schema(CarrierLayout);
+ModelHelper.upgradeBuilder('CarrierExtra', CarrierSchema, CarrierExtendLayout);
 CarrierSchema.plugin(UndoHelper.plugin);
+
 
 /**
  * sh

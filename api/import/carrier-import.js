@@ -150,6 +150,7 @@ class CarrierImport {
         dataRec['noArt'] = true;
       }
       Object.assign(carrier, dataRec);
+      await carrier.reSync()
       carrier = await carrier.save();
       this._logging.log('info', `carrier[${record.carrier_ID}]: imported`)
     } catch (e) {

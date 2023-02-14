@@ -121,6 +121,10 @@ class AgentImport {
     try {
       // should also import the agent
       agent = Agent.create(this.session, dataRec);
+      if ( dataRec.agentId === "4498") {
+        console.log("FFFF")
+      }
+      await agent.reSync()
       agent = await agent.save();
       this._logging.log('info', `agent[${record.agent_ID}]: imported`)
     } catch (e) {

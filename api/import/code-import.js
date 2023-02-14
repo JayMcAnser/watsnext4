@@ -74,6 +74,7 @@ class CodeImport {
     }
     try {
       code = Code.create(this.session, dataRec);
+      await code.reSync()
       code = await code.save();
     } catch (e) {
       Logging.error(`error importing code[${record.code_ID}]: ${e.message}`)
