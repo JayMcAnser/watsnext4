@@ -48,23 +48,43 @@ const _optionsToReq = (options)  => {
   return req;
 }
 
+const _doRepeat = async (report, options) => {
+  let opt = Object.assign({}, options, {royaltyType: 0})
+  let result = await report.execute(_optionsToReq(opt), opt)
+  let filename =[result.filename]
+  opt = Object.assign({}, options, {royaltyType: 1})
+  report.data = []
+  result = await report.execute(_optionsToReq(opt), opt)
+  filename.push(result.filename)
+  opt = Object.assign({}, options)
+  delete opt.royaltyType
+  report.data = []
+  result = await report.execute(_optionsToReq(opt), opt)
+  filename.push(result.filename)
+  return ({ filename: filename.join('\n') })
+}
+
 const jobRoyaltyContact = async (options= {}) => {
   await init();
 
-  // let report = new RoyaltiesContact();
-  // return await report.execute(_optionsToReq(options))
-  let report = new RoyaltiesPerArtist(options)
-  return await report.execute(_optionsToReq(options), options)
+  if (options.all) {
+    return await _doRepeat(new RoyaltiesPerArtist(options), options)
+  } else {
+    let report = new RoyaltiesPerArtist(options)
+    return await report.execute(_optionsToReq(options), options)
+  }
   // return true;
 }
 
 const jobRoyaltyContract = async(options = {} ) => {
   await init();
 
-  // let report = new RoyaltiesContract();
-  // return await report.execute(_optionsToReq(options))
-  let report = new RoyaltiesPerContract(options);
-  return await report.execute(_optionsToReq(options), options)
+  if (options.all) {
+   return _doRepeat(new RoyaltiesPerContract(options), options)
+  } else {
+    let report = new RoyaltiesPerContract(options);
+    return await report.execute(_optionsToReq(options), options)
+  }
 }
 
 const debug = (msg) => {

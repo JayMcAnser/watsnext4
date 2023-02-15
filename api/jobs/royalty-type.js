@@ -32,17 +32,26 @@ async function init() {
 const jobRoyaltyType = async (options= {}) => {
   await init();
   let req = _optionsToReq(options);
-
-  let artists = await Artist.find({agentId: String(req.query.artist)})
-  if (!artists.length) {
-    console.log(`artist ${req.query.artist} was not found`)
-    return;
+  let ids = String(req.query.artist);
+  if (ids.indexOf(',') > 0) {
+    ids = ids.split(',')
+  } else {
+    ids = [ids]
   }
-  let artist = artists[0]
   let type = Number(req.query.type) % 3;
-  artist.royaltiesPeriod = type;
-  await artist.save();
-  return `change ${artist.name} to type: ${artist.royaltiesPeriod} (${['Yearly','Quarterly', 'Monthly'][artist.royaltiesPeriod % 3]})`
+  let names = []
+  for (let index = 0; index < ids.length; index++) {
+    let artists = await Artist.find({agentId: String(ids[index])})
+    if (!artists.length) {
+      console.log(`artist ${ids[index]} was not found`)
+      continue
+    }
+    let artist = artists[0]
+    artist.royaltiesPeriod = type;
+    await artist.save();
+    names.push(artist.name)
+  }
+  return `change ${names.join(', ')} to type: ${type} (${['Yearly','Quarterly', 'Monthly'][type]})`
 }
 
 module.exports = {

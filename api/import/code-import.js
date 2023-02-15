@@ -38,6 +38,7 @@ class CodeImport {
     this.session = options.session;
     this._limit = options.limit !== undefined ? options.limit : 0;
     this._step = this._limit < STEP ? this._limit : STEP;
+    this._logging = options.logging ? options.logging : Logging
   }
 
   /**
@@ -74,10 +75,9 @@ class CodeImport {
     }
     try {
       code = Code.create(this.session, dataRec);
-      await code.reSync()
       code = await code.save();
     } catch (e) {
-      Logging.error(`error importing code[${record.code_ID}]: ${e.message}`)
+      this._logging('error', `error importing code[${record.code_ID}]: ${e.message}`)
     }
     return code;
   }

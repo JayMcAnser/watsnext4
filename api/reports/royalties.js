@@ -113,8 +113,11 @@ class RoyaltyPerArtist extends RoyaltyMongo {
 
   async init(req, options) {
     await super.init(req, options);
-    this.filename = options.filename ||  `${req.query.year}${req.query.hasOwnProperty('quarter') ? ('-q' + (req.query.quarter)) : ''}-${this.title}.xlsx`
-
+    this.filename = options.filename ||  `${req.query.year}${req.query.hasOwnProperty('quarter') ? ('-q' + (req.query.quarter)) : ''}-${this.title}`
+    if (req.query.hasOwnProperty('royaltyType')) {
+      this.filename += ['-year', '-quarter', '-month'][req.query.royaltyType % 3]
+    }
+    this.filename += '.xlsx'
     this.schema = [
       {column: 'Contact', type: String, width: 50, alignVertical: 'top', value: (contact) => contact.contact.name},
       {column: 'Email', type: String, width: 25, alignVertical: 'top', value: (contact) => {
@@ -436,7 +439,7 @@ class RoyaltiesContactIndex extends RoyaltyMongo {
       this.info.data.push({label: 'Year', value: String(req.query.year)})
     }
     if (req.query.quarter) {
-      this.info.data.push({label: 'Quarter', value: String(req.query.quarter + 1)})
+      this.info.data.push({label: 'Quarter', value: String(req.query.quarter)})
     }
     if (req.query.recalc) {
       this.info.data.push({label: 'Recalc', value: req.query.recalc ? 'Yes' : 'No'})

@@ -15,6 +15,7 @@
     "password": "123456"
   },
   "LoggingServer": {
-    "url": "https://services.li-ma.nl/beta/logs/"
+    "url": "https://services.li-ma.nl/beta/logs/",
+    "urlXX": "https://services.li-ma.nl/logs/"
   }
 }

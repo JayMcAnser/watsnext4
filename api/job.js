@@ -106,6 +106,7 @@ const optionDefinitions = [
   { name: 'zip', alias: 'z', type: String},
   { name: 'xlsx', type: Boolean},
   { name: 'type', type: Number},
+  { name: 'all', type: Boolean},
 //   { name: 'env', alias: 'e', type: String},
 ]
 const commandLineArgs = require('command-line-args')
@@ -261,8 +262,8 @@ switch (options.job) {
 
   case 'royalty:type':
     let change = require('./jobs/royalty-type').jobRoyaltyType
-    LoggingServer.info('royalty:type').then(() => {
-      change(Object.assign({}, options)).then(async (result) => {
+    LoggingServer.info('royalty:type').then(async () => {
+      await change(Object.assign({}, options)).then(async (result) => {
         say(result)
       })
     })

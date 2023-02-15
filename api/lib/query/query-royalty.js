@@ -433,7 +433,11 @@ class QueryRoyalty extends QueryBuilder {
         }},
       {$addFields: {"agentInfo": {$arrayElemAt: ["$agentData",0]}}},
       {$unset: 'agentData'},
-
+    ];
+    if (options.royaltyType !== undefined) {
+      result.push({"$match": {"agentInfo.royaltiesPeriod": options.royaltyType}})
+    }
+    result = result.concat([
       {$lookup: {
           "from": "arts",
           "localField": "art",
@@ -474,7 +478,7 @@ class QueryRoyalty extends QueryBuilder {
       {$unset: "contact"},
 // -- sort on event order
 //-- should order on logical code      {$sort: {"eventStartDate": 1}}];
-      {$sort: {"code": 1}}];
+      {$sort: {"code": 1}}]);
 // ----------------------------------------------------------------------------------
 // -- the filter for the matching
       if (options.royaltyType !== undefined) {
