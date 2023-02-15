@@ -1,0 +1,5 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="job royalty artist year" type="NodeJSConfigurationType" application-parameters="royalty:type -i 3,2223,4498,17205 --type 1" path-to-js-file="api/job.js" working-dir="$PROJECT_DIR$">
+    <method v="2" />
+  </configuration>
+</component>
