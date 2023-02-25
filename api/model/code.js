@@ -1,5 +1,5 @@
 /**
- * Group access to the API
+ * Code access to the API
  *
  *  version 0.1.2 2020-04-28 _jay_
  *   0.2 _jay_ 2020-05-13

@@ -3,6 +3,7 @@
 
 const DbMySQL = require('../lib/db-mysql');
 const Art = require('../model/art');
+const Cluster = require('../model/cluster')
 const Logging = require('../vendors/lib/logging');
 const CodeImport = require('./code-import');
 const AgentImport = require('../import/agent-import');
@@ -16,7 +17,7 @@ const ROLE_CREATOR = require('../model/art').ROLE_CREATOR;
 const ROLE_CONTRIBUTOR = require('../model/art').ROLE_CONTRIBUTOR;
 const ROLE_SUBJECT = require('../model/art').ROLE_SUBJECT;
 
-// left: Mongo, right: Mysql
+const COLLECTION_ID = "1011"
 
 
 const FieldMap = {
@@ -122,6 +123,27 @@ class ArtImport {
   }
 
   /**
+   * checks if the cluster is registered and returns the guid of ti
+   * @param code
+   * @returns {Promise<void>}
+   * @private
+   */
+  async _clusterImport(code) {
+    let col = await Cluster.findOne({codeId: Number(code.codeId)})
+    if (!col) {
+       let dataRec = {
+         codeId: Number(code.codeId),
+         text: code.text,
+         textNl: code.textNl,
+         description: code.description,
+         short: code.short
+       }
+       col = Cluster.create(this.session, dataRec)
+       await col.save()
+    }
+    return col;
+  }
+  /**
    * internal converting a record
    *
    * @param record
@@ -132,6 +154,7 @@ class ArtImport {
    */
   async _convertRecord(con, record, options = {}) {
     let dataRec = {};
+    let clusters = [];
     let art = await Art.queryOne(this.session,{artId: record.art_ID});
     if (art) {
       if (options.refresh) {
@@ -166,10 +189,14 @@ class ArtImport {
     for (let codeIndex = 0; codeIndex < qry.length; codeIndex++) {
       let code = await this._codeImport.runOnData(qry[codeIndex], {loadSql: true})
       if (code) {
-        if (dataRec.codes === undefined) {
-          dataRec.codes = [code.id]
+        if (String(code.parentId) === COLLECTION_ID) {
+          clusters.push(await this._clusterImport(code));
         } else {
-          dataRec.codes.push(code.id)
+          if (dataRec.codes === undefined) {
+            dataRec.codes = [code.id]
+          } else {
+            dataRec.codes.push(code.id)
+          }
         }
       }
     }
@@ -178,6 +205,10 @@ class ArtImport {
     } else {
       Object.assign(art, dataRec)
     }
+    if (clusters.length) {
+      art.clusterAdd(clusters)
+    }
+
     // add the urls
     sql = `SELECT * FROM art_url WHERE art_ID=${record.art_ID}`;
     qry = await con.query(sql);
@@ -211,6 +242,7 @@ class ArtImport {
     } catch (e) {
        this._logging.log('error', `art[${record.art_ID}]: ${e.message}`)
     }
+
 
     return art;
   }

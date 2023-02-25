@@ -1,6 +1,7 @@
 /**
  * A  art model
  * v: 0.2 2020-05-06
+ * v: 0.3 2023-02-24 @jay: added collection info
  *
  * Agent rules:
  *   - agentAdd(agent | data.agent), agentUpdate(index | ObjectId, data), agentRemove(index| ObjectId)
@@ -45,6 +46,15 @@ const ArtistSchema = new Schema({
   comments: String
 });
 
+
+const ClusterSchema = new Schema( {
+  cluster: {
+    type: Schema.ObjectId,
+    ref: 'Cluster'
+  },
+  key: String
+})
+
 const ArtExtendLayout = {
   artId: String,  // first field is always the ID field
   newInfo: String,
@@ -85,6 +95,10 @@ const ArtLayout = Object.assign({
     default: 100
   },
   royaltiesError: String,
+
+  clusters: [
+    ClusterSchema
+  ],
 
   codes: [{
     type: Schema.ObjectId,
@@ -284,7 +298,33 @@ ArtSchema.methods.agentAdd = function(data) {
     this.setRoyalties(this.agents);
   }
 };
-
+/**
+ * add a cluster, makes sure it's not already there
+ * @param cluster Object or Array
+ */
+ArtSchema.methods.clusterAdd = function(clusters) {
+  if (!Array.isArray(clusters)) {
+    clusters = [clusters]
+  }
+  for (let clusterIndex = 0; clusterIndex < clusters.length; clusterIndex++) {
+    if (clusters[clusterIndex]) {
+      let cluster = clusters[clusterIndex]
+      if (!this.clusters) {
+        this.clusters = [{cluster: cluster._id, key: cluster.short}]
+      } else {
+        let index;
+        for (index = 0; index < this.clusters.length; index++) {
+          if (this.clusters[index].cluster.toString() === cluster._id.toString()) {
+            continue
+          }
+        }
+        if (index === this.clusters.length) {
+          this.clusters.push({cluster: cluster._id, key: cluster.short})
+        }
+      }
+    }
+  }
+}
 /**
  * update an agent record
  *
